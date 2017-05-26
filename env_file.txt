@@ -1,0 +1,14 @@
+// Example of required environment variables
+// Create .env file and enter correct values
+// It is also necessary to configure Heroku config variables
+
+DB_SERVER=ds.mlab.com:19220
+DB_DATABASE=prod
+DB_USER=mongouser
+DB_PWD=mongopwd
+
+SMTP_SERVER=smtp.fll.sk
+SMTP_USER=smtpUser
+SMTP_PWD=smtpPassword
+
+TZ=Europe/Bratislava
