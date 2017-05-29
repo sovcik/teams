@@ -11,14 +11,15 @@ const logger = require('morgan');               // logging
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 
-const auth = require('./lib/auth.js');
 const db = require('./lib/db.js');
+const auth = require('./lib/auth.js');
+
 
 // compile DB models
 require('./models');
 
 // create test seed
-db.testSeed(db.conn);
+db.testSeedUsers();
 
 const app = express();
 
