@@ -1,7 +1,7 @@
 extends layout
 
 block content
-    h1= title
+    h1 Signup
 
     form(action="/signup" method="post")
         div
@@ -11,4 +11,8 @@ block content
             label Password:
             input(type="password" name="password")
         div
-            input(type="submit" value="Log In")
+            label E-mail:
+            input(type="email" name="email")
+
+        div
+            input(type="submit" value="Signup")

@@ -1,4 +1,21 @@
 extends layout
 
 block content
-    h1 Welcome #{user}
+    h1 Profil používateľa:
+    div
+        h2 Detaily
+        p Login #{user.username}
+        p Plné meno #{user.fullName}
+        p e-mail #{user.email}
+    if coach
+        div
+            h2 Tímy, ktoré trénujem
+            each val in coachingTeams
+                div
+                    p= val
+
+    if memberTeams
+        div
+            h2 Tímy, kde som členom
+
+

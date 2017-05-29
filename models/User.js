@@ -1,27 +1,43 @@
 /*
     User entity - used for storing user profile and for user authentication
  */
-module.exports = function (connection) {
-    const mongoose = require('mongoose');
-    const statusPlugin = require('./plugins/status-plugin');
-    const Schema = mongoose.Schema;
-    mongoose.Promise = require('bluebird');
+const mongoose = require('mongoose');
+const statusPlugin = require('./plugins/status-plugin');
+const Schema = mongoose.Schema;
+mongoose.Promise = require('bluebird');
+const util = require('../lib/util');
 
-    const UserSchema = new Schema({
-        username: { type: String, required: true },
-        passwordHash: { type: String, required: true },
-        salt: { type: String, default: '' }
+const UserSchema = new Schema({
+    username: { type: String, required: true },
+    fullName: { type:String, required:true },
+    passwordHash: { type: String, required: true },
+    email: { type: String, required: true },
+    salt: { type: String, default: '' }
+});
+
+// helper function handling hash creation
+UserSchema.statics.addNew = function (username, email, password, callback) {
+    util.createPasswordHash(password, function(err, salt, hash){
+        if (err) return callback(err, this);
+        mongoose.models.User.create({
+            username:username,
+            email:email,
+            salt:salt,
+            passwordHash:hash,
+            fullName:username
+        }, function (err,usr){
+            if (err) return callback(err, usr);
+            return callback(null, usr);
+        });
+
     });
 
-    /*
-    UserSchema.pre('save', function (next) {
-        // TODO: add validations before saving
-
-        next();
-    });
-    */
-
-    UserSchema.plugin(statusPlugin);
-
-    return connection.model('User', UserSchema);
 };
+
+UserSchema.plugin(statusPlugin);
+
+// if there is no model in mongoose yet, let's create one
+// this has to be the last statement of this module
+if (!mongoose.models.User) {
+    mongoose.model('User', UserSchema);
+}

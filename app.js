@@ -14,9 +14,8 @@ const bodyParser = require('body-parser');
 const auth = require('./lib/auth.js');
 const db = require('./lib/db.js');
 
-// compile DB models for specified connection
-require('./models/User')(db.conn);
-require('./models/UserVerify')(db.conn);
+// compile DB models
+require('./models');
 
 // create test seed
 db.testSeed(db.conn);
@@ -46,6 +45,7 @@ app.use(auth.passport.session());
 app.use(auth.flash());
 
 // configure routes
-require('./config/routes')(app);
+require('./routes')(app);
+//require('./config/routes')(app, db.conn);
 
 module.exports = app;
