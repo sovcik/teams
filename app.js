@@ -15,13 +15,14 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 
 
-const db = require('./lib/db.js');
+const db = require('./lib/db/common.js');
+const dbSeed = require('./lib/db/seed.js');
 const auth = require('./lib/auth.js');
 const app = express();
 module.exports = app;
 
 // create test seed
-co(db.testSeed)
+co(dbSeed.testSeed)
     .then(function (res){
         // view engine setup
         app.set('views', path.join(__dirname, 'views'));

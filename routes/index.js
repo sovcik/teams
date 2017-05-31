@@ -3,6 +3,7 @@ module.exports = function(app){
     app.use('/profile', require('./rt-profile.js'));
     app.use('/login', require('./rt-login.js'));
     app.use('/signup', require('./rt-signup.js'));
+    app.use('/team', require('./rt-team.js'));
     app.get('/logout',
         function(req, res){
             req.logout();

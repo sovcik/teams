@@ -8,10 +8,11 @@ mongoose.Promise = require('bluebird');
 const util = require('../lib/util');
 
 const UserSchema = new Schema({
-    username: { type: String, required: true },
+    username: { type: String },
     fullName: { type:String, required:true },
-    passwordHash: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String },
+    dateOfBirth: {type:Date },
+    passwordHash: { type: String, default:'' },
     salt: { type: String, default: '' }
 });
 

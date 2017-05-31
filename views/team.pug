@@ -1,0 +1,51 @@
+extends includes/layout
+
+block content
+    style.
+        .mext {
+            padding: 20pt 20pt;
+        }
+
+    h1 Profil teamu
+    div(class='container-fluid mext')
+        h2 Detaily
+        div(class='row')
+            div(class='col-sm-2')
+                p Názov
+            div(class='col-sm-10')
+                p #{team.name}
+    div(class='container-fluid mext')
+        h2 Tréneri
+        div(id='coachList')
+    div(class='container-fluid mext')
+        h2 Členovia
+        div(id='memberList')
+        button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal") Pridať člena
+        div(id='newMemberModal' class='modal fade' role='dialog')
+            div(class='modal-dialog')
+                div(class='modal-content')
+                    div(class='modal-header')
+                        button(type='button', class='close' data-dismiss='modal') &times;
+                        h4 Zadaj detaily člena tímu
+                    div(class='modal-body')
+                        form(class='form-inline')
+                            div(id='newMemberName' class='form-group has-feedback')
+                                label(for='newMemberName') Celé meno
+                                input(type='text', placeholder='meno člena timu' name='newMamberName' class="input-lg form-control")
+                                span(class="glyphicon form-control-feedback")
+                            div(id='newMemberEmail' class='form-group has-feedback')
+                                label(for='newMemberEmail') Email
+                                input(type='email', placeholder='email člena timu' name='newMamberEmail' class="input-lg form-control")
+                                span(class="glyphicon form-control-feedback")
+                            div(id='newMemberDOB' class='form-group has-feedback')
+                                label(for='newMemberDOB') Dátum narodenia
+                                input(type='date', placeholder='dátum narodeniaemail člena timu' name='newMamberDOB' class="input-lg form-control")
+                                span(class="glyphicon form-control-feedback")
+                    div(class='modal-footer')
+                        div(class='row')
+                            div(class='col-sm-12')
+                                button(id='createMemberBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor člena
+                        div(class='row')
+                            div(class='col-sm-12')
+                                span(id="createStatus" class="text-warning")
+

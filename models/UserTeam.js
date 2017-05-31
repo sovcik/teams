@@ -8,7 +8,7 @@ const statusPlugin = require('./plugins/status-plugin');
 const UserTeamSchema = new mongoose.Schema({
     userId: { type: String, required: true },
     teamId: { type: String, required: true },
-    relType: { type: String, required: true }  // coach, member
+    role: { type: String, required: true }  // coach, member
 });
 
 UserTeamSchema.plugin(statusPlugin);
