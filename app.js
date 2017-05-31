@@ -1,9 +1,12 @@
+const co = require('co');
 const express = require('express');
 const session = require('express-session');     // express session management
 const path = require('path');
 
 const mongoose = require('mongoose');           // mongoDB object mapper
 mongoose.Promise = require('bluebird');         // mongoose promises are deprecated, replacing with bluebird
+// compile DB models
+require('./models');
 
 const env = require('dotenv').config();
 const favicon = require('serve-favicon');       // favicon
@@ -11,42 +14,42 @@ const logger = require('morgan');               // logging
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 
+
 const db = require('./lib/db.js');
 const auth = require('./lib/auth.js');
-
-
-// compile DB models
-require('./models');
+const app = express();
+module.exports = app;
 
 // create test seed
-db.testSeedUsers();
+co(db.testSeed)
+    .then(function (res){
+        // view engine setup
+        app.set('views', path.join(__dirname, 'views'));
+        app.set('view engine', 'pug');
 
-const app = express();
+        app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+        app.use(logger('dev'));
+        app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({ extended: false }));
+        app.use(cookieParser());
+        app.use(express.static(path.join(__dirname, 'public')));
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+        // connect authentication to database
+        auth.connect2DB(db.conn.model('User'), auth.passport);
 
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+        // configure nodejs session management
+        app.use(session({secret: '{secret}', name: 'session_id', saveUninitialized: true, resave: true}));
 
-// connect authentication to database
-auth.connect2DB(db.conn.model('User'), auth.passport);
+        // initialize passport authentication
+        app.use(auth.passport.initialize());
+        app.use(auth.passport.session());
+        app.use(auth.flash());
 
-// configure nodejs session management
-app.use(session({secret: '{secret}', name: 'session_id', saveUninitialized: true, resave: true}));
+        // configure routes
+        require('./routes')(app);
 
-// initialize passport authentication
-app.use(auth.passport.initialize());
-app.use(auth.passport.session());
-app.use(auth.flash());
+    }, function (err) {
+        console.log("Error ",err);
+    });
 
-// configure routes
-require('./routes')(app);
-//require('./config/routes')(app, db.conn);
 
-module.exports = app;
