@@ -10,10 +10,11 @@ function initProfile(){
 
 function loadCoachOfTeams(){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    console.log("Loading coach teams");
+    const coachId = $_GET('id');
+    console.log("Loading coach teams. Coach = ",coachId);
     const t = $("#coachTeamsList");
     t.empty();
-    $.post( "/profile", {cmd: 'getCoachTeams'}, function(res) {
+    $.post( "/profile", {cmd:'getCoachTeams', coachId:coachId }, function(res) {
         console.log("Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
@@ -40,22 +41,23 @@ function loadCoachOfTeams(){
 
 function loadMemberOfTeams(){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    console.log("Loading user's teams");
+    console.log("Loading user's teams is not implemented yet");
 }
 
 function createNewTeam(){
+    const coachId = $_GET('id');
     const selTeamNameGrp = $("#newTeamName");
     const selTeamName = $("#newTeamName > input:first");
     var selStatus = $("#teamCreateStatus");
     if (selTeamName.val().trim() != '') {
         console.log("Posting request to create new team");
-        $.post("/profile", {cmd: 'createTeam', name: selTeamName.val()}, function (res) {
+        $.post("/profile", {cmd: 'createTeam', name: selTeamName.val(), coachId:coachId}, function (res) {
             console.log("createTeam: Server returned",res);
             if (res.result == "ok") {
                 console.log("Team created");
                 selStatus.text('Tím vytvorený.');
                 selStatus.css("display", "inline").fadeOut(2000);
-                loadCoachOfTeams();
+                loadCoachOfTeams(coachId);
             } else {
                 console.log("Error while creating team");
                 selStatus.text('Nepodarilo sa vytvoriť tím.');
