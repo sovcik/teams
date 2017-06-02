@@ -42,3 +42,5 @@ UserSchema.plugin(statusPlugin);
 if (!mongoose.models.User) {
     mongoose.model('User', UserSchema);
 }
+
+module.exports = UserSchema;

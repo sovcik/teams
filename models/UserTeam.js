@@ -16,3 +16,5 @@ UserTeamSchema.plugin(statusPlugin);
 if (!mongoose.models.UserTeam) {
     mongoose.model('UserTeam', UserTeamSchema);
 }
+
+module.exports = UserTeamSchema;

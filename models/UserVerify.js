@@ -47,3 +47,5 @@ UserVerifySchema.statics.addNew = function (username, email, password, callback)
 if (!mongoose.models.UserVerify) {
     mongoose.model('UserVerify', UserVerifySchema);
 }
+
+module.exports = UserVerifySchema;
