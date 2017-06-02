@@ -1,56 +1,53 @@
 extends includes/layout
 
 block content
-    style.
-        .mext {
-            padding: 20pt 20pt;
-        }
+    h1 Profil používateľa
+    div(class="panel panel-primary")
+        div(class='panel-heading') Detaily
+        div(class='panel-body')
+            div(class='form-group')
+                label(for='loginName' class='col-sm-3') Prihlasovacie meno
+                input(id='loginName' class='col-sm-9 form-control' value=user.username readonly)
+            div(class='form-group')
+                label(for='fullName' class='col-sm-3') Celé meno
+                input(id='fullName' class='col-sm-9 form-control' value=user.fullName readonly)
+            div(class='form-group')
+                label(for='email' class='col-sm-3') e-mail
+                input(id='email' class='col-sm-9 form-control' value=user.email readonly)
 
-    h1 Profil používateľa:
-    div(class='container-fluid mext')
-        h2 Detaily
-        div(class='row')
-            div(class='col-sm-2')
-                p Prihlasovacie meno
-            div(class='col-sm-10')
-                p #{user.username}
-        div(class='row')
-            div(class='col-sm-2')
-                p Plné meno
-            div(class='col-sm-10')
-                #{user.fullName}
-        div(class='row')
-            div(class='col-sm-2')
-                p e-mail
-            div(class='col-sm-10')
-                p #{user.email}
     if coach
-        div(class='container-fluid mext')
-            h2 Tímy, ktoré trénujem
-            div(id='coachTeamsList')
-                p Žiadny
-            button(id='createTeam' type="button" class="btn btn-default" data-toggle="modal" data-target="#newTeamModal") Vytvor nový tím
-            div(id='newTeamModal' class='modal fade' role='dialog')
-                div(class='modal-dialog')
-                    div(class='modal-content')
-                        div(class='modal-header')
-                            button(type='button', class='close' data-dismiss='modal') &times;
-                            h4 Zadaj meno tímu
-                        div(class='modal-body')
-                            form(class='form-inline')
-                                div(id='newTeamName' class='form-group has-warning has-feedback')
-                                    input(id="newTeamName" type='text', placeholder='meno timu' name='newTeamName' class="input-lg form-control")
-                                    span(class="glyphicon form-control-feedback")
-                        div(class='modal-footer')
-                            div(class='row')
-                                div(class='col-sm-12')
-                                    button(id='createTeamBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor tím
-                            div(class='row')
-                                div(class='col-sm-12')
-                                    span(id="teamCreateStatus" class="text-warning")
+        div(class="panel panel-primary")
+            div(class='panel-heading') Tímy, ktoré trénujem
+            div(id='coachTeamsList' class='panel-body container-fluid')
+                div(class='panel col-sm-6')
+                    p Žiadny
+            div(class='panel-footer')
+                button(id='createTeam' type="button" class="btn btn-default" data-toggle="modal" data-target="#newTeamModal") Vytvor nový tím
+                div(id='newTeamModal' class='modal fade' role='dialog')
+                    div(class='modal-dialog')
+                        div(class='modal-content')
+                            div(class='modal-header')
+                                button(type='button', class='close' data-dismiss='modal') &times;
+                                h4 Zadaj meno tímu
+                            div(class='modal-body')
+                                div(id="newTeamForm" class='form-inline')
+                                    div(id='newTeamName' class='form-group has-warning has-feedback')
+                                        input(id="newTeamName" type='text', placeholder='meno timu' name='newTeamName' class="input-lg form-control")
+                                        span(class="glyphicon form-control-feedback")
+                            div(class='modal-footer')
+                                div(class='row')
+                                    div(class='col-sm-12')
+                                        button(id='createTeamBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor tím
+                                div(class='row')
+                                    div(class='col-sm-12')
+                                        span(id="teamCreateStatus" class="text-warning")
 
     if memberTeams
-        div(class='container-fluid mext')
-            h2 Tímy, kde som členom
+        div(class="panel panel-primary")
+            div(class='panel-heading') Tímy, v ktorých som členom
+            div(id='memberTeamsList' class='panel-body container-fluid')
+                div(class='panel col-sm-3')
+                    p Žiadny
+
     script.
         initProfile();

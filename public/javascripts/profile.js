@@ -21,7 +21,9 @@ function loadCoachOfTeams(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    var c = $('<div class="container-fluid" >').append($('<a href="'+site+'/team/?id='+item.id+'">').append(item.name));
+                    var c = $('<a href="'+site+'/team/?id='+item.id+'" class="btn btn-success btn-member" role="button">')
+                            .append(item.name);
+
                     t.append(c);
 
                 });

@@ -1,5 +1,10 @@
 doctype html
 html
-  include head
-  body
-    block content
+    include head
+    style.
+        .mainpnl {
+            max-width: 600pt;
+        }
+    body
+        div(class="mainpnl")
+            block content
