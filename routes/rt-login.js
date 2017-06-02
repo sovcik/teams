@@ -10,7 +10,7 @@ router.get('/', function (req, res, next) {
 
 router.post('/',
     auth.passport.authenticate('local', {
-        successReturnToOrRedirect: '/',
+        successReturnToOrRedirect: '/profile',
         failureRedirect: '/login',
         failureFlash: true
     })
