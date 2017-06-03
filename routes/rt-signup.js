@@ -19,11 +19,14 @@ router.get('/', function (req, res, next) {
 router.post('/', async function (req, res, next) {
     //const uv = new mongoose.model('UserVerify');
     //const username = req.body.email;
-    console.log(req);
 
     try {
         const s = await bcrypt.genSalt(1);
         const h = await bcrypt.hash(req.body.password, s);
+        const u = await User.findOneActive({email:req.body.email});
+
+        if (u) return res.render('error',{message:"Užívateľ už existuje", error:{}});
+
         const user = await User.create(
             {
                 username: req.body.email,
