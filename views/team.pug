@@ -28,31 +28,32 @@ block content
                     p Žiadny
         div(class='panel-footer')
             button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal") Pridať člena
-            div(id='newMemberModal' class='modal fade' role='dialog')
-                div(class='modal-dialog')
-                    div(class='modal-content')
-                        div(class='modal-header')
-                            button(type='button', class='close' data-dismiss='modal') &times;
-                            h4 Zadaj detaily člena tímu
-                        div(class='modal-body')
-                            div(id='newMemberName' class='form-group has-feedback')
-                                label(for='newMemberName' class="control-label") Celé meno
-                                input(type='text', placeholder='meno člena timu' name='newMemberName' class="input-lg form-control")
 
-                            div(id='newMemberEmail' class='form-group has-feedback')
-                                label(for='newMemberEmail' class="control-label") Email
-                                input(type='email', placeholder='email člena timu' name='newMemberEmail' class="input-lg form-control")
+    div(id='newMemberModal' class='modal fade' role='dialog')
+        div(class='modal-dialog')
+            div(class='modal-content')
+                div(class='modal-header')
+                    button(type='button', class='close' data-dismiss='modal') &times;
+                    h4 Zadaj detaily člena tímu
+                div(class='modal-body')
+                    div(id='newMemberName' class='form-group has-feedback')
+                        label(for='newMemberName' class="control-label") Celé meno
+                        input(type='text', placeholder='meno člena timu' name='newMemberName' class="input-lg form-control")
 
-                            div(id='newMemberDOB' class='form-group has-feedback')
-                                label(for='newMemberDOB' class="control-label") Dátum narodenia
-                                input(type='date', placeholder='dátum narodenia' name='newMemberDOB' class="input-lg form-control")
+                    div(id='newMemberEmail' class='form-group has-feedback')
+                        label(for='newMemberEmail' class="control-label") Email
+                        input(type='email', placeholder='email člena timu' name='newMemberEmail' class="input-lg form-control")
 
-                        div(class='modal-footer')
-                            div(class='row')
-                                div(class='col-sm-12')
-                                    button(id='createTeamMemberBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor člena
-                            div(class='row')
-                                div(class='col-sm-12')
-                                    span(id="createStatus" class="text-warning")
+                    div(id='newMemberDOB' class='form-group has-feedback')
+                        label(for='newMemberDOB' class="control-label") Dátum narodenia
+                        input(type='date', placeholder='dátum narodenia' name='newMemberDOB' class="input-lg form-control")
+
+                div(class='modal-footer')
+                    div(class='row')
+                        div(class='col-sm-12')
+                            button(id='createTeamMemberBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor člena
+                    div(class='row')
+                        div(class='col-sm-12')
+                            span(id="createStatus" class="text-warning")
         script.
             initTeam();
