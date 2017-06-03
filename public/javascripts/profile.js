@@ -10,7 +10,7 @@ function initProfile(){
 
 function loadCoachOfTeams(){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    const coachId = $_GET('id');
+    const coachId = urlGetParam('id');
     console.log("Loading coach teams. Coach = ",coachId);
     const t = $("#coachTeamsList");
     t.empty();
@@ -45,7 +45,7 @@ function loadMemberOfTeams(){
 }
 
 function createNewTeam(){
-    const coachId = $_GET('id');
+    const coachId = urlGetParam('id');
     const selTeamNameGrp = $("#newTeamName");
     const selTeamName = $("#newTeamName > input:first");
     var selStatus = $("#teamCreateStatus");
