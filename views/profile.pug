@@ -23,24 +23,6 @@ block content
                     p Žiadny
             div(class='panel-footer')
                 button(id='createTeam' type="button" class="btn btn-default" data-toggle="modal" data-target="#newTeamModal") Vytvor nový tím
-                div(id='newTeamModal' class='modal fade' role='dialog')
-                    div(class='modal-dialog')
-                        div(class='modal-content')
-                            div(class='modal-header')
-                                button(type='button', class='close' data-dismiss='modal') &times;
-                                h4 Zadaj meno tímu
-                            div(class='modal-body')
-                                div(id="newTeamForm" class='form-inline')
-                                    div(id='newTeamName' class='form-group has-warning has-feedback')
-                                        input(id="newTeamName" type='text', placeholder='meno timu' name='newTeamName' class="input-lg form-control")
-                                        span(class="glyphicon form-control-feedback")
-                            div(class='modal-footer')
-                                div(class='row')
-                                    div(class='col-sm-12')
-                                        button(id='createTeamBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor tím
-                                div(class='row')
-                                    div(class='col-sm-12')
-                                        span(id="teamCreateStatus" class="text-warning")
 
     if memberTeams
         div(class="panel panel-primary")
@@ -48,6 +30,26 @@ block content
             div(id='memberTeamsList' class='panel-body container-fluid')
                 div(class='panel col-sm-3')
                     p Žiadny
+
+    div(id='newTeamModal' class='modal fade' role='dialog')
+        div(class='modal-dialog')
+            div(class='modal-content')
+                div(class='modal-header')
+                    button(type='button', class='close' data-dismiss='modal') &times;
+                    h4 Zadaj meno tímu
+                div(class='modal-body')
+                    div(id="newTeamForm" class='form-inline')
+                        div(id='newTeamName' class='form-group has-warning has-feedback')
+                            input(type='text', placeholder='meno timu' name='newTeamName' class="input-lg form-control")
+                            span(class="glyphicon form-control-feedback")
+                div(class='modal-footer')
+                    div(class='row')
+                        div(class='col-sm-12')
+                            button(id='createTeamBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor tím
+                    div(class='row')
+                        div(class='col-sm-12')
+                            span(id="teamCreateStatus" class="text-warning")
+
 
     script.
         initProfile();

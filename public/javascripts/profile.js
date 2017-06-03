@@ -58,6 +58,7 @@ function createNewTeam(){
                 selStatus.text('Tím vytvorený.');
                 selStatus.css("display", "inline").fadeOut(2000);
                 loadCoachOfTeams(coachId);
+                selTeamName.val('');
             } else {
                 console.log("Error while creating team");
                 selStatus.text('Nepodarilo sa vytvoriť tím.');
