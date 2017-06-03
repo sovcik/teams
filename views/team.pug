@@ -1,6 +1,13 @@
 extends includes/layout
 
 block content
+    style.
+        .card {
+            margin-left: 5pt;
+            margin-bottom: 5pt;
+            max-width: 200pt;
+            float: left;
+        }
     h1 Profil tímu
     div(class="panel panel-primary")
         div(class='panel-heading') Detaily
@@ -15,9 +22,10 @@ block content
                 p Žiadny
     div(class="panel panel-primary")
         div(class='panel-heading') Členovia tímu
-        div(id='memberList' class='panel-body container-fluid')
-            div(class='panel col-sm-6')
-                p Žiadny
+        div(class='panel-body')
+            div(id='memberList' class='container-fluid')
+                div(class='panel')
+                    p Žiadny
         div(class='panel-footer')
             button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal") Pridať člena
             div(id='newMemberModal' class='modal fade' role='dialog')
@@ -29,9 +37,9 @@ block content
                         div(class='modal-body')
                             div(class='form-inline')
                                 div(id='newMemberName' class='form-group has-feedback')
-                                    label(for='newMemberName') Celé meno
-                                    input(type='text', placeholder='meno člena timu' name='newMamberName' class="input-lg form-control")
-                                    span(class="glyphicon form-control-feedback")
+                                    label(for='newMemberName' class="col-sm-5") Celé meno
+                                    input(type='text', placeholder='meno člena timu' name='newMamberName' class="input-lg form-control col-sm-6")
+                                    span(class="glyphicon form-control-feedback col-sm-1")
                                 div(id='newMemberEmail' class='form-group has-feedback')
                                     label(for='newMemberEmail') Email
                                     input(type='email', placeholder='email člena timu' name='newMamberEmail' class="input-lg form-control")
@@ -43,7 +51,9 @@ block content
                         div(class='modal-footer')
                             div(class='row')
                                 div(class='col-sm-12')
-                                    button(id='createMemberBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor člena
+                                    button(id='createTeamMemberBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor člena
                             div(class='row')
                                 div(class='col-sm-12')
                                     span(id="createStatus" class="text-warning")
+        script.
+            initTeam();
