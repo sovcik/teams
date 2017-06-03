@@ -1,18 +1,16 @@
 extends includes/layout
 
 block content
-    h1 Signup
-
-    form(action="/signup" method="post")
-        div
-            label Username:
-            input(type="text" name="username")
-        div
-            label Password:
-            input(type="password" name="password")
-        div
-            label E-mail:
-            input(type="email" name="email")
-
-        div
-            input(type="submit" value="Signup")
+    div
+        h1 Vytvorenie účtu
+        h4 Zadajte nové prihlasovacie údaje.
+    div
+        form(action="/signup" method="post")
+            div(class="form-group")
+                label(for='email') E-mail:
+                input(id="email" type='text', placeholder='email' name='email' class="form-control")
+            div(class="form-group")
+                label(for='password') Heslo:
+                input(id="password" type='password', placeholder='heslo' name='password' class="form-control")
+            div(class="form-group")
+                button(type="submit" class="btn btn-default") Vytvoriť
