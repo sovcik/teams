@@ -35,19 +35,18 @@ block content
                             button(type='button', class='close' data-dismiss='modal') &times;
                             h4 Zadaj detaily člena tímu
                         div(class='modal-body')
-                            div(class='form-inline')
-                                div(id='newMemberName' class='form-group has-feedback')
-                                    label(for='newMemberName' class="col-sm-5") Celé meno
-                                    input(type='text', placeholder='meno člena timu' name='newMamberName' class="input-lg form-control col-sm-6")
-                                    span(class="glyphicon form-control-feedback col-sm-1")
-                                div(id='newMemberEmail' class='form-group has-feedback')
-                                    label(for='newMemberEmail') Email
-                                    input(type='email', placeholder='email člena timu' name='newMamberEmail' class="input-lg form-control")
-                                    span(class="glyphicon form-control-feedback")
-                                div(id='newMemberDOB' class='form-group has-feedback')
-                                    label(for='newMemberDOB') Dátum narodenia
-                                    input(type='date', placeholder='dátum narodeniaemail člena timu' name='newMamberDOB' class="input-lg form-control")
-                                    span(class="glyphicon form-control-feedback")
+                            div(id='newMemberName' class='form-group has-feedback')
+                                label(for='newMemberName' class="control-label") Celé meno
+                                input(type='text', placeholder='meno člena timu' name='newMemberName' class="input-lg form-control")
+
+                            div(id='newMemberEmail' class='form-group has-feedback')
+                                label(for='newMemberEmail' class="control-label") Email
+                                input(type='email', placeholder='email člena timu' name='newMemberEmail' class="input-lg form-control")
+
+                            div(id='newMemberDOB' class='form-group has-feedback')
+                                label(for='newMemberDOB' class="control-label") Dátum narodenia
+                                input(type='date', placeholder='dátum narodenia' name='newMemberDOB' class="input-lg form-control")
+
                         div(class='modal-footer')
                             div(class='row')
                                 div(class='col-sm-12')
