@@ -21,7 +21,6 @@ router.post('/', async function (req, res, next) {
     //const uv = new mongoose.model('UserVerify');
     //const username = req.body.email;
 
-    console.log(req);
     const captcha_res = req.body['g-recaptcha-response'];
     const recapUrl = 'https://www.google.com/recaptcha/api/siteverify?'
         +'secret='+process.env.CAPTCHA_SECRET
@@ -36,10 +35,9 @@ router.post('/', async function (req, res, next) {
         json:true
     };
 
-    console.log(options);
-
     // Start the request
     const resp = await request(options);
+    
     console.log("CAPTCHA RESPONSE",resp);
     if (!resp.success){
         console.log('CAPTCHA ERROR',resp['error-codes']);
