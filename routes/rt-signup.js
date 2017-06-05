@@ -23,12 +23,16 @@ router.post('/', async function (req, res, next) {
 
     console.log(req);
     const captcha_res = req.body['g-recaptcha-response'];
+    const recapUrl = 'https://www.google.com/recaptcha/api/siteverify?'
+        +'secret='+process.env.CAPTCHA_SECRET
+        +'&response='+captcha_res
+        +'&remoteip='+req.connection.remoteAddress;
 
     // Configure the request
     var options = {
-        url: 'https://www.google.com/recaptcha/api/siteverify',
+        url: recapUrl,
         method: 'POST',
-        body: {'secret': process.env.CAPTCHA_SECRET, response:captcha_res, remoteip:req.connection.remoteAddress},
+        body: {},
         json:true
     };
 
