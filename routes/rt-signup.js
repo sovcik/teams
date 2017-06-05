@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const auth = require('../lib/auth.js');
 const router = express.Router();
+const request = require('request');
 
 const User = mongoose.models.User;
 
@@ -19,6 +20,31 @@ router.get('/', function (req, res, next) {
 router.post('/', async function (req, res, next) {
     //const uv = new mongoose.model('UserVerify');
     //const username = req.body.email;
+
+    console.log(req);
+    const captcha_res = req.body['g-recaptcha-response'];
+
+    var headers = {
+        'User-Agent':       'Super Agent/0.0.1',
+        'Content-Type':     'application/x-www-form-urlencoded'
+    };
+
+    // Configure the request
+    var options = {
+        url: 'https://www.google.com/recaptcha/api/siteverify',
+        method: 'POST',
+        headers: headers,
+        form: {'secret': process.env.CAPTCHA_SECRET, response:captcha_res, remoteip:req.connection.remoteAddress}
+    };
+
+    console.log(options);
+
+    // Start the request
+    const resp = await request(options);
+    if (!resp.success){
+        console.log('CAPTCHA ERROR',resp['error-codes']);
+        return res.render('error',{message:"Konto môže vytvoriť iba človek.", error:{}});
+    }
 
     try {
         const s = await bcrypt.genSalt(1);
