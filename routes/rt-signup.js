@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const auth = require('../lib/auth.js');
 const router = express.Router();
-const request = require('request');
+const request = require('request-promise');
 
 const User = mongoose.models.User;
 
@@ -28,7 +28,8 @@ router.post('/', async function (req, res, next) {
     var options = {
         url: 'https://www.google.com/recaptcha/api/siteverify',
         method: 'POST',
-        json: {'secret': process.env.CAPTCHA_SECRET, response:captcha_res, remoteip:req.connection.remoteAddress}
+        body: {'secret': process.env.CAPTCHA_SECRET, response:captcha_res, remoteip:req.connection.remoteAddress},
+        json:true
     };
 
     console.log(options);
