@@ -9,23 +9,110 @@ block content
             float: left;
         }
     h1 Profil tímu
+
     div(class="panel panel-primary")
         div(class='panel-heading') Detaily
         div(class='panel-body')
             div(class='form-group')
                 label(for='teamName' class='col-sm-3') Názov
                 input(id='teamName' class='col-sm-9 form-control' value=team.name readonly)
+        div(class='panel-footer')
+            div(class='form-group')
+                button(data-toggle="modal" data-target="#billingAddress" class="btn btn-default") Fakturačná adresa
+                button(data-toggle="modal" data-target="#shippingAddress" class="btn btn-default") Korešpondenčná adresa
+
+    div(id='billingAddress' class='modal fade' role='dialog')
+        div(class='modal-dialog')
+            div(class='modal-content')
+                div(class='modal-header')
+                    button(type='button', class='close' data-dismiss='modal') &times;
+                    h4 Fakturačná adresa
+                div(class='modal-body')
+                    div(class='form-group')
+                        label(for='billOrg') Organizácia
+                        input(id='billOrg' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billAdr1') Adresa riadok 1
+                        input(id='billAdr1' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billAdr2') Adresa riadok 2
+                        input(id='billAdr2' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billCity') Mesto
+                        input(id='billCity' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billPostCode') PSČ
+                        input(id='billPostCode' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billCompNo') IČO
+                        input(id='billCompNo' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billTaxNo') DIČ
+                        input(id='billTaxNo' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billContactName') Kontaktné osoba
+                        input(id='billContactName' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billContactPhone') Kontaktný telefón
+                        input(id='billContactPhone' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='billContactEmail') Kontaktný e-mail
+                        input(id='billContactEmail' type='text' class='form-control')
+                div(class='modal-footer')
+                    div(class='row')
+                        div(class='col-sm-12')
+                            span(id="saveBillingStatus" class="text-warning")
+                    button(id='saveBillingDetails' type='button' class='btn btn-default') Uložiť
+    div(id='shippingAddress' class='modal fade' role='dialog')
+        div(class='modal-dialog')
+            div(class='modal-content')
+                div(class='modal-header')
+                    button(type='button', class='close' data-dismiss='modal') &times;
+                    h4 Korešpondenčná adresa
+                div(class='modal-body')
+                    div(class='form-group')
+                        label(for='shipOrg') Organizácia
+                        input(id='shipOrg' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='shipAdr1') Adresa riadok 1
+                        input(id='shipAdr1' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='shipAdr2') Adresa riadok 2
+                        input(id='shipAdr2' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='shipCity') Mesto
+                        input(id='shipCity' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='shipPostCode') PSČ
+                        input(id='shipPostCode' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='shipContactName') Kontaktné osoba
+                        input(id='shipContactName' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='shipContactPhone') Kontaktný telefón
+                        input(id='shipContactPhone' type='text' class='form-control')
+                    div(class='form-group')
+                        label(for='shipContactEmail') Kontaktný e-mail
+                        input(id='shipContactEmail' type='text' class='form-control')
+                div(class='modal-footer')
+                    div(class='row')
+                        div(class='col-sm-12')
+                            span(id="saveShippingStatus" class="text-warning")
+                    button(id='saveShippingDetails' type='button' class='btn btn-default') Uložiť
+
     div(class="panel panel-primary")
         div(class='panel-heading') Tréneri
         div(id='coachList' class='panel-body container-fluid')
             div(class='panel col-sm-6')
                 p Žiadny
+
     div(class="panel panel-primary")
         div(class='panel-heading') Členovia tímu
         div(class='panel-body')
             div(id='memberList' class='container-fluid')
                 div(class='panel')
                     p Žiadny
+
         div(class='panel-footer')
             button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal") Pridať člena
 

@@ -41,21 +41,41 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         case 'getTeamCoaches':
             console.log('Going to get team coaches');
             const tc = await dbTeam.getTeamCoaches(req.user.id, req.body.id);
-            res.json({result:"ok", list:tc});
-            res.end();
+            r.result = "ok";
+            r.list = tc;
             break;
 
         case 'getTeamMembers':
             console.log('Going to get team members');
             const tm = await dbTeam.getTeamMembers(req.user.id, req.body.id);
-            res.json({result:"ok", list:tm});
-            res.end();
+            r.result = "ok";
+            r.list = tm;
+            break;
+
+        case 'getAdrDetails':
+            console.log('Going to get team address details');
+            const tad = await dbTeam.getTeamDetails(req.user.id, req.body.teamId);
+            r.result = "ok";
+            r.details = tad;
+            break;
+
+        case 'saveAdrDetails':
+            console.log('Going to save team address details');
+            try {
+                let doc = formatTeamDoc(req.body.data);
+                const nd = await dbTeam.saveTeamDetails(req.user.id, req.body.teamId, doc);
+                r.result = "ok";
+            } catch (err) {
+                r.message = err.message;
+                console.log(err);
+            }
             break;
 
         case 'createTeamMember':
             let memberName = req.body.name;
             console.log('Going to create member: ', memberName);
             try {
+
                 let m = await User.create({fullName:req.body.name, email:req.body.email, dateOfBirth:req.body.dob});
                 console.log("Member created", m.fullName, m.id);
                 let mt = await UserTeam.create({userId:m.id, teamId:req.body.teamId, role:'member'});
@@ -66,8 +86,6 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 r.message = err.message;
                 console.log(err);
             }
-            res.json(r);
-            res.end();
             break;
         case 'removeTeamMember':
             console.log('Going to remove member: ', req.body.memberId, "from team", req.body.teamId);
@@ -81,15 +99,19 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 r.message = err.message;
                 console.log(err);
             }
-            res.json(r);
-            res.end();
             break;
 
         default:
             console.log('cmd=unknown');
-            res.json(r);
-            res.end();
             break;
     }
+    res.json(r);
+    res.end();
 
 });
+
+function formatTeamDoc(data){
+    console.log("Formatting team document from posted data");
+    const doc = {};
+    
+}

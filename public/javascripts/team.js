@@ -1,18 +1,29 @@
 'use strict';
 
 function initTeam(){
+    const teamId = urlGetParam('id');
     console.log("/team - Initializing");
-    $("#createTeamMemberBtn").on("click",createNewTeamMember);
+    $("#createTeamMemberBtn").on("click", function(){
+        createNewTeamMember(teamId);
+    });
 
-    loadTeamCoaches();
-    loadTeamMembers();
+    $("#saveBillingDetails").on("click", function(){
+        saveAddressDetails('billing',teamId);
+    });
+
+    $("#saveShippingDetails").on("click", function(){
+        saveAddressDetails('shipping',teamId);
+    });
+
+    loadTeamCoaches(teamId);
+    loadTeamMembers(teamId);
+    loadAddressDetails(teamId);
 
     console.log("/team - Initializing completed");
 }
 
-function loadTeamCoaches(){
+function loadTeamCoaches(teamId){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    const teamId = urlGetParam('id');
     console.log("Loading team coaches");
     const t = $("#coachList");
     t.empty();
@@ -41,9 +52,8 @@ function loadTeamCoaches(){
 
 }
 
-function loadTeamMembers(){
+function loadTeamMembers(teamId){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    const teamId = urlGetParam('id');
     console.log("Loading team members");
     const t = $("#memberList");
     t.empty();
@@ -86,12 +96,15 @@ function loadTeamMembers(){
             console.log("Server returned ERROR");
         }
 
-    });
+    })
+        .fail(function(err){
+            console.log("getTeamMembers FAILED",err);
+            t.text('Chyba pri komunikácii so serverom');
+        });
 
 }
 
-function createNewTeamMember(){
-    const teamId = urlGetParam('id');
+function createNewTeamMember(teamId){
 
     const selNameGrp = $("#newMemberName");
     const selName = $("#newMemberName > input:first");
@@ -120,7 +133,7 @@ function createNewTeamMember(){
                     console.log("Member created");
                     selStatus.text('Člen tímu vytvorený.');
                     selStatus.css("display", "inline").fadeOut(2000);
-                    loadTeamMembers();
+                    loadTeamMembers(teamId);
                     selName.val('');
                     selEmail.val('');
                     selDOB.val('');
@@ -131,9 +144,9 @@ function createNewTeamMember(){
                 }
             }
         )
-        .fail(function () {
+        .fail(function (err) {
             selStatus.text('Nepodarilo sa vytvoriť nového člena.');
-            console.log("Creation failed");
+            console.log("Creation failed",err);
         });
     } else {
         selStatus.text('Člen tímu musí mať meno.');
@@ -153,17 +166,127 @@ function removeMember(id, teamId){
             console.log("removeTeamMember: Server returned",res);
             if (res.result == "ok") {
                 console.log("Member removed");
-                loadTeamMembers();
+                loadTeamMembers(teamId);
             } else {
                 console.log("Error while creating team");
             }
         }
     )
-    .fail(function () {
-        console.log("Member removal failed");
+    .fail(function (err) {
+        console.log("Member removal failed",err);
     });
 }
 
 function editMember(id){
     console.log("Editing ",id);
+}
+
+function saveAddressDetails(detType, teamId){
+    var succ = false;
+    var selStatus;
+    var selDialog;
+    console.log("Saving address details", detType);
+
+    const details = {};
+
+    if (detType === 'billing'){
+        selStatus = $("#saveBillingStatus");
+        selDialog = $("#billingAddress");
+        details.type = 'billing';
+        details.orgName = $("#billOrg").val();
+        details.addr1 = $("#billAdr1").val();
+        details.addr2 = $("#billAdr2").val();
+        details.city = $("#billCity").val();
+        details.postCode = $("#billPostCode").val();
+        details.compNo = $("#billCompNo").val();
+        details.taxNo = $("#billTaxNo").val();
+        details.conName = $("#billContactName").val();
+        details.conPhone = $("#billContactPhone").val();
+        details.conEmail = $("#billContactEmail").val();
+    } else {
+        selStatus = $("#saveShippingStatus");
+        selDialog = $("#shippingAddress");
+        details.type = 'shipping';
+        details.orgName = $("#shipOrg").val();
+        details.addr1 = $("#shipAdr1").val();
+        details.addr2 = $("#shipAdr2").val();
+        details.city = $("#shipCity").val();
+        details.postCode = $("#shipPostCode").val();
+        details.conName = $("#shipContactName").val();
+        details.conPhone = $("#shipContactPhone").val();
+        details.conEmail = $("#shipContactEmail").val();
+    }
+
+    console.log("Posting request to save address details");
+    $.post("/team",
+        {
+            cmd: 'saveAdrDetails',
+            teamId: teamId,
+            data: details
+        })
+        .done( function (res) {
+            console.log("saveAdrDetails: Server returned",res);
+            if (res.result == "ok") {
+                console.log("Details saved");
+                selStatus.text('Uložené');
+                selStatus.css("display", "inline").fadeOut(2000);
+                loadAddressDetails(teamId);
+                selDialog.modal("hide");
+            } else {
+                console.log("Error while saving details");
+                selStatus.text('Nepodarilo sa uložiť.');
+                selStatus.css("display", "inline").fadeOut(2000);
+            }
+        })
+        .fail(function (err) {
+            selStatus.text('Nepodarilo sa uložiť detaily.');
+            selStatus.css("display", "inline").fadeOut(2000);
+            console.log("Save failed",err);
+        });
+
+    return succ;
+}
+
+function loadAddressDetails(teamId){
+    console.log("Loading team address details");
+    $.post("/team",
+        {
+            cmd: 'getAdrDetails',
+            teamId: teamId
+        })
+        .done(function (res) {
+            console.log("loadAdrDetails: Server returned",res);
+            if (res.result == "ok") {
+                formatAddressDetails(res.details);
+            } else {
+                console.log("Error while loading details");
+            }
+        })
+        .fail(function (err) {
+            console.log("Load failed",err);
+        });
+}
+
+function formatAddressDetails(data){
+
+    $("#billOrg").val(data.billingOrg.name);
+    $("#billAdr1").val(data.billingAdr.addrLine1);
+    $("#billAdr2").val(data.billingAdr.addrLine2);
+    $("#billCity").val(data.billingAdr.city);
+    $("#billPostCode").val(data.billingAdr.postCode);
+    $("#billCompNo").val(data.billingOrg.companyNo);
+    $("#billTaxNo").val(data.billingOrg.taxNo);
+    $("#billContactName").val(data.billingContact.name);
+    $("#billContactPhone").val(data.billingContact.phone);
+    $("#billContactEmail").val(data.billingContact.email);
+
+    $("#shipOrg").val(data.shippingOrg.name);
+    $("#shipAdr1").val(data.shippingAdr.addrLine1);
+    $("#shipAdr2").val(data.shippingAdr.addrLine2);
+    $("#shipCity").val(data.shippingAdr.city);
+    $("#shipPostCode").val(data.shippingAdr.postCode);
+    $("#shipContactName").val(data.shippingContact.name);
+    $("#shipContactPhone").val(data.shippingContact.phone);
+    $("#shipContactEmail").val(data.shippingContact.email);
+
 }
