@@ -9,4 +9,13 @@ const OrganizationSchema = new mongoose.Schema({
     VATNo: { type: String },
 });
 
+OrganizationSchema.testData = function(rec, prefix){
+    rec.name = prefix+"org";
+    rec.companyNo = prefix + "CNo";
+    rec.taxNo = prefix + "TxNo";
+    rec.VATNo = prefix + "VATNo";
+
+    return rec;
+};
+
 module.exports = OrganizationSchema;

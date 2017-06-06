@@ -21,6 +21,25 @@ const TeamSchema = new mongoose.Schema({
 
 TeamSchema.plugin(statusPlugin);
 
+TeamSchema.statics.testData = function(rec, id){
+    if (!id) id = '';
+    rec.name = "Team "+id;
+    rec.billingOrg = {};
+    OrgSchema.testData(rec.billingOrg, 'boT'+id);
+    rec.shippingOrg = {};
+    OrgSchema.testData(rec.shippingOrg, 'soT'+id);
+    rec.billingAdr = {};
+    AddressSchema.testData(rec.billingAdr, 'baT'+id);
+    rec.shippingAdr = {};
+    AddressSchema.testData(rec.shippingAdr, 'saT'+id);
+    rec.billingContact = {};
+    ContactSchema.testData(rec.billingContact, 'bcT'+id);
+    rec.shippingContact = {};
+    ContactSchema.testData(rec.shippingContact, 'scT'+id);
+
+    return rec;
+};
+
 if (!mongoose.models.Team) {
     mongoose.model('Team', TeamSchema);
 }

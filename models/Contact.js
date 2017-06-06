@@ -9,4 +9,13 @@ const ContactSchema = new mongoose.Schema({
     email: { type: String },
 });
 
+ContactSchema.testData = function(rec, prefix) {
+    rec.name = prefix + "Cntct";
+    rec.phone = prefix + "Phn";
+    rec.mobile = prefix + "Mob";
+    rec.email = prefix + "Eml";
+
+    return rec;
+};
+
 module.exports = ContactSchema;
