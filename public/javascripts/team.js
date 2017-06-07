@@ -265,24 +265,34 @@ function loadAddressDetails(teamId){
 
 function formatAddressDetails(data){
 
-    $("#billOrg").val(data.billingOrg.name);
-    $("#billAdr1").val(data.billingAdr.addrLine1);
-    $("#billAdr2").val(data.billingAdr.addrLine2);
-    $("#billCity").val(data.billingAdr.city);
-    $("#billPostCode").val(data.billingAdr.postCode);
-    $("#billCompNo").val(data.billingOrg.companyNo);
-    $("#billTaxNo").val(data.billingOrg.taxNo);
-    $("#billContactName").val(data.billingContact.name);
-    $("#billContactPhone").val(data.billingContact.phone);
-    $("#billContactEmail").val(data.billingContact.email);
+    if (!data.billingOrg) data.billingOrg = {};
+    $("#billOrg").val(data.billingOrg.name || '');
+    $("#billCompNo").val(data.billingOrg.companyNo || '');
+    $("#billTaxNo").val(data.billingOrg.taxNo || '');
 
-    $("#shipOrg").val(data.shippingOrg.name);
-    $("#shipAdr1").val(data.shippingAdr.addrLine1);
-    $("#shipAdr2").val(data.shippingAdr.addrLine2);
-    $("#shipCity").val(data.shippingAdr.city);
-    $("#shipPostCode").val(data.shippingAdr.postCode);
-    $("#shipContactName").val(data.shippingContact.name);
-    $("#shipContactPhone").val(data.shippingContact.phone);
-    $("#shipContactEmail").val(data.shippingContact.email);
+    if (!data.billingAdr) data.billingAdr = {};
+    $("#billAdr1").val(data.billingAdr.addrLine1 || '');
+    $("#billAdr2").val(data.billingAdr.addrLine2 || '');
+    $("#billCity").val(data.billingAdr.city || '');
+    $("#billPostCode").val(data.billingAdr.postCode || '');
+
+    if (!data.billingContact) data.billingContact = {};
+    $("#billContactName").val(data.billingContact.name || '');
+    $("#billContactPhone").val(data.billingContact.phone || '');
+    $("#billContactEmail").val(data.billingContact.email || '');
+
+    if (!data.shippingOrg) data.shippingOrg = {};
+    $("#shipOrg").val(data.shippingOrg.name || '');
+
+    if (!data.shippingAdr) data.shippingAdr = {};
+    $("#shipAdr1").val(data.shippingAdr.addrLine1 || '');
+    $("#shipAdr2").val(data.shippingAdr.addrLine2 || '');
+    $("#shipCity").val(data.shippingAdr.city || '');
+    $("#shipPostCode").val(data.shippingAdr.postCode || '');
+
+    if (!data.shippingContact) data.shippingContact = {};
+    $("#shipContactName").val(data.shippingContact.name || '');
+    $("#shipContactPhone").val(data.shippingContact.phone || '');
+    $("#shipContactEmail").val(data.shippingContact.email || '');
 
 }
