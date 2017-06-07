@@ -5,7 +5,7 @@ const router = express.Router();
 
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
-const UserTeam = mongoose.model('UserTeam');
+const TeamUser = mongoose.model('TeamUser');
 
 const dbUser = require('../lib/db/User');
 
@@ -60,7 +60,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 } else {
                     t = await Team.create({name:teamName});
                     console.log("Team created", t.name, t.id);
-                    let ut = await UserTeam.create({userId:coachId, teamId:t.id, role:'coach'});
+                    let ut = await TeamUser.create({userId:coachId, teamId:t.id, role:'coach'});
                     r.result = "ok";
                     t.teamId = t.id;
                 }

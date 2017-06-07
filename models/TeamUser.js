@@ -5,16 +5,16 @@ const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const statusPlugin = require('./plugins/status-plugin');
 
-const UserTeamSchema = new mongoose.Schema({
+const TeamUserSchema = new mongoose.Schema({
     userId: { type: String, required: true },
     teamId: { type: String, required: true },
     role: { type: String, required: true }  // coach, member
 });
 
-UserTeamSchema.plugin(statusPlugin);
+TeamUserSchema.plugin(statusPlugin);
 
-if (!mongoose.models.UserTeam) {
-    mongoose.model('UserTeam', UserTeamSchema);
+if (!mongoose.models.TeamUser) {
+    mongoose.model('TeamUser', TeamUserSchema);
 }
 
-module.exports = UserTeamSchema;
+module.exports = TeamUserSchema;

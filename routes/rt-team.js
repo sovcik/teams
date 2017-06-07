@@ -9,7 +9,7 @@ const dbTeam = require('../lib/db/Team');
 
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
-const UserTeam = mongoose.model('UserTeam');
+const TeamUser = mongoose.model('TeamUser');
 
 module.exports = router;
 
@@ -98,7 +98,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
                 let m = await User.create({fullName:req.body.name, email:req.body.email, dateOfBirth:req.body.dob});
                 console.log("Member created", m.fullName, m.id);
-                let mt = await UserTeam.create({userId:m.id, teamId:req.body.teamId, role:'member'});
+                let mt = await TeamUser.create({userId:m.id, teamId:req.body.teamId, role:'member'});
                 r.result = "ok";
                 r.memberId = m.id;
 
@@ -110,7 +110,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         case 'removeTeamMember':
             console.log('Going to remove member: ', req.body.memberId, "from team", req.body.teamId);
             try{
-                let conf = await UserTeam.deleteOne({"userId":req.body.memberId, "teamId":req.body.teamId});
+                let conf = await TeamUser.deleteOne({"userId":req.body.memberId, "teamId":req.body.teamId});
                 if (conf.deletedCount > 0) {
                     console.log('Member removed', req.body.memberId);
                     r.result = "ok"
