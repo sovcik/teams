@@ -48,7 +48,7 @@ router.get('/',cel.ensureLoggedIn('/login'), async function (req, res, next) {
         default:
             console.log('cmd=unknown');
             const t = await dbTeam.getTeamDetails(req.user.id, teamId);
-            return res.render('team',{team:t});
+            return res.render('team',{team:t, user:{id:req.user.id, name:req.user.username}});
             break;
     }
     res.json(r);

@@ -32,7 +32,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 try {
                     const u = await User.findOneActive({_id: userId});
                     console.log('Rendering profile ',u);
-                    return res.render('profile', {user:u, coach:1});
+                    return res.render('profile', {profile:u, coach:1, user:{id:req.user.id, name:req.user.username}});
                 } catch (err) {
                     return res.render('error', {message:"Profile not found",error:err});
                 }

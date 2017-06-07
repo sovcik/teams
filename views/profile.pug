@@ -7,13 +7,13 @@ block content
         div(class='panel-body')
             div(class='form-group')
                 label(for='loginName' class='') Prihlasovacie meno
-                input(id='loginName' class='form-control' value=user.username readonly)
+                input(id='loginName' class='form-control' value=profile.username readonly)
             div(class='form-group')
                 label(for='fullName' class='') Celé meno
-                input(id='fullName' class='form-control' value=user.fullName readonly)
+                input(id='fullName' class='form-control' value=profile.fullName readonly)
             div(class='form-group')
                 label(for='email' class='') e-mail
-                input(id='email' class='form-control' value=user.email readonly)
+                input(id='email' class='form-control' value=profile.email readonly)
 
     if coach
         div(class="panel panel-primary")

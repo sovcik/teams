@@ -7,4 +7,11 @@ html
         }
     body
         div(class="mainpnl")
+            div(id="user" class="pull-right")
+                if user
+                    a(href="/profile?id="+user.id) #{user.name}
+                    ="  "
+                    a(href="/logout") Odhlásiť
+                else
+                    p not-logged-in
             block content
