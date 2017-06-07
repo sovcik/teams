@@ -13,14 +13,33 @@ module.exports = router;
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const userId = req.query.id;
+    const cmd = req.query.cmd;
+    console.log("/profile - get");
+    console.log(req.query);
+    const r = {result:"error", status:200};
     if (!userId) return res.redirect('/profile?id='+req.user.id);
-    try {
-        const u = await User.findOneActive({_id: userId});
-        console.log('Rendering profile ',u);
-        res.render('profile', {user:u, coach:1, coachingTeams:['T1', 'T2', 'T3'], memberTeams:['M1','M2']});
-    } catch (err) {
-        res.render('error', {message:"Profile not found",error:err});
+    switch (cmd){
+        case 'getCoachTeams':
+            console.log('Going to get Coach teams');
+            const ut = await dbUser.getCoachTeams(req.user.id, userId);
+            r.result = "ok";
+            r.list = ut;
+            break;
+        default:
+            if (cmd)
+                console.log("cmd=unknown");
+            else
+                try {
+                    const u = await User.findOneActive({_id: userId});
+                    console.log('Rendering profile ',u);
+                    return res.render('profile', {user:u, coach:1});
+                } catch (err) {
+                    return res.render('error', {message:"Profile not found",error:err});
+                }
+
     }
+    res.json(r);
+    res.end();
 
 });
 
@@ -31,12 +50,6 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const r = {result:"error", status:200};
     const coachId = req.body.coachId;
     switch (req.body.cmd){
-        case 'getCoachTeams':
-            console.log('Going to get Coach teams');
-            const ut = await dbUser.getCoachTeams(req.user.id, coachId);
-            res.json({result:"ok", list:ut});
-            res.end();
-            break;
         case 'createTeam':
             let teamName = req.body.name;
             console.log('Going to create team: ', teamName);
@@ -55,14 +68,13 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 r.message = err.message;
                 console.log(err);
             }
-            res.json(r);
-            res.end();
             break;
         default:
             console.log('cmd=unknown');
-            res.json(r);
-            res.end();
             break;
     }
+    res.json(r);
+    res.end();
+
 
 });

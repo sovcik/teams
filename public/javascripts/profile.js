@@ -14,7 +14,7 @@ function loadCoachOfTeams(){
     console.log("Loading coach teams. Coach = ",coachId);
     const t = $("#coachTeamsList");
     t.empty();
-    $.post( "/profile", {cmd:'getCoachTeams', coachId:coachId }, function(res) {
+    $.get( "/profile?id="+coachId+"&cmd=getCoachTeams", function(res) {
         console.log("Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){

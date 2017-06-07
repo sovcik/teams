@@ -13,22 +13,46 @@ const UserTeam = mongoose.model('UserTeam');
 
 module.exports = router;
 
-router.get('/', cel.ensureLoggedIn('/login'), function (req, res, next) {
+router.get('/',cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const teamId = req.query.id;
+    const cmd = req.query.cmd;
 
     if (!teamId) res.redirect('/profile');
 
-    dbTeam.getTeamDetails(req.user.id, teamId)
-        .then(
-            function (team) {
-                res.render('team', {team:team});
-            }
-        )
-        .catch(
-            function (err){
-                res.status(404).end();
-            }
-        )
+    console.log("/team - get");
+    console.log(req.query);
+    var ret = true;
+    var r = {result:"error", status:200};
+    switch (cmd){
+        case 'getTeamCoaches':
+            console.log('Going to get team coaches');
+            const tc = await dbTeam.getTeamCoaches(req.user.id, teamId);
+            r.result = "ok";
+            r.list = tc;
+            break;
+
+        case 'getTeamMembers':
+            console.log('Going to get team members');
+            const tm = await dbTeam.getTeamMembers(req.user.id, teamId);
+            r.result = "ok";
+            r.list = tm;
+            break;
+
+        case 'getAdrDetails':
+            console.log('Going to get team address details');
+            const tad = await dbTeam.getTeamDetails(req.user.id, teamId);
+            r.result = "ok";
+            r.details = tad;
+            break;
+
+        default:
+            console.log('cmd=unknown');
+            const t = await dbTeam.getTeamDetails(req.user.id, teamId);
+            return res.render('team',{team:t});
+            break;
+    }
+    res.json(r);
+    res.end();
 
 });
 
@@ -38,26 +62,6 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     var ret = true;
     var r = {result:"error", status:200};
     switch (req.body.cmd){
-        case 'getTeamCoaches':
-            console.log('Going to get team coaches');
-            const tc = await dbTeam.getTeamCoaches(req.user.id, req.body.id);
-            r.result = "ok";
-            r.list = tc;
-            break;
-
-        case 'getTeamMembers':
-            console.log('Going to get team members');
-            const tm = await dbTeam.getTeamMembers(req.user.id, req.body.id);
-            r.result = "ok";
-            r.list = tm;
-            break;
-
-        case 'getAdrDetails':
-            console.log('Going to get team address details');
-            const tad = await dbTeam.getTeamDetails(req.user.id, req.body.teamId);
-            r.result = "ok";
-            r.details = tad;
-            break;
 
         case 'saveAdrDetails':
             console.log('Going to save team address details');
@@ -113,5 +117,5 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 function formatTeamDoc(data){
     console.log("Formatting team document from posted data");
     const doc = {};
-    
+
 }

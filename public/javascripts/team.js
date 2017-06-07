@@ -27,7 +27,7 @@ function loadTeamCoaches(teamId){
     console.log("Loading team coaches");
     const t = $("#coachList");
     t.empty();
-    $.post( "/team", {cmd: 'getTeamCoaches', id:teamId}, function(res) {
+    $.get( "/team?id="+teamId+"&cmd=getTeamCoaches", function(res) {
         console.log("Server returned",res);
         if (res.result === 'ok'){
             console.log("List of",res.list.length,"records");
@@ -57,7 +57,7 @@ function loadTeamMembers(teamId){
     console.log("Loading team members");
     const t = $("#memberList");
     t.empty();
-    $.post( "/team", {cmd: 'getTeamMembers', id:teamId}, function(res) {
+    $.get( "/team?id="+teamId+"&cmd=getTeamMembers", function(res) {
         console.log("Server returned",res);
         if (res.result === 'ok'){
             console.log("List of",res.list.length,"records");
@@ -249,11 +249,7 @@ function saveAddressDetails(detType, teamId){
 
 function loadAddressDetails(teamId){
     console.log("Loading team address details");
-    $.post("/team",
-        {
-            cmd: 'getAdrDetails',
-            teamId: teamId
-        })
+    $.get("/team?id="+teamId+"&cmd=getAdrDetails")
         .done(function (res) {
             console.log("loadAdrDetails: Server returned",res);
             if (res.result == "ok") {
