@@ -192,7 +192,7 @@ function saveAddressDetails(detType, teamId){
     if (detType === 'billing'){
         selStatus = $("#saveBillingStatus");
         selDialog = $("#billingAddress");
-        details.type = 'billing';
+
         details.orgName = $("#billOrg").val();
         details.addr1 = $("#billAdr1").val();
         details.addr2 = $("#billAdr2").val();
@@ -206,7 +206,7 @@ function saveAddressDetails(detType, teamId){
     } else {
         selStatus = $("#saveShippingStatus");
         selDialog = $("#shippingAddress");
-        details.type = 'shipping';
+
         details.orgName = $("#shipOrg").val();
         details.addr1 = $("#shipAdr1").val();
         details.addr2 = $("#shipAdr2").val();
@@ -218,11 +218,18 @@ function saveAddressDetails(detType, teamId){
     }
 
     console.log("Posting request to save address details");
-    $.post("/team",
-        {
-            cmd: 'saveAdrDetails',
-            teamId: teamId,
-            data: details
+
+    $.ajax({
+            type:"POST",
+            url:"/team",
+            dataType: "json",
+            data: {
+                cmd: 'saveAdrDetails',
+                teamId: teamId,
+                type: detType,
+                data: JSON.stringify(details)
+            }
+
         })
         .done( function (res) {
             console.log("saveAdrDetails: Server returned",res);

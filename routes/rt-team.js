@@ -66,7 +66,23 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         case 'saveAdrDetails':
             console.log('Going to save team address details');
             try {
-                let doc = formatTeamDoc(req.body.data);
+                let doc = {};
+                let data = JSON.parse(req.body.data);
+                switch(req.body.type){
+                    case 'billing':
+                        doc.billingContact = {};
+                        doc.billingAdr = {};
+                        doc.billingOrg = {};
+                        formatTeamDoc(data, doc.billingOrg, doc.billingAdr, doc.billingContact);
+                        break;
+                    case 'shipping':
+                        doc.shippingContact = {};
+                        doc.shippingAdr = {};
+                        doc.shippingOrg = {};
+                        formatTeamDoc(data, doc.shippingOrg, doc.shippingAdr, doc.shippingContact);
+                        break;
+                }
+                console.log("DOCUMENT",doc);
                 const nd = await dbTeam.saveTeamDetails(req.user.id, req.body.teamId, doc);
                 r.result = "ok";
             } catch (err) {
@@ -114,8 +130,19 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 });
 
-function formatTeamDoc(data){
+function formatTeamDoc(data, org, adr, con){
     console.log("Formatting team document from posted data");
-    const doc = {};
+    console.log("DATA",data);
+    org.name = data.orgName;
+    org.companyNo = data.compNo;
+    org.taxNo = data.taxNo;
 
+    adr.addrLine1 = data.addr1;
+    adr.addrLine2 = data.addr2;
+    adr.city = data.city;
+    adr.postCode = data.postCode;
+
+    con.name = data.conName;
+    con.phone = data.conPhone;
+    con.email = data.conEmail;
 }
