@@ -45,7 +45,7 @@ router.post('/', async function (req, res, next) {
     }
 
     try {
-        const s = await bcrypt.genSalt(1);
+        const s = await bcrypt.genSalt(5);
         const h = await bcrypt.hash(req.body.password, s);
         const u = await User.findOneActive({email:req.body.email});
 
