@@ -1,6 +1,7 @@
 function initProfile(){
     console.log("/profile - Initializing");
     $("#createTeamBtn").on("click",createNewTeam);
+    $("#changePwdBtn").on("click",changePassword);
 
     loadCoachOfTeams();
     loadMemberOfTeams();
@@ -100,5 +101,40 @@ function createNewTeam(){
     } else {
         selStatus.text('Tím musí mať meno.');
         selStatus.css("display", "inline").fadeOut(2000);
+    }
+}
+
+function changePassword(){
+    const selDialog = $('#changePasswordModal');
+    const userId = urlGetParam('id');
+    const selOldPwd = $('#oldPwd');
+    const selNewPwd = $('#newPwd');
+    const selNewPwdConf = $('#newPwdConf');
+    var selStatus = $("#pwdChangeStatus");
+    if (selNewPwd.val() === selNewPwdConf.val()) {
+        console.log("Posting request to create new team");
+        $.post("/profile", {cmd: 'changePassword', userId:userId, oldPwd: selOldPwd.val(), newPwd:selNewPwd.val()}, function (res) {
+            console.log("changePassword: Server returned",res);
+            if (res.result == "ok") {
+                console.log("Password changed");
+                selStatus.text('Heslo zmenené.');
+                selStatus.css("display", "inline").fadeOut(2000);
+                selNewPwd.val('');
+                selNewPwdConf.val('');
+                selDialog.modal("hide");
+            } else {
+                console.log("Error while changing password");
+                selStatus.text('Nepodarilo sa zmeniť heslo.');
+                selStatus.css("display", "inline").fadeOut(10000);
+            }
+        })
+            .fail(function () {
+                selStatus.text('Nepodarilo sa zmeniť heslo.');
+                selStatus.css("display", "inline").fadeOut(10000);
+                console.log("Password change failed");
+            });
+    } else {
+        selStatus.text('Nové heslá sa nezhodujú');
+        selStatus.css("display", "inline").fadeOut(10000);
     }
 }

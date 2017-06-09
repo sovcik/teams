@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
@@ -45,8 +46,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log("/profile - post");
-    console.log(req.body);
-    const ret = true;
+    console.log(req.body.cmd);
     const r = {result:"error", status:200};
     const coachId = req.body.coachId;
     switch (req.body.cmd){
@@ -67,6 +67,28 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             } catch (err) {
                 r.message = err.message;
                 console.log(err);
+            }
+            break;
+        case 'changePassword':
+            try {
+                const up1 = await User.findOneActive({_id: req.body.userId});
+                // check if user exists
+                if (!up1)
+                    throw new Error("User not found");
+                // check if old password is correct
+                if (!await bcrypt.compare(req.body.oldPwd, up1.passwordHash))
+                    throw new Error("Invalid old password specified");
+
+                // create new password
+                const s = await bcrypt.genSalt(5);
+                const h = await bcrypt.hash(req.body.newPwd, s);
+                const user = await User.findByIdAndUpdate(req.body.userId, { $set: { salt: s, passwordHash:h}}, { new: true });
+                console.log("Password changed: " + user.username + "===" + user.id);
+                r.result = "ok";
+            } catch (err) {
+                console.log('Error changing password',err);
+                r.error = {};
+                r.error.message = err.message;
             }
             break;
         default:
