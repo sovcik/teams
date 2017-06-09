@@ -13,7 +13,8 @@ const UserSchema = new Schema({
     email: { type: String },
     dateOfBirth: {type:Date },
     passwordHash: { type: String, default:'' },
-    salt: { type: String, default: '' }
+    salt: { type: String, default: '' },
+    role: { type: String, default: 'U' }
 });
 
 // helper function handling hash creation
