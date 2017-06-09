@@ -3,8 +3,7 @@ mongoose.Promise = require('bluebird');
 const statusPlugin = require('./plugins/status-plugin');
 
 const ProgramSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    adminId: { type: String, required: true } //id of admin user for specific program
+    name: { type: String, required: true }
 });
 
 ProgramSchema.plugin(statusPlugin);

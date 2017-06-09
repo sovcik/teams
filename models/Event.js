@@ -6,8 +6,7 @@ const statusPlugin = require('./plugins/status-plugin');
 const EventSchema = new mongoose.Schema({
     name: { type: String, required: true },
     programId: { type: String, required: true },
-    startDate: {type: Date, required: false},
-    organizer: { type: String, required: false } // id of user responsible for organizing TODO: create organizator scheme
+    startDate: {type: Date, required: false}
 });
 
 EventSchema.plugin(statusPlugin);

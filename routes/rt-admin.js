@@ -11,22 +11,17 @@ const Program = mongoose.models.Program;
 module.exports = router;
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/admin - get");
+    console.log("Role = ",req.user.role);
+    if (req.user.role != 'A')
+        return res.redirect('/profile');
+
     const cmd = req.query.cmd;
-    console.log("/event - get");
+
     console.log(req.query);
     const r = {result:"error", status:200};
     try {
         switch (cmd) {
-            case 'getList':
-                console.log('Going to get list of all events');
-                const p = await Event.find({recordStatus: 'active'}, {
-                    name: true,
-                    id: true
-                });
-                r.result = "ok";
-                r.list = p;
-                break;
-
             case 'getAvailTeamEvents':
                 console.log('Going to get list of team events');
                 const t = await Team.findOneActive({_id: req.query.teamId});
@@ -42,7 +37,10 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 }
                 break;
             default:
-                console.log("cmd=unknown");
+                if (!cmd)
+                    return res.render('admin');
+                else
+                    console.log("cmd=unknown");
 
         }
     } catch (err) {
@@ -55,50 +53,33 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/admin - put");
+    console.log("Role = ",req.user.role);
+    if (req.user.role != 'A')
+        return res.redirect('/profile');
+    
     const cmd = req.body.cmd;
-    console.log("/event - put");
     console.log(req.body);
     const r = {result:"error", status:200};
     try {
         switch (cmd) {
             case 'registerTeam':
                 console.log('Going to register team for an event');
-                let t = await Team.findOneActive({_id: req.body.teamId});
+                const t = await Team.findOneActive({_id: req.body.teamId});
                 if (!t) throw new Error("Team not found");
 
-                let p = await Program.findOneActive({_id:t.programId});
+                const p = await Program.findOneActive({_id:t.programId});
                 if (!p) throw new Error("Team not joined in program");
 
-                let e = await Event.findOneActive({programId:p.id, _id:req.body.eventId});
+                const e = await Event.findOneActive({programId:p.id, _id:req.body.eventId});
                 if (!e) throw new Error("Event not found or not relevant for program team is joined to");
 
-                let te = await TeamEvent.create({teamId:t.id, eventId:e.id, programId:p.id, registeredOn:Date.now()});
+                const te = await TeamEvent.create({teamId:t.id, eventId:e.id, programId:p.id, registeredOn:Date.now()});
                 if (!te) throw new Error("Failed to register");
 
                 r.result = "ok";
                 r.list = p;
                 break;
-            case 'createEvent':
-                if (req.user.role != 'A')
-                    return res.redirect('/profile');
-
-                let name = req.body.name;
-                console.log('Going to create event ', name);
-                try {
-                    let p = await Program.findOneActive({_id:req.body.programId});
-                    if (!p) throw new Error("Program does not exist");
-                    let e = await Event.findOneActive({name:name});
-                    if (e) throw new Error("Duplicate event name");
-                    e = await Event.create({name:name, programId:req.body.programId});
-                    console.log("Program created", p.name, p.id);
-                    r.result = "ok";
-                } catch (err) {
-                    r.error = {};
-                    r.error.message = err.message;
-                    console.log(err);
-                }
-                break;
-
             default:
                 console.log("cmd=unknown");
 

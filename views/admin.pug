@@ -1,0 +1,29 @@
+extends includes/layout
+
+block content
+    script(src='/javascripts/admin.js')
+    h1 Admin
+    div(class="panel panel-primary")
+        div(class='panel-heading') Programy/Súťaže
+        div(class='panel-body')
+            ul(id="allPrograms" class="list-group")
+        div(class='panel-footer')
+            label Meno programu
+            input(id='newProgramName' type='text', placeholder='meno nového programu' name='newProgramName' class="form-control")
+            button(id='newProgramBtn' type='button' class='btn btn-default') Pridaj program
+    div(class="panel panel-primary")
+        div(class='panel-heading') Stretnutia/Turnaje
+        div(class='panel-body')
+            ul(id="allEvents" class="list-group")
+        div(class='panel-footer')
+            div
+                label Program/súťaž
+                select(id='eventProgram' class="form-control")
+                    option -none-
+            div
+                label Meno turnaja
+                input(id='newEventName' type='text', placeholder='meno nového turnaja' name='newEventName' class="form-control")
+                button(id='newEventBtn' type='button' class='btn btn-default') Pridaj turnaj
+
+    script.
+        initAdmin();
