@@ -5,7 +5,7 @@ const auth = require('../lib/auth.js');
 module.exports = router;
 
 router.get('/', function (req, res, next) {
-    res.render('login', {title: 'Login'});
+    res.render('login', {title: 'Prihlásenie'});
 });
 
 router.post('/',
