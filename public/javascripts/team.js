@@ -74,12 +74,12 @@ function loadTeamMembers(teamId){
                     let btnRemove = $('<button type="button" class="btn btn-link btn-xs">');
                     btnRemove.memberId = item.id;
                     btnRemove.on("click",function(){removeMember(item.id, teamId);});
-                    btnRemove.append($('<span class="glyphicon glyphicon-remove">'));
+                    btnRemove.append($('<span class="glyphicon glyphicons-remove">'));
 
                     let btnEdit = $('<button type="button" class="btn btn-link btn-xs">');
                     btnEdit.memberId = item.id;
                     btnEdit.on("click",function(){editMember(item.id);});
-                    btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
+                    btnEdit.append($('<span class="glyphicon glyphicons-pencil">'));
 
                     let c = $('<div class="panel panel-default card">')
                             .append($('<div class="panel-heading">')
@@ -250,12 +250,12 @@ function saveAddressDetails(detType, teamId){
             } else {
                 console.log("Error while saving details");
                 selStatus.text('Nepodarilo sa uložiť.');
-                selStatus.css("display", "inline").fadeOut(2000);
+                selStatus.css("display", "inline").fadeOut(5000);
             }
         })
         .fail(function (err) {
             selStatus.text('Nepodarilo sa uložiť detaily.');
-            selStatus.css("display", "inline").fadeOut(2000);
+            selStatus.css("display", "inline").fadeOut(5000);
             console.log("Save failed",err);
         });
 

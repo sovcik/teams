@@ -140,7 +140,9 @@ block content
                     p Žiadny
 
         div(class='panel-footer')
-            button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal") Pridať člena
+            button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal")
+                span(class="glyphicon glyphicon-user") +
+                | Pridať člena
 
     div(id='newMemberModal' class='modal fade' role='dialog')
         div(class='modal-dialog')

@@ -38,7 +38,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 break;
             default:
                 if (!cmd)
-                    return res.render('admin');
+                    return res.render('admin', {user:req.user});
                 else
                     console.log("cmd=unknown");
 
