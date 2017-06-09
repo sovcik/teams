@@ -36,19 +36,23 @@ block content
             div(class='modal-content')
                 div(class='modal-header')
                     button(type='button', class='close' data-dismiss='modal') &times;
-                    h4 Zadaj meno tímu
+                    h4 Nový tím
                 div(class='modal-body')
-                    div(id="newTeamForm" class='form-inline')
-                        div(id='newTeamName' class='form-group has-warning has-feedback')
-                            input(type='text', placeholder='meno timu' name='newTeamName' class="input-lg form-control")
-                            span(class="glyphicon form-control-feedback")
+                    div(id='newTeamName' class='form-group has-feedback')
+                        label Meno tímu
+                        input(type='text', placeholder='meno timu' name='newTeamName' class="form-control")
+                        span(class="glyphicon form-control-feedback")
+                    div(class='form-group')
+                        label Program/súťaž
+                        select(id='newTeamProgram' class="form-control")
+                            option -none-
                 div(class='modal-footer')
                     div(class='row')
                         div(class='col-sm-12')
-                            button(id='createTeamBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor tím
+                            span(id="teamCreateStatus" class="text-warning")
                     div(class='row')
                         div(class='col-sm-12')
-                            span(id="teamCreateStatus" class="text-warning")
+                            button(id='createTeamBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor tím
 
 
     script.

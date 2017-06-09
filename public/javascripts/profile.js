@@ -4,6 +4,7 @@ function initProfile(){
 
     loadCoachOfTeams();
     loadMemberOfTeams();
+    loadPrograms();
 
     console.log("/profile - Initializing completed");
 }
@@ -44,14 +45,40 @@ function loadMemberOfTeams(){
     console.log("Loading user's teams is not implemented yet");
 }
 
+function loadPrograms(){
+    const selProg = $('#newTeamProgram');
+    console.log('Loading programs');
+    $.get( "/program?cmd=getList", function(res) {
+        console.log("Server returned",res);
+        console.log("List of",res.list.length,"records");
+        if (res.result === 'ok'){
+            selProg.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    var c = $('<option value="'+item.id+'"">').append(item.name);
+                    selProg.append(c);
+                });
+            } else {
+                t.text('Žiadne programy');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
+
+}
+
 function createNewTeam(){
     const coachId = urlGetParam('id');
     const selTeamNameGrp = $("#newTeamName");
     const selTeamName = $("#newTeamName > input:first");
+    const selProg = $('#newTeamProgram');
     var selStatus = $("#teamCreateStatus");
     if (selTeamName.val().trim() != '') {
         console.log("Posting request to create new team");
-        $.post("/profile", {cmd: 'createTeam', name: selTeamName.val(), coachId:coachId}, function (res) {
+        $.post("/profile", {cmd: 'createTeam', name: selTeamName.val(), coachId:coachId, programId:selProg.val()}, function (res) {
             console.log("createTeam: Server returned",res);
             if (res.result == "ok") {
                 console.log("Team created");

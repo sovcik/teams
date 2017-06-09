@@ -16,7 +16,8 @@ const TeamSchema = new mongoose.Schema({
     billingContact: ContactSchema,
     shippingOrg: OrgSchema,
     shippingAdr: AddressSchema,
-    shippingContact: ContactSchema
+    shippingContact: ContactSchema,
+    programId: { type: String, required: true }
 });
 
 TeamSchema.plugin(statusPlugin);

@@ -15,9 +15,15 @@ function initTeam(){
         saveAddressDetails('shipping',teamId);
     });
 
+    $("#btnRegister").on("click", function(){
+        registerForEvent(teamId);
+    });
+
+
     loadTeamCoaches(teamId);
     loadTeamMembers(teamId);
     loadAddressDetails(teamId);
+    loadAvailableEvents(teamId);
 
     console.log("/team - Initializing completed");
 }
@@ -28,7 +34,7 @@ function loadTeamCoaches(teamId){
     const t = $("#coachList");
     t.empty();
     $.get( "/team?id="+teamId+"&cmd=getTeamCoaches", function(res) {
-        console.log("Server returned",res);
+        console.log("Server returned coaches",res);
         if (res.result === 'ok'){
             console.log("List of",res.list.length,"records");
             t.empty();
@@ -58,7 +64,7 @@ function loadTeamMembers(teamId){
     const t = $("#memberList");
     t.empty();
     $.get( "/team?id="+teamId+"&cmd=getTeamMembers", function(res) {
-        console.log("Server returned",res);
+        console.log("Server returned members",res);
         if (res.result === 'ok'){
             console.log("List of",res.list.length,"records");
             t.empty();
@@ -270,7 +276,7 @@ function loadAddressDetails(teamId){
         });
 }
 
-function formatAddressDetails(data){
+function formatAddressDetails(data) {
 
     if (!data.billingOrg) data.billingOrg = {};
     $("#billOrg").val(data.billingOrg.name || '');
@@ -301,5 +307,66 @@ function formatAddressDetails(data){
     $("#shipContactName").val(data.shippingContact.name || '');
     $("#shipContactPhone").val(data.shippingContact.phone || '');
     $("#shipContactEmail").val(data.shippingContact.email || '');
+
+}
+
+function loadAvailableEvents(teamId){
+    const sel = $('#availEvents');
+    console.log('Loading events');
+    $.get( "/event?cmd=getAvailTeamEvents&teamId="+teamId, function(res) {
+        console.log("Server returned events",res);
+        console.log("List of",res.list.length,"records");
+        if (res.result === 'ok'){
+            sel.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    var c = $('<option value="'+item.id+'"">').append(item.name);
+                    sel.append(c);
+                });
+            } else {
+                sel.text('Žiadne');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
+
+}
+
+function loadTeamData(teamId){
+    $.get( "/team?cmd=getData&teamId="+teamId, function(res) {
+        console.log('Server returned team data',res);
+        if (res.result === 'ok'){
+
+        } else {
+            console.log('Server returned error');
+        }
+    });
+}
+
+function registerForEvent(teamId){
+    console.log('Registering for event');
+    const eventId = $('#availEvents').val();
+    $.post("/event",
+        {
+            cmd: 'registerTeam',
+            eventId: eventId,
+            teamId: teamId
+        },
+        function (res) {
+            console.log("registerTeam for event: Server returned",res);
+            if (res.result == "ok") {
+                console.log("team registered");
+                location.reload(true);
+            } else {
+                console.log("Error while creating team");
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Member removal failed",err);
+        });
 
 }

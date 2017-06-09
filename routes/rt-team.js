@@ -45,9 +45,19 @@ router.get('/',cel.ensureLoggedIn('/login'), async function (req, res, next) {
             r.details = tad;
             break;
 
+        case 'getData':
+            console.log('Going to get team details');
+            const td = await dbTeam.getTeamDetails(req.user.id, teamId);
+            r.result = 'ok';
+            r.team = td;
+            break;
+
         default:
-            console.log('cmd=unknown');
+            if (cmd)
+                console.log('cmd=unknown');
             const t = await dbTeam.getTeamDetails(req.user.id, teamId);
+            console.log("rendering team",t);
+            console.log("team event",t.registeredOn, t.eventName);
             return res.render('team',{team:t, user:{id:req.user.id, name:req.user.username}});
             break;
     }

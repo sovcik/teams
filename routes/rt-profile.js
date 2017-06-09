@@ -58,7 +58,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 if (t) {
                     r.message = 'Duplicate team name';
                 } else {
-                    t = await Team.create({name:teamName});
+                    t = await Team.create({name:teamName, programId:req.body.programId});
                     console.log("Team created", t.name, t.id);
                     let ut = await TeamUser.create({userId:coachId, teamId:t.id, role:'coach'});
                     r.result = "ok";
