@@ -112,6 +112,7 @@ function loadTeamMembers(teamId){
 
 function createNewTeamMember(teamId){
 
+    const selDialog = $("#newMemberModal");
     const selNameGrp = $("#newMemberName");
     const selName = $("#newMemberName > input:first");
 
@@ -139,14 +140,15 @@ function createNewTeamMember(teamId){
                     console.log("Member created");
                     selStatus.text('Člen tímu vytvorený.');
                     selStatus.css("display", "inline").fadeOut(2000);
-                    loadTeamMembers(teamId);
                     selName.val('');
                     selEmail.val('');
                     selDOB.val('');
+                    selDialog.modal("hide");
+                    loadTeamMembers(teamId);
                 } else {
-                    console.log("Error while creating team");
-                    selStatus.text('Nepodarilo sa vytvoriť tím.');
-                    selStatus.css("display", "inline").fadeOut(2000);
+                    console.log("Error while creating team-member");
+                    selStatus.text('Nepodarilo sa vytvoriť člena tímu.');
+                    selStatus.css("display", "inline").fadeOut(5000);
                 }
             }
         )
@@ -156,7 +158,7 @@ function createNewTeamMember(teamId){
         });
     } else {
         selStatus.text('Člen tímu musí mať meno.');
-        selStatus.css("display", "inline").fadeOut(2000);
+        selStatus.css("display", "inline").fadeOut(5000);
     }
 }
 
