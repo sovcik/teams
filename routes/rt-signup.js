@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const auth = require('../lib/auth.js');
 const router = express.Router();
 const request = require('request-promise');
+const email = require('../lib/email');
+const log = require('../lib/logger');
 
 const User = mongoose.models.User;
 
@@ -40,7 +42,7 @@ router.post('/', async function (req, res, next) {
     
     console.log("CAPTCHA RESPONSE",resp);
     if (!resp.success){
-        console.log('CAPTCHA ERROR',resp['error-codes']);
+        log.WARN('CAPTCHA ERROR '+resp['error-codes']);
         return res.render('error',{message:"Konto môže vytvoriť iba človek.", error:{}});
     }
 
@@ -59,7 +61,9 @@ router.post('/', async function (req, res, next) {
                 fullName: req.body.fullName,
                 email: req.body.email
             });
-        console.log("User created: " + user.username + "===" + user.id);
+
+        log.INFO("User created: " + user.username + "===" + user.id);
+        email.sendSignupConfirmation(user);
         return res.render('signup-success');
     } catch (err) {
         return res.render('error', {message:"Nepodarilo sa vytvoriť účet", error:err});

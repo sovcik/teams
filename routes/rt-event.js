@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
+const email = require('../lib/email');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
@@ -74,6 +75,8 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
                 let te = await TeamEvent.create({teamId:t.id, eventId:e.id, programId:p.id, registeredOn:Date.now()});
                 if (!te) throw new Error("Failed to register");
+
+                email.sendEventRegisterConfirmation(req.user, t, e);
 
                 r.result = "ok";
                 r.list = p;
