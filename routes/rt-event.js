@@ -56,6 +56,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
     const cmd = req.body.cmd;
     console.log("/event - put");
     console.log(req.body);
@@ -76,7 +77,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 let te = await TeamEvent.create({teamId:t.id, eventId:e.id, programId:p.id, registeredOn:Date.now()});
                 if (!te) throw new Error("Failed to register");
 
-                email.sendEventRegisterConfirmation(req.user, t, e);
+                email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
 
                 r.result = "ok";
                 r.list = p;

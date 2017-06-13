@@ -1,6 +1,6 @@
 div
     div
-        img(src="https://fll-teams.herokuapp.com/images/FLL_Logo_web_white.jpg" alt="FLL Logo" width="80pt")
+        img(src=siteUrl+"/images/FLL_Logo_web_white.jpg" alt="FLL Logo" width="80pt")
     div
         h2 FLL Slovensko
         h4 Mlynská dolina 41, 81102 Bratislava
@@ -9,7 +9,7 @@ div
     p Ďakujeme za vašu registráciu tímu na turnaj
     p Tím:
         =" "
-        a(href="https://fll-teams.herokuapp.com/team?id="+team.id)
+        a(href=siteUrl+"/team?id="+team.id)
             b #{team.name}
 
     p Turnaj:
