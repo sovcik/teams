@@ -1,3 +1,4 @@
+const env = require('dotenv').config();
 const co = require('co');
 const express = require('express');
 const session = require('express-session');     // express session management
@@ -8,7 +9,7 @@ mongoose.Promise = require('bluebird');         // mongoose promises are depreca
 // compile DB models
 require('./models');
 
-const env = require('dotenv').config();
+
 const favicon = require('serve-favicon');       // favicon
 const logger = require('morgan');               // logging
 const cookieParser = require('cookie-parser');
