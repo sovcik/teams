@@ -1,24 +1,42 @@
 extends includes/layout
 
 block content
+    script(src='/javascripts/signup.js')
+    style.
+        .pad {
+            padding-left: 0;
+            padding-right: 0;
+            margin-top: 15pt;
+            margin-bottom: 5pt;
+        }
+    include includes/header-lg
     div
         h1 Vytvorenie účtu
-        h4 Zadajte nové prihlasovacie údaje.
+        h4 Zadajte pár údajov o vás.
     div
-        form(action="/signup" method="post")
-            div(class="form-group")
-                label(for='userName') Prihlasovacie meno:
-                input(id="userName" type='text', placeholder='prihlasovacie meno' name='userName' class="form-control")
-            div(class="form-group")
-                label(for='fullName') Celé meno a priezvisko:
-                input(id="fullName" type='text', placeholder='meno a priezvisko' name='fullName' class="form-control")
-            div(class="form-group")
-                label(for='email') E-mail:
-                input(id="email" type='text', placeholder='email' name='email' class="form-control")
-            div(class="form-group")
-                label(for='password') Heslo:
-                input(id="password" type='password', placeholder='heslo' name='password' class="form-control")
-            div(class="form-group")
-                div(class="g-recaptcha" data-sitekey=captchaSiteKey)
-            div(class="form-group")
-                button(type="submit" class="btn btn-default") Vytvoriť
+        form(id="frmSignup" action="/signup" method="post")
+            div(id="userNameGrp" class="form-group")
+                label(for='userName' class="control-label col-sm-4") Prihlasovacie meno:
+                div(class="col-sm-8")
+                    input(id="userName" type='text', placeholder='prihlasovacie meno' name='userName' class="form-control")
+            div(id="fullNameGrp" class="form-group")
+                label(for='fullName' class="control-label col-sm-4") Celé meno a priezvisko:
+                div(class="col-sm-8")
+                    input(id="fullName" type='text', placeholder='meno a priezvisko' name='fullName' class="form-control")
+            div(id="emailGrp" class="form-group")
+                label(for='email' class="control-label col-sm-4") E-mail:
+                div(class="col-sm-8")
+                    input(id="email" type='email', placeholder='email' name='email' class="form-control")
+            div(id="passwordGrp" class="form-group")
+                label(for='password' class="control-label col-sm-4") Heslo:
+                div(class="col-sm-8")
+                    input(id="password" type='password', placeholder='heslo' name='password' class="form-control")
+            div(class="form-group row")
+                div(class="col-sm-4")
+                div(class="g-recaptcha col-sm-8" data-sitekey=captchaSiteKey)
+            div(class="form-group row")
+                div(class="col-sm-4")
+                div(class="col-sm-8")
+                    button(type="submit" class="btn btn-default") Vytvoriť
+    script.
+        initSignup();
