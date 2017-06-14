@@ -74,12 +74,12 @@ function loadTeamMembers(teamId){
                     let btnRemove = $('<button type="button" class="btn btn-link btn-xs">');
                     btnRemove.memberId = item.id;
                     btnRemove.on("click",function(){removeMember(item.id, teamId);});
-                    btnRemove.append($('<span class="glyphicon glyphicons-remove">'));
+                    btnRemove.append($('<span class="glyphicon glyphicon-remove">'));
 
                     let btnEdit = $('<button type="button" class="btn btn-link btn-xs">');
                     btnEdit.memberId = item.id;
                     btnEdit.on("click",function(){editMember(item.id);});
-                    btnEdit.append($('<span class="glyphicon glyphicons-pencil">'));
+                    btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
 
                     let c = $('<div class="panel panel-default card">')
                             .append($('<div class="panel-heading">')
