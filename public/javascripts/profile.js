@@ -111,30 +111,34 @@ function changePassword(){
     const selNewPwd = $('#newPwd');
     const selNewPwdConf = $('#newPwdConf');
     var selStatus = $("#pwdChangeStatus");
-    if (selNewPwd.val() === selNewPwdConf.val()) {
-        console.log("Posting request to create new team");
-        $.post("/profile", {cmd: 'changePassword', userId:userId, oldPwd: selOldPwd.val(), newPwd:selNewPwd.val()}, function (res) {
-            console.log("changePassword: Server returned",res);
-            if (res.result == "ok") {
-                console.log("Password changed");
-                selStatus.text('Heslo zmenené.');
-                selStatus.css("display", "inline").fadeOut(2000);
-                selNewPwd.val('');
-                selNewPwdConf.val('');
-                selDialog.modal("hide");
-            } else {
-                console.log("Error while changing password");
-                selStatus.text('Nepodarilo sa zmeniť heslo.');
-                selStatus.css("display", "inline").fadeOut(10000);
-            }
-        })
-            .fail(function () {
-                selStatus.text('Nepodarilo sa zmeniť heslo.');
-                selStatus.css("display", "inline").fadeOut(10000);
-                console.log("Password change failed");
-            });
-    } else {
-        selStatus.text('Nové heslá sa nezhodujú');
-        selStatus.css("display", "inline").fadeOut(10000);
+    if (!validatePassword(selNewPwd.val())) {
+        alert("Nové heslo musí obsahovať aspoň jedno číslo, malé písmeno a musí mať aspoň 6 znakov.");
+        return;
     }
+    if (selNewPwd.val() != selNewPwdConf.val()){
+        alert("Nové heslá musia byť rovnaké.");
+        return;
+    }
+
+    console.log("Posting request to create new team");
+    $.post("/profile", {cmd: 'changePassword', userId:userId, oldPwd: selOldPwd.val(), newPwd:selNewPwd.val()}, function (res) {
+        console.log("changePassword: Server returned",res);
+        if (res.result == "ok") {
+            console.log("Password changed");
+            selStatus.text('Heslo zmenené.');
+            selStatus.css("display", "inline").fadeOut(2000);
+            selNewPwd.val('');
+            selNewPwdConf.val('');
+            selDialog.modal("hide");
+        } else {
+            console.log("Error while changing password");
+            selStatus.text('Nepodarilo sa zmeniť heslo.');
+            selStatus.css("display", "inline").fadeOut(10000);
+        }
+    })
+        .fail(function () {
+            selStatus.text('Nepodarilo sa zmeniť heslo.');
+            selStatus.css("display", "inline").fadeOut(10000);
+            console.log("Password change failed");
+        });
 }
