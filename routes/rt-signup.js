@@ -12,11 +12,12 @@ const User = mongoose.models.User;
 module.exports = router;
 
 router.get('/', function (req, res, next) {
+    const captchaSiteKey = process.env.CAPTCHA_SITEKEY;
     if (req.user) {
         console.log("User already logged in:" + req.user.username);
         return res.redirect('/profile');
     } else
-        return res.render('signup');
+        return res.render('signup',{captchaSiteKey:captchaSiteKey});
 });
 
 router.post('/', async function (req, res, next) {
