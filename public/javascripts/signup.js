@@ -10,9 +10,9 @@ function initSignup(){
 
 function validateSignupForm(){
     console.log("Validating form");
-    if ($('#userName').val().trim().length == 0) {
+    if ($('#userName').val().trim().length < 5) {
         $('#userNameGrp').addClass("has-error");
-        alert("Prihlasovacie meno nesmie byť prázdne.");
+        alert("Prihlasovacie meno musí mať aspoň 5 znakov.");
         return false;
     } else
         $('#userNameGrp').removeClass("has-error");
