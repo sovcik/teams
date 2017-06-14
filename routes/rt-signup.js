@@ -49,7 +49,7 @@ router.post('/', async function (req, res, next) {
     try {
         const s = await bcrypt.genSalt(5);
         const h = await bcrypt.hash(req.body.password, s);
-        const u = await User.findOneActive({email:req.body.email});
+        const u = await User.findOneActive({username:req.body.userName});
 
         if (u) return res.render('error',{message:"Užívateľ už existuje", error:{}});
 
@@ -68,14 +68,5 @@ router.post('/', async function (req, res, next) {
     } catch (err) {
         return res.render('error', {message:"Nepodarilo sa vytvoriť účet", error:err});
     }
-    /*
-    u = await uv.addNew(dbConnection, username, req.user.username, req.user.password, function(err, user){
-        if (err) {
-            console.log("Error creating signup record for "+username);
-            return;
-        }
-        console.log("Signup created for "+username);
-    });
-    */
 
 });
