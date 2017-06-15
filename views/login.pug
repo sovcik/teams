@@ -5,6 +5,10 @@ block content
   div
     h1= title
     h4 Zadajte prihlasovacie meno a heslo.
+  if success == 0
+    div(class="alert alert-warning")
+      strong Prihlásenie sa nepodarilo. Nesprávne meno alebo heslo.
+
   div
     form(action="/login" method="post")
       div(class="form-group")

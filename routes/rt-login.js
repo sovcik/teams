@@ -5,13 +5,14 @@ const auth = require('../lib/auth.js');
 module.exports = router;
 
 router.get('/', function (req, res, next) {
-    res.render('login', {title: 'Prihlásenie'});
+    const success = req.query.success;
+    res.render('login', {title: 'Prihlásenie', success:success});
 });
 
 router.post('/',
     auth.passport.authenticate('local', {
         successReturnToOrRedirect: '/profile',
-        failureRedirect: '/login',
+        failureRedirect: '/login?success=0',
         failureFlash: true
     })
 );
