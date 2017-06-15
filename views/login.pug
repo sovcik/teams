@@ -1,27 +1,27 @@
 extends includes/layout
 
 block content
-  include includes/header-lg
-  div
-    h1= title
-    h4 Zadajte prihlasovacie meno a heslo.
-  if success == 0
-    div(class="alert alert-warning")
-      strong Prihlásenie sa nepodarilo. Nesprávne meno alebo heslo.
+    include includes/header-lg
+    div
+        h1 Spravovanie tímov a registrácia do turnajov
+        h4 Zadajte prihlasovacie meno a heslo.
+        if success == 0
+            div(class="alert alert-warning")
+                strong Prihlásenie sa nepodarilo. Nesprávne meno alebo heslo.
 
-  div
-    form(action="/login" method="post")
-      div(class="form-group")
-        label(for='username') Meno:
-        input(id="username" type='text', placeholder='meno' name='username' class="form-control")
-      div(class="form-group")
-        label(for='password') Heslo:
-        input(id="password" type='password', placeholder='heslo' name='password' class="form-control")
-      div(class="form-group")
-        button(type="submit" class="btn btn-default") Prihlásiť
-  div
-    p Ak nemáte prihlasovacie meno a heslo tak si
-      = " "
-      a(href='/signup') kliknutím sem
-      = " "
-      span môžete vytvoriť účet
+    div
+        form(action="/login" method="post")
+            div(class="form-group")
+                label(for='username') Meno:
+                input(id="username" type='text', placeholder='meno' name='username' class="form-control")
+            div(class="form-group")
+                label(for='password') Heslo:
+                input(id="password" type='password', placeholder='heslo' name='password' class="form-control")
+            div(class="form-group")
+            button(type="submit" class="btn btn-default") Prihlásiť
+    div
+        p Ak nemáte prihlasovacie meno a heslo tak si
+            = " "
+            a(href='/signup') kliknutím sem
+            = " "
+            span môžete vytvoriť účet

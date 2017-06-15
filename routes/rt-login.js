@@ -6,7 +6,7 @@ module.exports = router;
 
 router.get('/', function (req, res, next) {
     const success = req.query.success;
-    res.render('login', {title: 'Prihlásenie', success:success});
+    res.render('login', {success:success});
 });
 
 router.post('/',
