@@ -319,6 +319,8 @@ function loadAvailableEvents(teamId){
         console.log("Server returned events",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
+            // sort events by name
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
             sel.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");

@@ -70,6 +70,9 @@ function loadPrograms(){
         console.log("Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
+            // sort results by program name
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+            // clear page elements containing programs
             selProg.empty();
             selEvProg.empty();
             if (res.list.length > 0) {
@@ -98,6 +101,8 @@ function loadEvents(){
         console.log("Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
+            // sort events by name
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
             selEv.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
