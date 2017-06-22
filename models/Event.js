@@ -3,10 +3,27 @@ const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const statusPlugin = require('./plugins/status-plugin');
 
+const AddressSchema = require('./Address');
+const OrgSchema = require('./Organization');
+const ContactSchema = require('./Contact');
+
 const EventSchema = new mongoose.Schema({
     name: { type: String, required: true },
     programId: { type: String, required: true },
-    startDate: {type: Date, required: false}
+    startDate: {type: Date, required: false},
+    address: AddressSchema,
+    instructions: { type: String, required: false },
+    organizerOrg: OrgSchema,
+    organizerAdr: AddressSchema,
+    organizerContact: ContactSchema,
+    managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+});
+
+// virtual set of teams
+EventSchema.virtual('teams', {
+    ref: 'TeamEvent',
+    localField: '_id',
+    foreignField: 'teamId'
 });
 
 EventSchema.plugin(statusPlugin);
