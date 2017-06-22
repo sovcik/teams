@@ -1,5 +1,6 @@
 'use strict';
 
+const log = require('../lib/logger');
 const express = require('express');
 const router = express.Router();
 const cel = require('connect-ensure-login');
@@ -53,12 +54,24 @@ router.get('/',cel.ensureLoggedIn('/login'), async function (req, res, next) {
             break;
 
         default:
+            let t;
             if (cmd)
                 console.log('cmd=unknown');
-            const t = await dbTeam.getTeamDetails(req.user.id, teamId);
-            console.log("rendering team",t);
-            console.log("team event",t.registeredOn, t.eventName);
-            return res.render('team',{team:t, user:{id:req.user.id, name:req.user.username}});
+
+            try {
+                t = await dbTeam.getTeamDetails(req.user.id, teamId);
+            } catch (err) {
+                console.log('team not found id=', teamId);
+            }
+
+            if (t) {
+                console.log("rendering team", t);
+                //console.log("team event", t.registeredOn, t.eventName);
+                return res.render('team', {team: t, user: {id: req.user.id, name: req.user.username}});
+            } else {
+                if (!cmd)
+                    return res.render('error',{message:"Tím nebol nájdený", error:{status:''}});
+            }
             break;
     }
     res.json(r);

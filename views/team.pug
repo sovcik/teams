@@ -21,8 +21,11 @@ block content
                 label(for='progName') Program/Súťaž
                 input(id='progName' class='form-control' value=team.programName readonly)
             div(class='form-group' id="eventReg")
-                if team.registeredOn
-                    p Registrovaný na #{team.eventName}
+                if team.events.length > 0
+                    p Registrovaný na
+                    for e in team.events
+                        =" "
+                        a(href="/event?id="+e.id) #{e.name}
                 else
                     button(class="btn btn-success" data-toggle="modal" data-target="#registerEvent") Registruj na turnaj
         div(class='panel-footer')
