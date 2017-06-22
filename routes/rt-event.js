@@ -11,7 +11,6 @@ const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
 const TeamEvent = mongoose.models.TeamEvent;
 const Program = mongoose.models.Program;
-const EventOrganizer = mongoose.models.EventOrganizer;
 
 module.exports = router;
 
@@ -23,9 +22,11 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
     const r = {result:"error", status:200};
 
+    let evt;
+
     try {
-        if (await EventOrganizer.findOne({userId:req.user.id, eventId:eventId}))
-            req.user.isOrganizer = true;
+        evt = Event.findOne({_id:eventId});
+        req.user.isOrganizer = (evt && evt.managers.indexOf(req.user.id) >= 0);
 
     } catch(err) {
         log.WARN("Failed getting organizer status for user id="+req.user.id);
