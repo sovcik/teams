@@ -1,21 +1,36 @@
+"use strict";
+
 const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
 const email = require('../lib/email');
+const log = require('../lib/logger');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
 const TeamEvent = mongoose.models.TeamEvent;
 const Program = mongoose.models.Program;
+const EventOrganizer = mongoose.models.EventOrganizer;
 
 module.exports = router;
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
+    const eventId = req.query.id;
     console.log("/event - get");
     console.log(req.query);
+
     const r = {result:"error", status:200};
+
+    try {
+        if (await EventOrganizer.findOne({userId:req.user.id, eventId:eventId}))
+            req.user.isOrganizer = true;
+
+    } catch(err) {
+        log.WARN("Failed getting organizer status for user id="+req.user.id);
+    }
+
     try {
         switch (cmd) {
             case 'getList':
@@ -43,12 +58,32 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 }
                 break;
             default:
-                console.log("cmd=unknown");
+                let e;
+                if (cmd)
+                    console.log('cmd=unknown');
+                try {
+                    e = await Event.findOne({_id: eventId});
+                } catch (err) {
+
+                }
+                if (e) {
+                    e.teams = [];
+                    //console.log("rendering event", e);
+                    let tmse = await TeamEvent.find({eventId:e.id});
+                    let tms = await Team.populate(tmse,'teamId');
+                    tms.forEach(t => e.teams.push({id:t.teamId.id, name:t.teamId.name}));
+
+                    //console.log("+++++ populated EVENT",e);
+
+                    return res.render('event', {event: e, user: req.user});
+                } else
+                    if (!cmd)
+                        return res.render('error',{message:"Stretnutie/turnaj nenájdený", error:{status:''}});
 
         }
     } catch (err) {
         r.error = {};
-        r.errpr.message = err.message;
+        r.error.message = err.message;
     }
     res.json(r);
     res.end();
