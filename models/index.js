@@ -9,5 +9,6 @@ exp.Schema.TeamUser = require('./TeamUser');
 exp.Schema.Event = require('./Event');
 exp.Schema.TeamEvent = require('./TeamEvent');
 exp.Schema.Program = require('./Program');
+exp.Schema.Invoice = require('./Invoice');
 
 module.exports = exp;

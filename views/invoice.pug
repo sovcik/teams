@@ -1,0 +1,86 @@
+extends includes/layout
+
+block content
+    include includes/header-sm
+    h1= inv.type=="I"?"Faktúra":"Zálohová faktúra"
+    table
+        tr
+            td
+                h4 Dodávateľ
+                p #{inv.issuingOrg.name}
+                p #{inv.issuingAdr.addrLine1}
+                if inv.issuingAdr.addrLine2
+                    p #{inv.issuingAdr.addrLine2}
+                if inv.issuingAdr.addrLine2
+                    p #{inv.issuingAdr.addrLine2}
+                if inv.issuingAdr.addrLine3
+                    p #{inv.issuingAdr.addrLine3}
+                p #{inv.issuingAdr.postCode} #{inv.issuingAdr.city}
+                p
+                p IČO: #{inv.issuingOrg.companyNo}
+                p IČ DPH: #{inv.issuingOrg.VATNo}
+                p IBAN: #{inv.issuingOrg.bankAccount}
+                p SWIFT: #{inv.issuingOrg.bankSWIFT}
+
+            td
+                =" "
+            td
+                h4 Odberateľ
+                p #{inv.billOrg.name}
+                p #{inv.billAdr.addrLine1}
+                if inv.billAdr.addrLine2
+                    p #{inv.billAdr.addrLine2}
+                if inv.billAdr.addrLine2
+                    p #{inv.billAdr.addrLine2}
+                if inv.billAdr.addrLine3
+                    p #{inv.billAdr.addrLine3}
+                p #{inv.billAdr.postCode} #{inv.billAdr.city}
+                p
+                p IČO: #{inv.billOrg.companyNo}
+                p DIČ: #{inv.billOrg.taxNo}
+                p IČ DPH: #{inv.billOrg.VATNo}
+                p IBAN: #{inv.billOrg.bankAccount}
+                p SWIFT: #{inv.billOrg.bankSWIFT}
+
+    p Faktúrujeme vám
+    table
+        tr
+            td
+                p 1.
+            td
+                p Poplatok za Challenge set
+            td
+                p 150,- E
+        tr
+            td
+                p 2.
+            td
+                p Registračný poplatok
+            td
+                p 150,- E
+        tr
+            td
+                p 3.
+            td
+                p Zľava z registračného poplatku (vďaka sponzorom)
+            td
+                p -120,- E
+        tr
+        tr
+            td
+                p Celkom
+            td
+                p
+            td
+                p 180,- E
+
+    if inv.type == "P"
+        div
+            p Ak si želáte zmeniť vaše fakturačné údaje na dokumente, tak ich môžete zmeniť na stránke tímu.
+            p
+            p Ak potrebujete finálnu faktúru, tak po skontrolovaní fakturačných údajov kliknite na stránke tímu na tlačidlo "Vytvor faktúru"
+            p
+            p Stránku tímu môžete otvoriť aj klinknutím na tento link
+                =" "
+                a(href="/team?id="+inv.team) Otvoriť stránku tímu
+
