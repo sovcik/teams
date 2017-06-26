@@ -30,15 +30,14 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log("/program - post");
-    console.log("User role=",req.user.role);
 
     console.log(req.body.cmd);
     const r = {result:"error", status:200};
 
     switch (req.body.cmd){
         case 'createProgram':
-            if (req.user.role != 'A')
-                return res.redirect('/profile');
+            if (!req.user.isAdmin)
+                return res.render('error',{message:"Prístup zamietnutý"});
 
             let name = req.body.name;
             console.log('Going to create program ', name);

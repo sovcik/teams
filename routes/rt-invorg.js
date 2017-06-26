@@ -32,15 +32,14 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log("/invorg - post");
-    console.log("User role=",req.user.role);
 
     console.log(req.body);
     const r = {result:"error", status:200};
 
     switch (req.body.cmd){
         case 'create':
-            if (req.user.role != 'A')
-                return res.redirect('/profile');
+            if (!req.user.isAdmin)
+                return res.render('error',{message:"Prístup zamietnutý"});
             try {
                 let data = JSON.parse(req.body.data);
                 let ioId = req.body.invOrgId;
