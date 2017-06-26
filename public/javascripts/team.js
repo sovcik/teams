@@ -354,10 +354,9 @@ function loadTeamData(teamId){
 function registerForEvent(teamId){
     console.log('Registering for event');
     const eventId = $('#availEvents').val();
-    $.post("/event",
+    $.post("/event/"+eventId,
         {
             cmd: 'registerTeam',
-            eventId: eventId,
             teamId: teamId
         },
         function (res) {

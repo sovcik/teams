@@ -22,10 +22,10 @@ block content
                 input(id='progName' class='form-control' value=team.programName readonly)
             div(class='form-group' id="eventReg")
                 if team.events.length > 0
-                    p Registrovaný na
+                    label(class="label-control") Stretnutia/turnaje
                     for e in team.events
                         =" "
-                        a(href="/event?id="+e.id) #{e.name}
+                        a(href="/event/"+e.id) #{e.name}
                         span(id="pInvoice")
                         span(id="iInvoice")
                 else

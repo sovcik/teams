@@ -15,23 +15,51 @@ const InvoicingOrg = mongoose.models.InvoicingOrg;
 
 module.exports = router;
 
+router.param('id', async function (req, res, next){
+    const id = req.params.id;
+    let r;
+    console.log("Event id",id);
+    try {
+        r = await Event.findById(id);
+        req.event = r;
+        if (r) {
+            req.user.isOrganizer = (req.event.managers.indexOf(req.user.id) >= 0);
+            r = await InvoicingOrg.populate(r,'invoicingOrg');
+            r.teams = [];
+            let tmse = await TeamEvent.find({eventId: r.id});
+            let tms = await Team.populate(tmse, 'teamId');
+            tms.forEach(t => r.teams.push({id: t.teamId.id, name: t.teamId.name}));
+            r.teams.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+
+            console.log("Event id=", r.id, " name=", r.name);
+
+        } else
+            throw new Error("event not found");
+        next();
+    } catch (err) {
+        res.render('error',{message:"Stretnutie/Turnaj nenájdený",error:{status:err.message}});
+    }
+
+});
+
+
+router.get('/:id', async function (req, res, next) {
+    const cmd = req.query.cmd;
+    console.log("/event/:id - get");
+
+    if (cmd)
+        next();
+    else
+        res.render('event',{event: req.event, user: req.user});
+
+});
+
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
-    const eventId = req.query.id;
-    console.log("/event - get");
+    console.log("/event - get (CMD)");
     console.log(req.query);
 
     const r = {result:"error", status:200};
-
-    let evt;
-
-    try {
-        evt = Event.findOne({_id:eventId});
-        req.user.isOrganizer = (evt && evt.managers.indexOf(req.user.id) >= 0);
-
-    } catch(err) {
-        log.WARN("Failed getting organizer status for user id="+req.user.id);
-    }
 
     try {
         switch (cmd) {
@@ -43,6 +71,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 });
                 r.result = "ok";
                 r.list = p;
+                r.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
                 break;
 
             case 'getAvailTeamEvents':
@@ -55,33 +84,14 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     });
                     r.result = "ok";
                     r.list = p;
+                    r.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
                 } else {
                     throw new Error("Team not found");
                 }
                 break;
             default:
-                let e;
                 if (cmd)
                     console.log('cmd=unknown');
-                try {
-                    e = await Event.findOne({_id: eventId});
-                } catch (err) {
-
-                }
-                if (e) {
-                    e.teams = [];
-                    //console.log("rendering event", e);
-                    let tmse = await TeamEvent.find({eventId:e.id});
-                    let tms = await Team.populate(tmse,'teamId');
-                    tms.forEach(t => e.teams.push({id:t.teamId.id, name:t.teamId.name}));
-
-                    //console.log("+++++ populated EVENT",e);
-
-                    return res.render('event', {event: e, user: req.user});
-                } else
-                    if (!cmd)
-                        return res.render('error',{message:"Stretnutie/turnaj nenájdený", error:{status:''}});
-
         }
     } catch (err) {
         r.error = {};
@@ -93,35 +103,15 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    const siteUrl = req.protocol + '://' + req.get("host");
     const cmd = req.body.cmd;
     console.log("/event - put");
     console.log(req.body);
     const r = {result:"error", status:200};
     try {
         switch (cmd) {
-            case 'registerTeam':
-                console.log('Going to register team for an event');
-                let t = await Team.findOneActive({_id: req.body.teamId});
-                if (!t) throw new Error("Team not found");
-
-                let p = await Program.findOneActive({_id:t.programId});
-                if (!p) throw new Error("Team not joined in program");
-
-                let e = await Event.findOneActive({programId:p.id, _id:req.body.eventId});
-                if (!e) throw new Error("Event not found or not relevant for program team is joined to");
-
-                let te = await TeamEvent.create({teamId:t.id, eventId:e.id, programId:p.id, registeredOn:Date.now()});
-                if (!te) throw new Error("Failed to register");
-
-                email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
-
-                r.result = "ok";
-                r.list = p;
-                break;
             case 'createEvent':
-                if (req.user.role != 'A')
-                    return res.redirect('/profile');
+                if (!req.user.isAdmin)
+                    return res.render('error',{message:"Prístup zamietnutý"});
 
                 let name = req.body.name;
                 console.log('Going to create event ', name);
@@ -141,6 +131,47 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     r.error.message = err.message;
                     console.log(err);
                 }
+                break;
+
+            default:
+                console.log("cmd=unknown");
+
+        }
+    } catch (err) {
+        r.error = {};
+        r.error.message = err.message;
+    }
+    res.json(r);
+    res.end();
+
+});
+
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    const cmd = req.body.cmd;
+    console.log("/event/:id - put");
+    console.log(req.body);
+    const r = {result:"error", status:200};
+    try {
+        switch (cmd) {
+            case 'registerTeam':
+                console.log('Going to register team for an event');
+                let t = await Team.findOneActive({_id: req.body.teamId});
+                if (!t) throw new Error("Team not found");
+
+                let p = await Program.findOneActive({_id:t.programId});
+                if (!p) throw new Error("Team not joined in program");
+
+                let e = await Event.findOneActive({programId:p.id, _id:req.event.id});
+                if (!e) throw new Error("Event not found or not relevant for program team is joined to");
+
+                let te = await TeamEvent.create({teamId:t.id, eventId:e.id, programId:p.id, registeredOn:Date.now()});
+                if (!te) throw new Error("Failed to register");
+
+                email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
+
+                r.result = "ok";
+                r.list = p;
                 break;
 
             default:

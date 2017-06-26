@@ -136,7 +136,7 @@ function loadEvents(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<li class="list-group-item" value="'+item.id+'"">').append(item.name);
+                    let c = $('<a class="list-group-item" href="/event/'+item.id+'"">').append(item.name);
                     selEv.append(c);
                 });
             } else {
