@@ -10,5 +10,6 @@ exp.Schema.Event = require('./Event');
 exp.Schema.TeamEvent = require('./TeamEvent');
 exp.Schema.Program = require('./Program');
 exp.Schema.Invoice = require('./Invoice');
+exp.Schema.InvoicingOrg = require('./InvoicingOrg');
 
 module.exports = exp;

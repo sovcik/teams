@@ -11,6 +11,7 @@ const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
 const TeamEvent = mongoose.models.TeamEvent;
 const Program = mongoose.models.Program;
+const InvoicingOrg = mongoose.models.InvoicingOrg;
 
 module.exports = router;
 
@@ -127,10 +128,13 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 try {
                     let p = await Program.findOneActive({_id:req.body.programId});
                     if (!p) throw new Error("Program does not exist");
+                    let io = await InvoicingOrg.findOneActive({_id:req.body.invOrgId});
+                    if (!io) throw new Error("Invoicing org does not exist");
+
                     let e = await Event.findOneActive({name:name});
                     if (e) throw new Error("Duplicate event name");
-                    e = await Event.create({name:name, programId:req.body.programId});
-                    console.log("Program created", p.name, p.id);
+                    e = await Event.create({name:name, programId:p.id, invoicingOrg:io.id});
+                    console.log("Event created", e.name, e.id);
                     r.result = "ok";
                 } catch (err) {
                     r.error = {};

@@ -7,7 +7,8 @@ module.exports = function(app){
     app.use('/program', require('./rt-program.js'));
     app.use('/event', require('./rt-event.js'));
     app.use('/admin', require('./rt-admin.js'));
-    app.use('/public', require('./public'));
+    app.use('/invoice', require('./rt-invoice.js'));
+    app.use('/invorg', require('./rt-invorg.js'));
 
     app.get('/logout',
         function(req, res){

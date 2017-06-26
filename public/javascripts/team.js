@@ -24,6 +24,7 @@ function initTeam(){
     loadTeamMembers(teamId);
     loadAddressDetails(teamId);
     loadAvailableEvents(teamId);
+    loadInvoices(teamId);
 
     console.log("/team - Initializing completed");
 }
@@ -372,5 +373,64 @@ function registerForEvent(teamId){
         .fail(function (err) {
             console.log("Member removal failed",err);
         });
+
+}
+
+function loadInvoices(teamId){
+    console.log('Loading invoices');
+    const sel = $("#invoices");
+    $.get( "/invoice?cmd=getList&teamId="+teamId, function(res) {
+        console.log("Server returned invoices",res);
+        console.log("List of",res.list.length,"records");
+        if (res.result === 'ok'){
+            // sort invoices by issuing date
+            res.list.sort(function(a,b) {return (a.issuedOn > b.issuedOn) ? 1 : ((b.issuedOn > a.issuedOn) ? -1 : 0);} );
+            sel.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                sel.append($('<label class="form-label" >').append('Faktúry'));
+                res.list.forEach(function(item) {
+                    let iOn, dOn;
+                    try {
+                        iOn = new Date(item.issuedOn);
+                    } catch(err){
+
+                    }
+                    try {
+                        dOn = new Date(item.dueOn);
+                    } catch(err){
+
+                    }
+
+                    let c = $('<li class="list-group-item">')
+                        .append($('<h5 class="list-group-item-heading">')
+                            .append($('<a  href="/invoice/'+item._id+'">')
+                                .append((item.type=="P"?"Zálohová ":"")+item.number)
+                            )
+
+                        )
+                        .append($('<p class="list-group-item-text">')
+                            .append("Vystavená "+(iOn?iOn.toLocaleDateString():"-error-")+" Splatná "+(dOn?dOn.toLocaleDateString():"-error-"))
+                        );
+
+                    if (item.type == "P")
+                        c
+                            .append($('<a href="/invoice/'+item._id+'?cmd=reloadInvoiceData" class="btn btn-default">')
+                                .append('Nahraj nové údaje')
+
+                            )
+                            .append($('<a href="/invoice/'+item._id+'?cmd=createInvoice" class="btn btn-default">')
+                                .append('Vytvor faktúru')
+                            );
+                    sel.append(c);
+                });
+            } else {
+                sel.text('Žiadne');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
 
 }
