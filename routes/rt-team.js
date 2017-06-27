@@ -65,7 +65,7 @@ router.get('/',cel.ensureLoggedIn('/login'), async function (req, res, next) {
             }
 
             if (t) {
-                console.log("rendering team", t);
+                //console.log("rendering team", t);
                 //console.log("team event", t.registeredOn, t.eventName);
                 return res.render('team', {team: t, user: {id: req.user.id, name: req.user.username}});
             } else {
