@@ -6,6 +6,7 @@ const cel = require('connect-ensure-login');
 const router = express.Router();
 const email = require('../lib/email');
 const log = require('../lib/logger');
+const libInvoice = require('../lib/invoice');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
@@ -115,21 +116,25 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
                 let name = req.body.name;
                 console.log('Going to create event ', name);
-                try {
-                    let p = await Program.findOneActive({_id:req.body.programId});
-                    if (!p) throw new Error("Program does not exist");
-                    let io = await InvoicingOrg.findOneActive({_id:req.body.invOrgId});
-                    if (!io) throw new Error("Invoicing org does not exist");
 
-                    let e = await Event.findOneActive({name:name});
-                    if (e) throw new Error("Duplicate event name");
-                    e = await Event.create({name:name, programId:p.id, invoicingOrg:io.id});
+                let p = await Program.findOneActive({_id:req.body.programId});
+                if (!p) throw new Error("Program does not exist");
+                let io = await InvoicingOrg.findOneActive({_id:req.body.invOrgId});
+                if (!io) throw new Error("Invoicing org does not exist");
+
+                let e = await Event.findOneActive({name:name});
+                if (e) throw new Error("Duplicate event name");
+
+                try {
+                    e = await Event.create({name: name, programId: p.id, invoicingOrg: io.id});
                     console.log("Event created", e.name, e.id);
                     r.result = "ok";
-                } catch (err) {
+                    r.event = e;
+                } catch (er) {
+                    log.ERROR("Failed creating event: "+name+" err="+er.message);
                     r.error = {};
-                    r.error.message = err.message;
-                    console.log(err);
+                    r.error.message = er.message;
+
                 }
                 break;
 
@@ -165,13 +170,31 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 let e = await Event.findOneActive({programId:p.id, _id:req.event.id});
                 if (!e) throw new Error("Event not found or not relevant for program team is joined to");
 
-                let te = await TeamEvent.create({teamId:t.id, eventId:e.id, programId:p.id, registeredOn:Date.now()});
+                let te;
+                try {
+                    te = await TeamEvent.create({
+                        teamId: t.id,
+                        eventId: e.id,
+                        programId: p.id,
+                        registeredOn: Date.now()
+                    });
+                } catch (er) {
+                    log.ERROR("Failed registering team="+t.name+" for event="+e.name+" err="+er.message);
+                }
+
                 if (!te) throw new Error("Failed to register");
+
+                try {
+                    console.log('Going to create invoice');
+                    const inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
+                } catch (er) {
+                    log.ERROR("Failed creating invoice for teamId="+te.teamId+" eventId="+te.eventId+" err="+er.message);
+                }
 
                 email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
 
                 r.result = "ok";
-                r.list = p;
+                r.teamEvent = te;
                 break;
 
             default:

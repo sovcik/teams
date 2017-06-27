@@ -365,12 +365,39 @@ function registerForEvent(teamId){
                 console.log("team registered");
                 location.reload(true);
             } else {
-                console.log("Error while creating team");
+                console.log("Error while registering for event");
             }
         }
     )
         .fail(function (err) {
-            console.log("Member removal failed",err);
+            console.log("Registration for event failed",err);
+        });
+
+}
+
+function createInvoice(eventId, teamId, invType, cbok, cberr){
+    console.log('Creating invoice');
+    $.post("/invoice",
+        {
+            cmd: 'create',
+            teamId: teamId,
+            eventId: eventId,
+            type: invType
+        },
+        function (res) {
+            console.log("createInvoice: Server returned",res);
+            if (res.result == "ok") {
+                console.log("invoice created", res.invoice.id);
+                cbok(res.invoice);
+            } else {
+                console.log("Error while creating invoice");
+                cberr(res);
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Invoice creation failed",err);
+            cberr(err);
         });
 
 }
@@ -433,3 +460,4 @@ function loadInvoices(teamId){
     });
 
 }
+
