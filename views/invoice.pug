@@ -1,90 +1,182 @@
 extends includes/layout
 
 block content
-    div
-        div
+    style.
+        .adr {
+            vertical-align: top;
+            padding: 10pt;
+            margin-top: 15pt;
+            margin-bottom: 15pt;
+            width: 150pt;
+        }
+        .itm {
+            vertical-align: top;
+            padding: 5pt;
+            margin-top: 3pt;
+            margin-bottom: 3pt;
+        }
+        .lbl {
+            width: 50pt;
+            float: left;
+            font-weight:bold;
+        }
+        .lbl2 {
+            font-weight:bold;
+        }
+
+        th {
+            text-align: center;
+        }
+        .onerow::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        .bold {
+            font-weight:bold;
+        }
+
+
+    div(class="onerow")
+        div(style="float:left;overflow:auto;margin-right:10pt")
             img(src=siteUrl + "/images/FLL_Logo_web_white.jpg" alt="FLL Logo" width="80pt")
-        div
-            h2 FLL Slovensko
-            h4 Mlynská dolina 41, 81102 Bratislava
-    h1= inv.type=="I"?"Faktúra":"Zálohová faktúra"
-    table
-        tr
-            td
-                h4 Dodávateľ
-                p #{inv.issuingOrg.name}
-                p #{inv.issuingAdr.addrLine1}
-                if inv.issuingAdr.addrLine2
-                    p #{inv.issuingAdr.addrLine2}
-                if inv.issuingAdr.addrLine2
-                    p #{inv.issuingAdr.addrLine2}
-                if inv.issuingAdr.addrLine3
-                    p #{inv.issuingAdr.addrLine3}
-                p #{inv.issuingAdr.postCode} #{inv.issuingAdr.city}
-                p
-                p IČO: #{inv.issuingOrg.companyNo}
-                p IČ DPH: #{inv.issuingOrg.VATNo}
-                p IBAN: #{inv.issuingOrg.bankAccount}
-                p SWIFT: #{inv.issuingOrg.bankSWIFT}
+        div(style="float:left")
+            h4 #{inv.issuingOrg.name}
+                br
+                small= inv.issuingAdr.addrLine1 + (inv.issuingAdr.addrLine2?', '+inv.issuingAdr.addrLine2:'') + (inv.issuingAdr.addrLine3?', '+inv.issuingAdr.addrLine3:'')
+                br
+                small #{inv.issuingAdr.postCode} #{inv.issuingAdr.city}
+                br
+                small
+                    if inv.issuingOrg.companyNo
+                        span(class="lbl2") IČO:
+                        =" "
+                        span #{inv.issuingOrg.companyNo}
+                    if inv.issuingOrg.taxNo
+                        span(class="lbl2") , DIČ:
+                        =" "
+                        span #{inv.issuingOrg.taxNo}
+                    if inv.issuingOrg.VATNo
+                        br
+                        span(class="lbl2") IČ DPH:
+                        =" "
+                        span #{inv.issuingOrg.VATNo}
 
-            td
-                =" "
-            td
-                h4 Odberateľ
-                p #{inv.billOrg.name}
-                p #{inv.billAdr.addrLine1}
+        div(style="float:right")
+            h3= inv.type=="I"?"Faktúra":"Zálohová faktúra"
+                =" č. "+inv.number
+            p Dátum vystavenia:
+                =" " + inv.issuedOn.toLocaleDateString()
+                br
+                span Dátum dodania:
+                    =" " + inv.issuedOn.toLocaleDateString()
+                br
+                span(class="bold") Dátum splatnosti:
+                    =" " + inv.dueOn.toLocaleDateString()
+
+
+
+    div(class="onerow")
+        div(style="border: thin solid black;width:300pt;padding:5pt;float:left")
+            h4 Odberateľ
+            p #{inv.billOrg.name}
+            p #{inv.billAdr.addrLine1}
                 if inv.billAdr.addrLine2
-                    p #{inv.billAdr.addrLine2}
-                if inv.billAdr.addrLine2
-                    p #{inv.billAdr.addrLine2}
+                    =", "+inv.billAdr.addrLine2
                 if inv.billAdr.addrLine3
-                    p #{inv.billAdr.addrLine3}
-                p #{inv.billAdr.postCode} #{inv.billAdr.city}
-                p
-                p IČO: #{inv.billOrg.companyNo}
-                p DIČ: #{inv.billOrg.taxNo}
-                p IČ DPH: #{inv.billOrg.VATNo}
-                p IBAN: #{inv.billOrg.bankAccount}
-                p SWIFT: #{inv.billOrg.bankSWIFT}
+                    =", "+inv.billAdr.addrLine3
+            p #{inv.billAdr.postCode} #{inv.billAdr.city}
 
-    p Faktúrujeme vám
-    table
-        tr
-            td
-                p 1.
-            td
-                p Poplatok za Challenge set
-            td
-                p 150,- E
-        tr
-            td
-                p 2.
-            td
-                p Registračný poplatok
-            td
-                p 150,- E
-        tr
-            td
-                p 3.
-            td
-                p Zľava z registračného poplatku (vďaka sponzorom)
-            td
-                p -120,- E
-        tr
-        tr
-            td
-                p Celkom
-            td
+            if inv.billOrg.companyNo
                 p
-            td
-                p 180,- E
+                    span(class="lbl2") IČO:
+                    =" "
+                    span #{inv.billOrg.companyNo}
+                    if inv.billOrg.taxNo
+                        span(class="lbl2") , DIČ:
+                        =" "
+                        span #{inv.billOrg.taxNo}
+            if inv.billOrg.VATNo
+                p
+                    span(class="lbl2") IČ DPH:
+                    =" "
+                    span #{inv.billOrg.VATNo}
+            if inv.billOrg.bankAccount
+                p
+                    span(class="lbl2") IBAN:
+                    =" "
+                    span #{inv.billOrg.bankAccount}
+            if inv.billOrg.bankSWIFT
+                p
+                    span(class="lbl2") SWIFT:
+                    =" "
+                    span #{inv.billOrg.bankSWIFT}
+
+
+    p(style="margin-top:10pt") Faktúrujeme vám
+    table(style="border-top:2pt;border-bottom:2pt")
+        tr
+            th(class="itm" style="width:20pt")
+                ="#"
+            th(class="itm" style="width:400pt;text-align:left")
+                ="Popis"
+            th(class="itm" style="width:50pt")
+                ="J.Cena"
+            th(class="itm" style="width:50pt")
+                ="Množstvo"
+            th(class="itm" style="width:70pt")
+                ="Cena"
+        for itm in inv.items
+            tr
+                td(class="itm")
+                    p #{itm.itemNo}
+                td(class="itm")
+                    p #{itm.text}
+                        if itm.note
+                            br
+                            small #{itm.note}
+                td(class="itm")
+                    if itm.unitPrice
+                        p #{itm.unitPrice} #{inv.currency}
+                td(class="itm")
+                    if itm.qty
+                        p #{itm.qty} #{itm.unit}
+                td(class="itm" style="text-align:right")
+                    if itm.total
+                        p #{itm.total} #{inv.currency}
+        tr
+            td(class="itm")
+            td(class="itm")
+                h4 Celkom
+            td(class="itm")
+            td(class="itm")
+            td(class="itm")
+                h4(style="text-align:right") #{inv.total} #{inv.currency}
+
+    div(style="border: thin solid black" class="onerow")
+        div(style="float:left;padding:5pt")
+            h5 Prosíme uhradiť do:
+                span(class="bold")
+                    =" " + inv.dueOn.toLocaleDateString()
+        div(style="float:left;padding:5pt")
+            h5 IBAN:
+                span(class="bold")
+                    =" " + inv.issuingOrg.bankAccount
+        div(style="float:left;padding:5pt")
+            h5 SWIFT:
+                span(class="bold")
+                    =" " + inv.issuingOrg.bankSWIFT
+
+        div(style="float:left;padding:5pt")
+            h5 VS:
+                span(class="bold")
+                   =" " + inv.number
 
     if inv.type == "P"
-        div
+        div(style="margin-top:10pt")
             p Ak si želáte zmeniť vaše fakturačné údaje na dokumente, tak ich môžete zmeniť na stránke tímu.
-            p
-            p Ak potrebujete finálnu faktúru, tak po skontrolovaní fakturačných údajov kliknite na stránke tímu na tlačidlo "Vytvor faktúru"
-            p
-            p Stránku tímu môžete otvoriť aj klinknutím na tento link
+            br Ak potrebujete finálnu faktúru, tak po skontrolovaní fakturačných údajov kliknite na stránke tímu na tlačidlo "Vytvor faktúru"
+            br V prípade, že uhradíte túto zálohovú faktúru, bude vám finálna faktúra vystavená automaticky.
+            br Stránku tímu môžete otvoriť aj klinknutím na tento link
                 =" "
                 a(href=(siteUrl||'')+"/team/"+inv.team) Otvoriť stránku tímu
