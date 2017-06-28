@@ -156,6 +156,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     const cmd = req.body.cmd;
     console.log("/event/:id - put");
     console.log(req.body);
+    console.log("SITE URL",siteUrl);
     const r = {result:"error", status:200};
     try {
         switch (cmd) {

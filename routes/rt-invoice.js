@@ -32,13 +32,15 @@ router.param('invoiceId', async function (req, res, next){
 
 
 router.get('/:invoiceId', async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    console.log("SITE URL",siteUrl);
     const cmd = req.query.cmd;
     console.log("/invoice - get");
 
     if (cmd)
         next();
     else
-        res.render('invoice',{inv:req.invoice});
+        res.render('invoice',{inv:req.invoice, siteUrl:siteUrl});
 
 });
 

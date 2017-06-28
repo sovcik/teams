@@ -1,6 +1,5 @@
-/*
- Team entity - Storing team details
- */
+"use strict";
+
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const statusPlugin = require('./plugins/status-plugin');
@@ -8,6 +7,7 @@ const statusPlugin = require('./plugins/status-plugin');
 const AddressSchema = require('./Address');
 const OrgSchema = require('./Organization');
 const ContactSchema = require('./Contact');
+const InvoiceItemSchema = require('./InvoiceItem');
 
 const InvoiceSchema = new mongoose.Schema({
     number: { type: String, required: true },  // normally created as prefix+number
@@ -22,7 +22,10 @@ const InvoiceSchema = new mongoose.Schema({
     issuedOn: {type: Date},
     dueOn: {type:Date},
     paidOn: {type: Date},
-    team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' }
+    team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' },
+    items: [InvoiceItemSchema],
+    total: {type: Number},
+    currency: {type: String}
 });
 
 InvoiceSchema.statics.testData = function(rec, id){
@@ -39,6 +42,23 @@ InvoiceSchema.statics.testData = function(rec, id){
     ContactSchema.testData(rec.billContact, 'bcT'+id);
     rec.issuingContact = {};
     ContactSchema.testData(rec.issuingContact, 'scT'+id);
+
+    rec.items = [];
+
+    let item = {};
+    InvoiceItemSchema.testData(item, 'itm'+id);
+    rec.items.push(item);
+
+    item = {};
+    InvoiceItemSchema.testData(item, 'itm'+id+1);
+    rec.items.push(item);
+
+    item = {};
+    InvoiceItemSchema.testData(item, 'itm'+id+2);
+    rec.items.push(item);
+
+    rec.total = 1000.23;
+    rec.currency = "€";
 
     rec.issuedOn = Date.now();
     rec.dueOn = Date.now()+14;
