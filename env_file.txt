@@ -2,13 +2,27 @@
 // Create .env file and enter correct values
 // It is also necessary to configure Heroku config variables
 
-DB_SERVER=ds.mlab.com:19220
-DB_DATABASE=prod
-DB_USER=mongouser
-DB_PWD=mongopwd
+ENV=dev
 
-SMTP_SERVER=smtp.fll.sk
-SMTP_USER=smtpUser
-SMTP_PWD=smtpPassword
+CAPTCHA_SECRET=
+CAPTCHA_SITEKEY=
+
+LOGENTRIES_TOKEN=
+LOG_LEVEL=
+
+DB_SERVER=
+DB_DATABASE=
+DB_USER=
+DB_PWD=
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_TLS=yes
+SMTP_USER=noreply@fll.sk
+SMTP_PWD=
+
+EMAIL_FROM=noreply@fll.sk
+EMAIL_BCC_INVOICE=faktury@fll.sk
+EMAIL_BCC_REGISTER=registracia@fll.sk
 
 TZ=Europe/Bratislava

@@ -1,7 +1,8 @@
 'use strict';
 
 function initTeam(){
-    const teamId = urlGetParam('id');
+    //const teamId = urlGetParam('id');
+    const teamId = getResourceId(location.href);
     console.log("/team - Initializing");
     $("#createTeamMemberBtn").on("click", function(){
         createNewTeamMember(teamId);
@@ -34,18 +35,22 @@ function loadTeamCoaches(teamId){
     console.log("Loading team coaches");
     const t = $("#coachList");
     t.empty();
-    $.get( "/team?id="+teamId+"&cmd=getTeamCoaches", function(res) {
+    $.get( "/team/"+teamId+"?cmd=getTeamCoaches", function(res) {
         console.log("Server returned coaches",res);
+        $('#coachCount').val(' ');
         if (res.result === 'ok'){
             console.log("List of",res.list.length,"records");
+            $('#coachCount').val(res.list.length);
             t.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    var c = $('<a href="'+site+'/profile?id='+item.id+'" class="btn btn-success btn-member" role="button">')
-                        .append(item.fullName);
+                    if (item.fullName) {
+                        var c = $('<a href="' + site + '/profile?id=' + item.id + '" class="btn btn-success btn-member" role="button">')
+                            .append(item.fullName);
 
-                    t.append(c);
+                        t.append(c);
+                    }
 
                 });
             } else {
@@ -64,36 +69,45 @@ function loadTeamMembers(teamId){
     console.log("Loading team members");
     const t = $("#memberList");
     t.empty();
-    $.get( "/team?id="+teamId+"&cmd=getTeamMembers", function(res) {
+    $.get( "/team/"+teamId+"?cmd=getTeamMembers", function(res) {
         console.log("Server returned members",res);
+        $('#memberCount').val(' ');
         if (res.result === 'ok'){
             console.log("List of",res.list.length,"records");
+            $('#memberCount').val(res.list.length);
             t.empty();
             if (res.list.length > 0) {
                 res.list.forEach(function(item) {
 
-                    let btnRemove = $('<button type="button" class="btn btn-link btn-xs">');
-                    btnRemove.memberId = item.id;
-                    btnRemove.on("click",function(){removeMember(item.id, teamId);});
-                    btnRemove.append($('<span class="glyphicon glyphicon-remove">'));
+                    // display member only if full name is defined
+                    if (item.fullName) {
+                        let btnRemove = $('<button type="button" class="btn btn-link btn-xs">');
+                        btnRemove.memberId = item.id;
+                        btnRemove.on("click", function () {
+                            removeMember(item.id, teamId);
+                        });
+                        btnRemove.append($('<span class="glyphicon glyphicon-remove">'));
 
-                    let btnEdit = $('<button type="button" class="btn btn-link btn-xs">');
-                    btnEdit.memberId = item.id;
-                    btnEdit.on("click",function(){editMember(item.id);});
-                    btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
+                        let btnEdit = $('<button type="button" class="btn btn-link btn-xs">');
+                        btnEdit.memberId = item.id;
+                        btnEdit.on("click", function () {
+                            editMember(item.id);
+                        });
+                        btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
 
-                    let c = $('<div class="panel panel-default card">')
+                        let c = $('<div class="panel panel-default card">')
                             .append($('<div class="panel-heading">')
-                                .append(btnRemove)
-                                .append(item.fullName)
+                                    .append(btnRemove)
+                                    .append(item.fullName)
                                 //.append(btnEdit)
                             )
                             .append($('<div class="panel-body form-inline">')
-                                .append($('<input class="form-control" type="date" readonly value="'+(item.dateOfBirth?item.dateOfBirth.substr(0,10):null)+'">'))
-                                .append($('<input class="form-control" type="string" readonly value="'+(item.email?item.email:'')+'">'))
+                                .append($('<input class="form-control" type="date" readonly value="' + (item.dateOfBirth ? item.dateOfBirth.substr(0, 10) : null) + '">'))
+                                .append($('<input class="form-control" type="string" readonly value="' + (item.email ? item.email : '') + '">'))
                             );
 
-                    t.append(c);
+                        t.append(c);
+                    }
 
                 });
             } else {
@@ -127,13 +141,12 @@ function createNewTeamMember(teamId){
 
     if (selName.val().trim() != '') {
         console.log("Posting request to create new member");
-        $.post("/team",
+        $.post("/team/"+teamId,
             {
                 cmd: 'createTeamMember',
                 name: selName.val(),
                 email: selEmail.val(),
-                dob: selDOB.val(),
-                teamId: teamId
+                dob: selDOB.val()
             },
             function (res) {
                 console.log("createTeamMember: Server returned",res);
@@ -165,11 +178,10 @@ function createNewTeamMember(teamId){
 
 function removeMember(id, teamId){
     console.log("Removing member",id);
-    $.post("/team",
+    $.post("/team/"+teamId,
         {
             cmd: 'removeTeamMember',
-            memberId: id,
-            teamId: teamId
+            memberId: id
         },
         function (res) {
             console.log("removeTeamMember: Server returned",res);
@@ -230,11 +242,10 @@ function saveAddressDetails(detType, teamId){
 
     $.ajax({
             type:"POST",
-            url:"/team",
+            url:"/team/"+teamId,
             dataType: "json",
             data: {
                 cmd: 'saveAdrDetails',
-                teamId: teamId,
                 type: detType,
                 data: JSON.stringify(details)
             }
@@ -265,7 +276,7 @@ function saveAddressDetails(detType, teamId){
 
 function loadAddressDetails(teamId){
     console.log("Loading team address details");
-    $.get("/team?id="+teamId+"&cmd=getAdrDetails")
+    $.get("/team/"+teamId+"?cmd=getAdrDetails")
         .done(function (res) {
             console.log("loadAdrDetails: Server returned",res);
             if (res.result == "ok") {
@@ -341,7 +352,7 @@ function loadAvailableEvents(teamId){
 }
 
 function loadTeamData(teamId){
-    $.get( "/team?cmd=getData&teamId="+teamId, function(res) {
+    $.get( "/team/"+teamId+"?cmd=getData", function(res) {
         console.log('Server returned team data',res);
         if (res.result === 'ok'){
 
@@ -354,6 +365,7 @@ function loadTeamData(teamId){
 function registerForEvent(teamId){
     console.log('Registering for event');
     const eventId = $('#availEvents').val();
+    const selStatus = $('#registerStatus');
     $.post("/event/"+eventId,
         {
             cmd: 'registerTeam',
@@ -366,6 +378,9 @@ function registerForEvent(teamId){
                 location.reload(true);
             } else {
                 console.log("Error while registering for event");
+                selStatus.text('Nepodarilo sa registrovať.');
+                selStatus.css("display", "inline").fadeOut(5000);
+
             }
         }
     )
@@ -414,42 +429,42 @@ function loadInvoices(teamId){
             sel.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
+
                 sel.append($('<label class="form-label" >').append('Faktúry'));
-                res.list.forEach(function(item) {
+                res.list.forEach(function (item) {
                     let iOn, dOn;
                     try {
                         iOn = new Date(item.issuedOn);
-                    } catch(err){
+                    } catch (err) {
 
                     }
                     try {
                         dOn = new Date(item.dueOn);
-                    } catch(err){
+                    } catch (err) {
 
                     }
 
                     let c = $('<li class="list-group-item">')
                         .append($('<h5 class="list-group-item-heading">')
-                            .append($('<a  href="/invoice/'+item._id+'">')
-                                .append((item.type=="P"?"Zálohová ":"")+item.number)
+                            .append($('<a  href="/invoice/' + item._id + '">')
+                                .append((item.type == "P" ? "Zálohová " : "") + item.number)
                             )
-
                         )
                         .append($('<p class="list-group-item-text">')
-                            .append("Vystavená "+(iOn?iOn.toLocaleDateString():"-error-")+" Splatná "+(dOn?dOn.toLocaleDateString():"-error-"))
+                            .append("Vystavená " + (iOn ? iOn.toLocaleDateString() : "-error-") + " Splatná " + (dOn ? dOn.toLocaleDateString() : "-error-"))
                         );
 
                     if (item.type == "P")
                         c
-                            .append($('<a href="/invoice/'+item._id+'?cmd=reloadInvoiceData" class="btn btn-default">')
+                            .append($('<a href="/invoice/' + item._id + '?cmd=reloadInvoiceData" class="btn btn-default">')
                                 .append('Nahraj nové údaje')
-
                             )
-                            .append($('<a href="/invoice/'+item._id+'?cmd=createInvoice" class="btn btn-default">')
+                            .append($('<a href="/invoice/' + item._id + '?cmd=createInvoice" class="btn btn-default">')
                                 .append('Vytvor faktúru')
                             );
                     sel.append(c);
                 });
+
             } else {
                 sel.text('Žiadne');
             }

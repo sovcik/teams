@@ -29,3 +29,13 @@ function validatePassword(pwd){
     const re = /(?=.*[0-9])(?=.*[a-z]).{6,}/;
     return re.test(pwd);
 }
+
+function getResourceId(url){
+    // strip query (if provided)
+    if (url.indexOf('?') > 0)
+        url = url.substr(0,url.indexOf('?'));
+    // if pathname last char is /, then remove it
+    if (url[url.lenght-1] == '/')
+        url = url.substr(0,url.length-1);
+    return url.substr(url.lastIndexOf('/') + 1);
+}

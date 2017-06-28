@@ -1,7 +1,12 @@
 extends includes/layout
 
 block content
-    include includes/header-sm
+    div
+        div
+            img(src=siteUrl + "/images/FLL_Logo_web_white.jpg" alt="FLL Logo" width="80pt")
+        div
+            h2 FLL Slovensko
+            h4 Mlynská dolina 41, 81102 Bratislava
     h1= inv.type=="I"?"Faktúra":"Zálohová faktúra"
     table
         tr
@@ -82,5 +87,4 @@ block content
             p
             p Stránku tímu môžete otvoriť aj klinknutím na tento link
                 =" "
-                a(href="/team?id="+inv.team) Otvoriť stránku tímu
-
+                a(href=(siteUrl||'')+"/team/"+inv.team) Otvoriť stránku tímu

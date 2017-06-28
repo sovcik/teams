@@ -184,14 +184,18 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
                 if (!te) throw new Error("Failed to register");
 
+                let inv;
                 try {
                     console.log('Going to create invoice');
-                    const inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
+                    inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
                 } catch (er) {
                     log.ERROR("Failed creating invoice for teamId="+te.teamId+" eventId="+te.eventId+" err="+er.message);
                 }
 
-                email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
+                if (inv)
+                    email.sendInvoice(req.user, inv, siteUrl);
+                if (te)
+                    email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
 
                 r.result = "ok";
                 r.teamEvent = te;
