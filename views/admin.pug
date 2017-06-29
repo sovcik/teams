@@ -66,6 +66,25 @@ block content
                             label(for='billTaxNo') DIČ
                             input(id='billTaxNo' type='text' class='form-control')
                         div(class='form-group')
+                            label(for='billVATNo') IČ DPH
+                            input(id='billVATNo' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='invNumPrefix') Prefix čísla faktúry
+                            input(id='invNumPrefix' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='nextInvNumber') Nasledujúce číslo faktúry
+                            input(id='nextInvNumber' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='ntInvNumPrefix') Prefix čísla zálohovej faktúry
+                            input(id='ntInvNumPrefix' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='nextNTInvNumber') Nasledujúce číslo zálohovej faktúry
+                            input(id='nextNTInvNumber' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='dueDays') Splatnosť v dňoch
+                            input(id='dueDays' type='text' class='form-control')
+
+                        div(class='form-group')
                             label(for='billContactName') Kontaktné osoba
                             input(id='billContactName' type='text' class='form-control' data-toggle="tooltip" title="Osoba, s ktorou sa môžu riešiť faktúry a úhrady")
                         div(class='form-group')

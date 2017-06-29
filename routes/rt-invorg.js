@@ -100,6 +100,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 io.org.name = data.orgName;
                 io.org.companyNo = data.compNo;
                 io.org.taxNo = data.taxNo;
+                io.org.VATNo = data.VATNo;
 
                 io.adr = {};
                 io.adr.addrLine1 = data.adr1;
@@ -111,6 +112,12 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 io.contact.name = data.conName;
                 io.contact.phone = data.conPhone;
                 io.contact.email = data.conEmail;
+
+                io.invNumPrefix = data.invNumPrefix;
+                io.nextInvNumber = data.nextInvNumber;
+                io.ntInvNumPrefix = data.ntInvNumPrefix;
+                io.nextNTInvNumber = data.nextNTInvNumber;
+                io.dueDays = data.dueDays;
 
                 let i = InvoicingOrg(io);
                 i = await i.save();

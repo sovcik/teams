@@ -205,6 +205,13 @@ function saveIODetails(orgId){
     details.conPhone = $("#billContactPhone").val();
     details.conEmail = $("#billContactEmail").val();
 
+    details.VATNo = $("#billVATNo").val();
+    details.invNumPrefix = $("#invNumPrefix").val();
+    details.nextInvNumber = $("#nextInvNumber").val();
+    details.ntInvNumPrefix = $("#ntInvNumPrefix").val();
+    details.nextNTInvNumber = $("#nextNTInvNumber").val();
+    details.dueDays = $("#dueDays").val();
+
     $.ajax({
         type:"POST",
         url:"/invorg",
