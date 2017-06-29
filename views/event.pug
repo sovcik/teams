@@ -20,7 +20,7 @@ block content
                 if event.address.addrLine3
                     =", " + event.address.addrLine3
                 h4 #{event.address.postCode}, #{event.address.city}
-        if user.isAdmin || user.isEventManager
+        if user.isAdmin || user.isEventOrganizer
             h5
             h5 Fakturujúca organizácia
             h5 #{event.invoicingOrg.org.name}, #{event.invoicingOrg.adr.city}
@@ -41,7 +41,7 @@ block content
                 else
                     li(class="list-group-item") Zatiľ žiadne
         div(class='panel-footer')
-            if user.isAdmin || user.isEventManager
+            if user.isAdmin || user.isEventOrganizer
             div
                 button(id='removeEvent' type='button' class='btn btn-default') Zruš turnaj
 
