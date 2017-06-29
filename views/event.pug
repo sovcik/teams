@@ -35,11 +35,7 @@ block content
         div(class='panel-heading') Prihlásené tímy
         div(class='panel-body')
             div(id="allTeams")
-                if event.teams && event.teams.length > 0
-                    each t,idx in event.teams
-                        a(class="list-group-item" href="/team/"+t.id) #{idx+1}. #{t.name}
-                else
-                    li(class="list-group-item") Zatiaľ žiadne
+
         div(class='panel-footer')
             if user.isAdmin || user.isEventOrganizer
             div
