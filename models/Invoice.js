@@ -2,7 +2,6 @@
 
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
-const statusPlugin = require('./plugins/status-plugin');
 
 const AddressSchema = require('./Address');
 const OrgSchema = require('./Organization');
