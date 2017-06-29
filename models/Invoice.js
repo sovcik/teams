@@ -24,7 +24,8 @@ const InvoiceSchema = new mongoose.Schema({
     team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' },
     items: [InvoiceItemSchema],
     total: {type: Number},
-    currency: {type: String}
+    currency: {type: String},
+    taxInvoice: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice' }
 });
 
 InvoiceSchema.statics.testData = function(rec, id){
