@@ -3,12 +3,12 @@ mongoose.Promise = require('bluebird');
 const statusPlugin = require('./plugins/status-plugin');
 
 const OrganizationSchema = new mongoose.Schema({
-    name: { type: String },
-    companyNo: { type: String },
-    taxNo: { type: String },
-    VATNo: { type: String },
-    bankAccount: {type: String},
-    bankSWIFT: {type: String}
+    name: { type: String, default:'' },
+    companyNo: { type: String, default:'' },
+    taxNo: { type: String, default:'' },
+    VATNo: { type: String, default:'' },
+    bankAccount: {type: String, default:''},
+    bankSWIFT: {type: String, default:''}
 });
 
 OrganizationSchema.testData = function(rec, prefix){

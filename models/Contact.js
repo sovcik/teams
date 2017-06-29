@@ -3,10 +3,10 @@ mongoose.Promise = require('bluebird');
 const statusPlugin = require('./plugins/status-plugin');
 
 const ContactSchema = new mongoose.Schema({
-    name: { type: String },
-    phone: { type: String },
-    mobile: { type: String },
-    email: { type: String },
+    name: { type: String, default:'' },
+    phone: { type: String, default:'' },
+    mobile: { type: String, default:'' },
+    email: { type: String, default:'' },
 });
 
 ContactSchema.testData = function(rec, prefix) {
