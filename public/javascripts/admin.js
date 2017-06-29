@@ -12,7 +12,6 @@ function initAdmin(){
         editInvoicingOrg();
     });
 
-
     loadPrograms();
     loadEvents();
     loadInvoicingOrgs();
@@ -97,7 +96,7 @@ function loadPrograms(){
     const selEvProg = $('#eventProgram');
     console.log('Loading programs');
     $.get( "/program?cmd=getList", function(res) {
-        console.log("Server returned",res);
+        console.log("loadProgs: Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort results by program name
@@ -117,7 +116,7 @@ function loadPrograms(){
                 t.text('Žiadne programy');
             }
         } else {
-            console.log("Server returned ERROR");
+            console.log("loadProgs: Server returned ERROR");
         }
 
     });
@@ -128,7 +127,7 @@ function loadEvents(){
     const selEv = $('#allEvents');
     console.log('Loading events');
     $.get( "/event?cmd=getList", function(res) {
-        console.log("Server returned",res);
+        console.log("loadEvents: Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort events by name
@@ -144,7 +143,7 @@ function loadEvents(){
                 t.text('Žiadne turnaje');
             }
         } else {
-            console.log("Server returned ERROR");
+            console.log("loadEvents: Server returned ERROR");
         }
 
     });
@@ -156,7 +155,7 @@ function loadInvoicingOrgs(){
     const selEvIO = $('#eventInvOrg');
     console.log('Loading invoicing orgs');
     $.get( "/invorg?cmd=getList", function(res) {
-        console.log("Server returned",res);
+        console.log("loadInvOrgs: Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort results by program name
@@ -177,7 +176,7 @@ function loadInvoicingOrgs(){
                 selIO.text('Žiadne');
             }
         } else {
-            console.log("Server returned ERROR");
+            console.log("loadInvOrgs: Server returned ERROR");
         }
 
     });
@@ -282,7 +281,7 @@ function loadUsers(){
     const sel = $('#allUsers');
     console.log('Loading users');
     $.get( "/profile?cmd=getList", function(res) {
-        console.log("Server returned",res);
+        console.log("loadUsers: Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort results by username
@@ -292,19 +291,50 @@ function loadUsers(){
 
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
+                //style="padding:3pt;width:100%;margin:2pt"
                 res.list.forEach(function(item) {
-                    let c = $('<a href="/profile/'+item.id+'" class="list-group-item" >').append(item.org.name+", "+item.adr.city);
+                    let c = $('<div class="well well-sm container-fluid">')
+                        .append($('<a href="/profile/'+item.id+'" >')
+                            .append(item.username+", "+item.fullName+", "+item.email))
+                        .append($('<button id="MKA'+item.id+'" class="btn btn-default btnMakeAdmin" style="float:right">')
+                            .append("Urob admin"))
+                        .append($('<button id="SSU'+item.id+'" class="btn btn-default btnSuspend" style="float:right">')
+                            .append("Zakáž"));
+
                     sel.append(c);
 
+                });
+                $(".btnMakeAdmin").on("click",function(event){
+                    makeAdmin(this.id.substr(3));
                 });
             } else {
                 sel.text('Žiadne');
             }
         } else {
-            console.log("Server returned ERROR");
+            console.log("loadUsers: Server returned ERROR");
         }
 
     });
 
 }
 
+function makeAdmin(userId){
+    console.log("Making user admin",userId);
+    $.post("/profile/"+userId,
+        {
+            cmd: 'makeAdmin'
+        },
+        function (res) {
+            console.log("makeAdmin: Server returned",res);
+            if (res.result == "ok") {
+                console.log("User made admin");
+                loadUsers();
+            } else {
+                console.log("Error while making user admin");
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Making user admin failed",err);
+        });
+}

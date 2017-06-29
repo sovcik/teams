@@ -45,7 +45,7 @@ block content
                             div(class='col-sm-12')
                                 button(id='PWD'+profile.id type='button' class='btn btn-default changePwdBtn') Zmeň heslo
 
-    if user && (user.isAdmin || user.isSuperAdmin)
+    if profile && (profile.isAdmin || profile.isSuperAdmin)
         div(class="panel panel-primary")
             div(class='panel-heading') Administrátor
             div(class='panel-body container-fluid')

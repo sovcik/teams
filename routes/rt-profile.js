@@ -55,7 +55,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         case 'getList':
             console.log('Going to get list of users');
             try {
-                const u = await User.findActive({username:true, fullName:true, email:true, isAdmin:true, isSuperAdmin:true});
+                let opts = {username:true, fullName:true, email:true, isAdmin:true, isSuperAdmin:true};
+                const u = await User.findActive({username:{$exists:true}});
                 if (u) {
                     r.result = "ok";
                     r.list = u;
@@ -94,6 +95,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 r.error = err;
             }
             break;
+
         default:
             console.log("cmd=unknown");
 
@@ -140,10 +142,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                         throw new Error("Invalid old password specified");
 
                 // create new password
-                const s = await bcrypt.genSalt(5);
-                const h = await bcrypt.hash(req.body.newPwd, s);
+                let s = await bcrypt.genSalt(5);
+                let h = await bcrypt.hash(req.body.newPwd, s);
 
-                const user = await User.findByIdAndUpdate(id, { $set: { salt: s, passwordHash:h}}, { new: true });
+                let user = await User.findByIdAndUpdate(id, { $set: { salt: s, passwordHash:h}}, { new: true });
                 if (user) {
                     log.INFO("Password changed for " + user.username +" by " + req.user.username);
                     r.result = "ok";
@@ -155,6 +157,19 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 r.error = err;
             }
             break;
+        case 'makeAdmin':
+            console.log("Going to make admin",id);
+            if (!req.user.isAdmin && !req.user.isSuperAdmin)
+                return res.render('error',{message:"Prístup zamietnutý"});
+            try {
+                let user = await User.findByIdAndUpdate(id, {$set: {isAdmin: true}}, {new: true});
+                log.INFO("User " + user.username +" made admin by " + req.user.username);
+                r.result = "ok";
+            } catch(err) {
+                log.WARN('Error making admin user '+id+" err="+err);
+                r.error = err;
+            }
+            break;
         default:
             console.log('cmd=unknown');
             break;
@@ -163,3 +178,4 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     res.end();
 
 });
+
