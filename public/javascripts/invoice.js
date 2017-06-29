@@ -64,3 +64,34 @@ function markInvoiceAsPaid(evt, onSucc, onErr){
                 alert("Nepodarilo sa označiť faktúru ako zaplatenú");
         });
 }
+
+function createInvoice(teamId, eventId, invType, cb){
+
+    console.log("Creating invoice for team",teamId);
+    $.post("/invoice",
+        {
+            cmd: 'create',
+            teamId: teamId,
+            eventId: eventId,
+            type: invType
+        },
+        function (res) {
+            console.log("createInvoice: Server returned",res);
+            if (res.result == "ok") {
+                console.log("Invoice created",res.invoice._id);
+                if (cb)
+                    cb(res.invoice);
+            } else {
+                console.log("Error while creating invoice");
+                if (cb)
+                    cb(null,{message:"Error while creating invoice"});
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error while creating invoice",err);
+            if (cb)
+                cb(null,err)
+        });
+
+}
