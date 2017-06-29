@@ -2,6 +2,11 @@ extends includes/layout
 
 block content
     include includes/header-sm
+    style.
+        td {
+            padding:3pt
+        }
+
     h1 Fakturujúca organnizácia
     h2 #{io.org.name}, #{io.org.city}
 
@@ -33,8 +38,14 @@ block content
                                     =i.paidOn.toLocaleDateString()
                                 else
                                     if user.isAdmin || user.isInvoicingOrgManager
-                                        button(id=i.id class="btn btn-default payBtn") Zaplať
+                                        button(id='PAY'+i.id class="btn btn-default markAsPaid") Zaplať
                                     else
                                         ="---"
+                                if i.type === "P" && !i.taxInvoice
+                                    if user.isAdmin || user.isInvoicingOrgManager
+                                        button(id='CIN'+i.id class="btn btn-default createTaxInvoice") Vytvor faktúru
+
                 else
                     p Zatiaľ žiadne
+    script.
+        initInvOrg();
