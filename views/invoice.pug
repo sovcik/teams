@@ -162,7 +162,7 @@ block content
                         =inv.total.toFixed(2) +" " + inv.currency
 
         if inv.paidOn
-            h4(style="border: thin solid black") Nič netreba platiť. Faktúra bola uhradená dňa
+            h4(style="border: thin solid black;padding:5pt") Nič netreba platiť. Faktúra bola uhradená dňa
                 =" "+inv.paidOn.toLocaleDateString()
 
         if !inv.paidOn
