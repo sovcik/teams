@@ -101,6 +101,8 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 io.org.companyNo = data.compNo;
                 io.org.taxNo = data.taxNo;
                 io.org.VATNo = data.VATNo;
+                io.org.bankAccount = data.bankAccount;
+                io.org.bankSWIFT = data.bankSWIFT;
 
                 io.adr = {};
                 io.adr.addrLine1 = data.adr1;

@@ -212,6 +212,10 @@ function saveIODetails(orgId){
     details.nextNTInvNumber = $("#nextNTInvNumber").val();
     details.dueDays = $("#dueDays").val();
 
+    details.bankAccount = $("#bankAccount").val();
+    details.bankSWIFT = $("#bankSWIFT").val();
+
+
     $.ajax({
         type:"POST",
         url:"/invorg",
