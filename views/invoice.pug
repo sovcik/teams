@@ -125,11 +125,11 @@ block content
                     ="#"
                 th(class="itm" style="width:380pt;text-align:left")
                     ="Položka"
-                th(class="itm" style="width:70pt")
+                th(class="itm" style="width:70pt;text-align:right")
                     ="J.Cena"
                 th(class="itm" style="width:50pt")
                     ="Množstvo"
-                th(class="itm" style="width:80pt")
+                th(class="itm" style="width:80pt;text-align:right")
                     ="Cena"
             each itm in inv.items
                 tr
@@ -144,7 +144,7 @@ block content
                         if itm.unitPrice
                             p
                                 =itm.unitPrice.toFixed(2) + " " + inv.currency
-                    td(class="itm")
+                    td(class="itm" style="text-align:center")
                         if itm.qty
                             p #{itm.qty} #{itm.unit}
                     td(class="itm" style="text-align:right")
