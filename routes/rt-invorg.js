@@ -4,10 +4,55 @@ const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
+const log = require('../lib/logger');
 
 const InvoicingOrg = mongoose.models.InvoicingOrg;
+const Invoice = mongoose.models.Invoice;
 
 module.exports = router;
+
+router.param('id', async function (req, res, next){
+    const id = req.params.id;
+    let r;
+    console.log("Invoicing org id",id);
+    try {
+        r = await InvoicingOrg.findById(id);
+        req.iorg = r;
+        if (r) {
+            req.user.isInvoicingOrgManager = (req.iorg.managers.indexOf(req.user.id) >= 0);
+
+            console.log("Invoicing org id=", r.id, " name=", r.org.name);
+
+        } else
+            throw new Error("invoicing org not found");
+        next();
+    } catch (err) {
+        res.render('error',{message:"Fakturujúca organizácia nenájdená",error:{status:err.message}});
+    }
+
+});
+
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const cmd = req.query.cmd;
+    console.log("/invorg - get");
+
+    if (cmd)
+        next();
+    else {
+        req.iorg.invoices = [];
+        let inv;
+        try {
+            inv = await Invoice.find({invoicingOrg: req.iorg.id});
+        } catch (err) {
+            log.WARN("Failed to fetch invoices for iorg "+req.iorg.id+" err="+err);
+        }
+        if (inv)
+            req.iorg.invoices = inv;
+        res.render('invoicingOrg', {io: req.iorg, user: req.user});
+    }
+
+});
+
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
@@ -17,7 +62,12 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     switch (cmd){
         case 'getList':
             console.log('Going to get list of invoicing orgs');
-            const p = await InvoicingOrg.find({ recordStatus: 'active' },{org:true, adr:true});
+            let p;
+            try {
+                p = await InvoicingOrg.find({recordStatus: 'active'}, {org: true, adr: true});
+            } catch (err) {
+                log.WARN("Failed fetching list of invoicing orgs");
+            }
             r.result = "ok";
             r.list = p;
             break;
