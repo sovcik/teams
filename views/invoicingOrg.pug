@@ -1,0 +1,40 @@
+extends includes/layout
+
+block content
+    include includes/header-sm
+    h1 Fakturujúca organnizácia
+    h2 #{io.org.name}, #{io.org.city}
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Vystavené faktúry
+        div(class='panel-body')
+            table(id="allInvoices" class="list-group")
+                tr
+                    th Číslo
+                    th Odberateľ
+                    th Tím
+                    th Suma
+                    th Vystavená
+                    th Splatná
+                    th Zaplatená
+                if io.invoices && io.invoices.length > 0
+                    each i,idx in io.invoices
+                        tr
+                            td
+                                a(href="/invoice/"+i.id) #{i.number}
+                            td #{i.billOrg.name}, #{i.billAdr.city}
+                            td
+                                a(href="/team/"+i.team) [otvor tím]
+                            td=i.total.toFixed(2)
+                            td=i.issuedOn.toLocaleDateString()
+                            td=i.dueOn.toLocaleDateString()
+                            td
+                                if i.paidOn
+                                    =i.paidOn.toLocaleDateString()
+                                else
+                                    if user.isAdmin || user.isInvoicingOrgManager
+                                        button(id=i.id class="btn btn-default payBtn") Zaplať
+                                    else
+                                        ="---"
+                else
+                    p Zatiaľ žiadne
