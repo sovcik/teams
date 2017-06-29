@@ -14,76 +14,109 @@ const TeamUser = mongoose.model('TeamUser');
 
 module.exports = router;
 
-router.get('/',cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    const teamId = req.query.id;
+router.param('id', async function (req, res, next){
+    const id = req.params.id;
+
+    console.log("Team id=",id);
+    try {
+        //const r = await Team.findById(id);
+        const r = await dbTeam.getTeamDetails(req.user, id);
+        req.team = r;
+
+        if (r) {
+            console.log("Team id=", r.id, " name=", r.name);
+
+            if (req.user) {
+                let q = {teamId: req.team.id, userId: req.user.id, role: 'coach'};
+                let tu = await TeamUser.findOne(q);
+                if (tu) {
+                    console.log('User is team coach');
+                    req.user.isCoach = true;
+                }
+            }
+
+        } else {
+            console.log('team not found ',id);
+            throw new Error("team not found");
+        }
+        next();
+    } catch (err) {
+        res.render('error',{message:"Tím nenájdený",error:{status:err.message}});
+    }
+
+});
+
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const cmd = req.query.cmd;
+    console.log("/team/:id - get");
+
+    if (cmd)
+        next();
+    else
+        return res.render('team', {team: req.team, user: req.user});
+
+});
+
+router.get('/:id',cel.ensureLoggedIn('/login'), async function (req, res, next) {
+
     const cmd = req.query.cmd;
 
-    if (!teamId) res.redirect('/profile');
-
-    console.log("/team - get");
+    console.log("/team/:id - get (CMD)");
     console.log(req.query);
-    var ret = true;
+
     var r = {result:"error", status:200};
     switch (cmd){
         case 'getTeamCoaches':
             console.log('Going to get team coaches');
-            const tc = await dbTeam.getTeamCoaches(req.user.id, teamId);
+            const tc = await dbTeam.getTeamCoaches(req.user, req.team.id);
             r.result = "ok";
             r.list = tc;
             break;
 
         case 'getTeamMembers':
             console.log('Going to get team members');
-            const tm = await dbTeam.getTeamMembers(req.user.id, teamId);
+            const tm = await dbTeam.getTeamMembers(req.user, req.team.id);
             r.result = "ok";
             r.list = tm;
             break;
 
         case 'getAdrDetails':
             console.log('Going to get team address details');
-            const tad = await dbTeam.getTeamDetails(req.user.id, teamId);
+            //const tad = await dbTeam.getTeamDetails(req.user, req.team.id, req);
             r.result = "ok";
-            r.details = tad;
+            r.details = req.team;
             break;
 
         case 'getData':
             console.log('Going to get team details');
-            const td = await dbTeam.getTeamDetails(req.user.id, teamId);
+            //const td = await dbTeam.getTeamDetails(req.user, req.team.id, req);
             r.result = 'ok';
-            r.team = td;
+            r.team = req.team;
             break;
 
         default:
-            let t;
-            if (cmd)
-                console.log('cmd=unknown');
+            console.log('cmd=unknown');
 
-            try {
-                t = await dbTeam.getTeamDetails(req.user.id, teamId);
-            } catch (err) {
-                console.log('team not found id=', teamId);
-            }
-
-            if (t) {
-                console.log("rendering team", t);
-                //console.log("team event", t.registeredOn, t.eventName);
-                return res.render('team', {team: t, user: {id: req.user.id, name: req.user.username}});
-            } else {
-                if (!cmd)
-                    return res.render('error',{message:"Tím nebol nájdený", error:{status:''}});
-            }
-            break;
     }
     res.json(r);
     res.end();
 
 });
 
-router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log("/team - post");
     console.log(req.body);
-    var ret = true;
-    var r = {result:"error", status:200};
+    const r = {result:"error", status:200};
+
+    // no modifications allowed unless user is team coach or admin
+    if (!req.user.isAdmin && !req.user.isCoach){
+        r.error = {};
+        r.error.message = "permission denied";
+        res.json(r);
+        res.end();
+        return;
+    }
+
     switch (req.body.cmd){
 
         case 'saveAdrDetails':
@@ -106,7 +139,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                         break;
                 }
                 console.log("DOCUMENT",doc);
-                const nd = await dbTeam.saveTeamDetails(req.user.id, req.body.teamId, doc);
+                const nd = await dbTeam.saveTeamDetails(req.user, req.team.id, doc);
                 r.result = "ok";
             } catch (err) {
                 r.message = err.message;
@@ -121,7 +154,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
                 let m = await User.create({fullName:req.body.name, email:req.body.email, dateOfBirth:req.body.dob});
                 console.log("Member created", m.fullName, m.id);
-                let mt = await TeamUser.create({userId:m.id, teamId:req.body.teamId, role:'member'});
+                let mt = await TeamUser.create({userId:m.id, teamId:req.team.id, role:'member'});
                 r.result = "ok";
                 r.memberId = m.id;
 
@@ -131,9 +164,9 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             }
             break;
         case 'removeTeamMember':
-            console.log('Going to remove member: ', req.body.memberId, "from team", req.body.teamId);
+            console.log('Going to remove member: ', req.body.memberId, "from team", req.team.id);
             try{
-                let conf = await TeamUser.deleteOne({"userId":req.body.memberId, "teamId":req.body.teamId});
+                let conf = await TeamUser.deleteOne({"userId":req.body.memberId, "teamId":req.team.id});
                 if (conf.deletedCount > 0) {
                     console.log('Member removed', req.body.memberId);
                     r.result = "ok"

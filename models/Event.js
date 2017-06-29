@@ -10,6 +10,7 @@ const ContactSchema = require('./Contact');
 const EventSchema = new mongoose.Schema({
     name: { type: String, required: true },
     programId: { type: String, required: true },
+    invoicingOrg: { type: mongoose.Schema.Types.ObjectId, ref: 'InvoicingOrg' },
     startDate: {type: Date, required: false},
     address: AddressSchema,
     instructions: { type: String, required: false },

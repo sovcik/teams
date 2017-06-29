@@ -1,7 +1,7 @@
 function initProfile(){
     console.log("/profile - Initializing");
-    $("#createTeamBtn").on("click",createNewTeam);
-    $("#changePwdBtn").on("click",changePassword);
+    $(".createTeamBtn").on("click",function(ev){ createNewTeam(this.id.substr(3)); });
+    $(".changePwdBtn").on("click",function(ev){ changePassword(this.id.substr(3)); } );
 
     loadCoachOfTeams();
     loadMemberOfTeams();
@@ -12,11 +12,11 @@ function initProfile(){
 
 function loadCoachOfTeams(){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    const coachId = urlGetParam('id');
+    const coachId = getResourceId(location.href);
     console.log("Loading coach teams. Coach = ",coachId);
     const t = $("#coachTeamsList");
     t.empty();
-    $.get( "/profile?id="+coachId+"&cmd=getCoachTeams", function(res) {
+    $.get( "/profile/"+coachId+"?cmd=getCoachTeams", function(res) {
         console.log("Server returned",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
@@ -24,7 +24,7 @@ function loadCoachOfTeams(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    var c = $('<a href="'+site+'/team/?id='+item.id+'" class="btn btn-success btn-member" role="button">')
+                    var c = $('<a href="'+site+'/team/'+item.id+'" class="btn btn-success btn-member" role="button">')
                             .append(item.name);
 
                     t.append(c);
@@ -73,15 +73,15 @@ function loadPrograms(){
 
 }
 
-function createNewTeam(){
-    const coachId = urlGetParam('id');
+function createNewTeam(coachId){
+    //const coachId = getResourceId(location.href);
     const selTeamNameGrp = $("#newTeamName");
     const selTeamName = $("#newTeamName > input:first");
     const selProg = $('#newTeamProgram');
     var selStatus = $("#teamCreateStatus");
     if (selTeamName.val().trim() != '') {
         console.log("Posting request to create new team");
-        $.post("/profile", {cmd: 'createTeam', name: selTeamName.val(), coachId:coachId, programId:selProg.val()}, function (res) {
+        $.post("/profile/"+coachId, {cmd: 'createTeam', name: selTeamName.val(), programId:selProg.val()}, function (res) {
             console.log("createTeam: Server returned",res);
             if (res.result == "ok") {
                 console.log("Team created");
@@ -106,9 +106,8 @@ function createNewTeam(){
     }
 }
 
-function changePassword(){
+function changePassword(userId){
     const selDialog = $('#changePasswordModal');
-    const userId = urlGetParam('id');
     const selOldPwd = $('#oldPwd');
     const selNewPwd = $('#newPwd');
     const selNewPwdConf = $('#newPwdConf');
@@ -123,7 +122,7 @@ function changePassword(){
     }
 
     console.log("Posting request to create new team");
-    $.post("/profile", {cmd: 'changePassword', userId:userId, oldPwd: selOldPwd.val(), newPwd:selNewPwd.val()}, function (res) {
+    $.post("/profile/"+userId, {cmd: 'changePassword', oldPwd: selOldPwd.val(), newPwd:selNewPwd.val()}, function (res) {
         console.log("changePassword: Server returned",res);
         if (res.result == "ok") {
             console.log("Password changed");

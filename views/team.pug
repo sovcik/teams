@@ -21,17 +21,23 @@ block content
                 label(for='progName') Program/Súťaž
                 input(id='progName' class='form-control' value=team.programName readonly)
             div(class='form-group' id="eventReg")
-                if team.events.length > 0
-                    p Registrovaný na
+                if team.events && team.events.length > 0
+                    label(class="label-control") Stretnutia/turnaje
                     for e in team.events
                         =" "
-                        a(href="/event?id="+e.id) #{e.name}
+                        a(href="/event/"+e.id) #{e.name}
+                        span(id="pInvoice")
+                        span(id="iInvoice")
                 else
-                    button(class="btn btn-success" data-toggle="modal" data-target="#registerEvent") Registruj na turnaj
+                    if user && (user.isAdmin || user.isCoach)
+                        button(class="btn btn-success" data-toggle="modal" data-target="#registerEvent") Registruj na turnaj
+            div(class='form-group')
+                ul(class='list-group' id="invoices")
         div(class='panel-footer')
             div(class='form-group')
-                button(data-toggle="modal" data-target="#billingAddress" class="btn btn-default") Fakturačné údaje
-                button(data-toggle="modal" data-target="#shippingAddress" class="btn btn-default") Korešpondenčné údaje
+                if user && (user.isAdmin || user.isCoach)
+                    button(data-toggle="modal" data-target="#billingAddress" class="btn btn-default") Fakturačné údaje
+                    button(data-toggle="modal" data-target="#shippingAddress" class="btn btn-default") Korešpondenčné údaje
 
     div(id='registerEvent' class='modal fade' role='dialog')
         div(class='modal-dialog')
@@ -50,130 +56,136 @@ block content
                             span(id="registerStatus" class="text-warning")
                     button(id='btnRegister' type='button' class='btn btn-default') Potvrdiť registráciu
 
-    div(id='billingAddress' class='modal fade' role='dialog')
-        div(class='modal-dialog')
-            div(class='modal-content')
-                div(class='modal-header')
-                    button(type='button', class='close' data-dismiss='modal') &times;
-                    h4 Fakturačné údaje
-                div(class='modal-body')
-                    div(class='form-group')
-                        label(for='billOrg') Organizácia
-                        input(id='billOrg' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='billAdr1') Adresa riadok 1
-                        input(id='billAdr1' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='billAdr2') Adresa riadok 2
-                        input(id='billAdr2' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='billCity') Mesto
-                        input(id='billCity' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='billPostCode') PSČ
-                        input(id='billPostCode' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='billCompNo') IČO
-                        input(id='billCompNo' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='billTaxNo') DIČ
-                        input(id='billTaxNo' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='billContactName') Kontaktné osoba
-                        input(id='billContactName' type='text' class='form-control' data-toggle="tooltip" title="Osoba, s ktorou sa môžu riešiť faktúry a úhrady")
-                    div(class='form-group')
-                        label(for='billContactPhone') Kontaktný telefón
-                        input(id='billContactPhone' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='billContactEmail') Kontaktný e-mail
-                        input(id='billContactEmail' type='text' class='form-control')
-                div(class='modal-footer')
-                    div(class='row')
-                        div(class='col-sm-12')
-                            span(id="saveBillingStatus" class="text-warning")
-                    button(id='saveBillingDetails' type='button' class='btn btn-default') Uložiť
+    if user && (user.isAdmin || user.isCoach)
+        div(id='billingAddress' class='modal fade' role='dialog')
+            div(class='modal-dialog')
+                div(class='modal-content')
+                    div(class='modal-header')
+                        button(type='button', class='close' data-dismiss='modal') &times;
+                        h4 Fakturačné údaje
+                    div(class='modal-body')
+                        div(class='form-group')
+                            label(for='billOrg') Organizácia
+                            input(id='billOrg' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='billAdr1') Adresa riadok 1
+                            input(id='billAdr1' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='billAdr2') Adresa riadok 2
+                            input(id='billAdr2' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='billCity') Mesto
+                            input(id='billCity' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='billPostCode') PSČ
+                            input(id='billPostCode' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='billCompNo') IČO
+                            input(id='billCompNo' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='billTaxNo') DIČ
+                            input(id='billTaxNo' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='billContactName') Kontaktné osoba
+                            input(id='billContactName' type='text' class='form-control' data-toggle="tooltip" title="Osoba, s ktorou sa môžu riešiť faktúry a úhrady")
+                        div(class='form-group')
+                            label(for='billContactPhone') Kontaktný telefón
+                            input(id='billContactPhone' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='billContactEmail') Kontaktný e-mail
+                            input(id='billContactEmail' type='text' class='form-control')
+                    div(class='modal-footer')
+                        div(class='row')
+                            div(class='col-sm-12')
+                                span(id="saveBillingStatus" class="text-warning")
+                        button(id='saveBillingDetails' type='button' class='btn btn-default') Uložiť
 
-    div(id='shippingAddress' class='modal fade' role='dialog')
-        div(class='modal-dialog')
-            div(class='modal-content')
-                div(class='modal-header')
-                    button(type='button', class='close' data-dismiss='modal') &times;
-                    h4 Korešpondenčné údaje
-                div(class='modal-body')
-                    div(class='form-group')
-                        label(for='shipOrg') Organizácia
-                        input(id='shipOrg' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='shipAdr1') Adresa riadok 1
-                        input(id='shipAdr1' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='shipAdr2') Adresa riadok 2
-                        input(id='shipAdr2' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='shipCity') Mesto
-                        input(id='shipCity' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='shipPostCode') PSČ
-                        input(id='shipPostCode' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='shipContactName') Kontaktné osoba
-                        input(id='shipContactName' type='text' class='form-control' data-toggle="tooltip" title="Osoba, s ktorou sa rieši všetko okrem faktúr a úhrad")
-                    div(class='form-group')
-                        label(for='shipContactPhone') Kontaktný telefón
-                        input(id='shipContactPhone' type='text' class='form-control')
-                    div(class='form-group')
-                        label(for='shipContactEmail') Kontaktný e-mail
-                        input(id='shipContactEmail' type='text' class='form-control')
-                div(class='modal-footer')
-                    div(class='row')
-                        div(class='col-sm-12')
-                            span(id="saveShippingStatus" class="text-warning")
-                    button(id='saveShippingDetails' type='button' class='btn btn-default') Uložiť
+        div(id='shippingAddress' class='modal fade' role='dialog')
+            div(class='modal-dialog')
+                div(class='modal-content')
+                    div(class='modal-header')
+                        button(type='button', class='close' data-dismiss='modal') &times;
+                        h4 Korešpondenčné údaje
+                    div(class='modal-body')
+                        div(class='form-group')
+                            label(for='shipOrg') Organizácia
+                            input(id='shipOrg' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='shipAdr1') Adresa riadok 1
+                            input(id='shipAdr1' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='shipAdr2') Adresa riadok 2
+                            input(id='shipAdr2' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='shipCity') Mesto
+                            input(id='shipCity' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='shipPostCode') PSČ
+                            input(id='shipPostCode' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='shipContactName') Kontaktné osoba
+                            input(id='shipContactName' type='text' class='form-control' data-toggle="tooltip" title="Osoba, s ktorou sa rieši všetko okrem faktúr a úhrad")
+                        div(class='form-group')
+                            label(for='shipContactPhone') Kontaktný telefón
+                            input(id='shipContactPhone' type='text' class='form-control')
+                        div(class='form-group')
+                            label(for='shipContactEmail') Kontaktný e-mail
+                            input(id='shipContactEmail' type='text' class='form-control')
+                    div(class='modal-footer')
+                        div(class='row')
+                            div(class='col-sm-12')
+                                span(id="saveShippingStatus" class="text-warning")
+                        button(id='saveShippingDetails' type='button' class='btn btn-default') Uložiť
 
     div(class="panel panel-primary")
         div(class='panel-heading') Tréneri
+            =" "
+            span(id="coachCount")
         div(id='coachList' class='panel-body container-fluid')
             div(class='panel col-sm-6')
                 p Žiadny
 
     div(class="panel panel-primary")
         div(class='panel-heading') Členovia tímu
+            =" "
+            span(id="memberCount")
         div(class='panel-body')
             div(id='memberList' class='container-fluid')
                 div(class='panel')
                     p Žiadny
+        if user && (user.isAdmin || user.isCoach)
+            div(class='panel-footer')
+                button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal")
+                    span(class="glyphicon glyphicon-user") +
+                    | Pridať člena
 
-        div(class='panel-footer')
-            button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal")
-                span(class="glyphicon glyphicon-user") +
-                | Pridať člena
+    if user && (user.isAdmin || user.isCoach)
+        div(id='newMemberModal' class='modal fade' role='dialog')
+            div(class='modal-dialog')
+                div(class='modal-content')
+                    div(class='modal-header')
+                        button(type='button', class='close' data-dismiss='modal') &times;
+                        h4 Zadaj detaily člena tímu
+                    div(class='modal-body')
+                        div(id='newMemberName' class='form-group has-feedback')
+                            label(for='newMemberName' class="control-label") Celé meno
+                            input(type='text', placeholder='meno člena timu' name='newMemberName' class="input-lg form-control")
 
-    div(id='newMemberModal' class='modal fade' role='dialog')
-        div(class='modal-dialog')
-            div(class='modal-content')
-                div(class='modal-header')
-                    button(type='button', class='close' data-dismiss='modal') &times;
-                    h4 Zadaj detaily člena tímu
-                div(class='modal-body')
-                    div(id='newMemberName' class='form-group has-feedback')
-                        label(for='newMemberName' class="control-label") Celé meno
-                        input(type='text', placeholder='meno člena timu' name='newMemberName' class="input-lg form-control")
+                        div(id='newMemberEmail' class='form-group has-feedback')
+                            label(for='newMemberEmail' class="control-label") Email
+                            input(type='email', placeholder='email člena timu' name='newMemberEmail' class="input-lg form-control")
 
-                    div(id='newMemberEmail' class='form-group has-feedback')
-                        label(for='newMemberEmail' class="control-label") Email
-                        input(type='email', placeholder='email člena timu' name='newMemberEmail' class="input-lg form-control")
+                        div(id='newMemberDOB' class='form-group has-feedback')
+                            label(for='newMemberDOB' class="control-label") Dátum narodenia
+                            input(type='date', placeholder='dátum narodenia' name='newMemberDOB' class="input-lg form-control")
 
-                    div(id='newMemberDOB' class='form-group has-feedback')
-                        label(for='newMemberDOB' class="control-label") Dátum narodenia
-                        input(type='date', placeholder='dátum narodenia' name='newMemberDOB' class="input-lg form-control")
+                    div(class='modal-footer')
+                        div(class='row')
+                            div(class='col-sm-12')
+                                span(id="createStatus" class="text-warning")
 
-                div(class='modal-footer')
-                    div(class='row')
-                        div(class='col-sm-12')
-                            span(id="createStatus" class="text-warning")
-
-                    div(class='row')
-                        div(class='col-sm-12')
-                            button(id='createTeamMemberBtn' type='button' class='btn btn-default') Vytvor člena
+                        div(class='row')
+                            div(class='col-sm-12')
+                                button(id='createTeamMemberBtn' type='button' class='btn btn-default') Vytvor člena
         script.
             initTeam();

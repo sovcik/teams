@@ -14,7 +14,8 @@ const UserSchema = new Schema({
     dateOfBirth: {type:Date },
     passwordHash: { type: String, default:'' },
     salt: { type: String, default: '' },
-    role: { type: String, default: 'U' }
+    isAdmin: {type: Boolean, default: false},
+    isSuperAdmin: {type: Boolean, default: false}
 });
 
 // helper function handling hash creation

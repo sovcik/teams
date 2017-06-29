@@ -6,31 +6,61 @@ const cel = require('connect-ensure-login');
 const router = express.Router();
 const email = require('../lib/email');
 const log = require('../lib/logger');
+const libInvoice = require('../lib/invoice');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
 const TeamEvent = mongoose.models.TeamEvent;
 const Program = mongoose.models.Program;
+const InvoicingOrg = mongoose.models.InvoicingOrg;
 
 module.exports = router;
 
+router.param('id', async function (req, res, next){
+    const id = req.params.id;
+    let r;
+    console.log("Event id",id);
+    try {
+        r = await Event.findById(id);
+        req.event = r;
+        if (r) {
+            req.user.isEventOrganizer = (req.event.managers.indexOf(req.user.id) >= 0);
+            r = await InvoicingOrg.populate(r,'invoicingOrg');
+            r.teams = [];
+            let tmse = await TeamEvent.find({eventId: r.id});
+            let tms = await Team.populate(tmse, 'teamId');
+            tms.forEach(t => r.teams.push({id: t.teamId.id, name: t.teamId.name}));
+            r.teams.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+
+            console.log("Event id=", r.id, " name=", r.name);
+
+        } else
+            throw new Error("event not found");
+        next();
+    } catch (err) {
+        res.render('error',{message:"Stretnutie/Turnaj nenájdený",error:{status:err.message}});
+    }
+
+});
+
+
+router.get('/:id', async function (req, res, next) {
+    const cmd = req.query.cmd;
+    console.log("/event/:id - get");
+
+    if (cmd)
+        next();
+    else
+        res.render('event',{event: req.event, user: req.user});
+
+});
+
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
-    const eventId = req.query.id;
-    console.log("/event - get");
+    console.log("/event - get (CMD)");
     console.log(req.query);
 
     const r = {result:"error", status:200};
-
-    let evt;
-
-    try {
-        evt = Event.findOne({_id:eventId});
-        req.user.isOrganizer = (evt && evt.managers.indexOf(req.user.id) >= 0);
-
-    } catch(err) {
-        log.WARN("Failed getting organizer status for user id="+req.user.id);
-    }
 
     try {
         switch (cmd) {
@@ -42,6 +72,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 });
                 r.result = "ok";
                 r.list = p;
+                r.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
                 break;
 
             case 'getAvailTeamEvents':
@@ -54,33 +85,14 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     });
                     r.result = "ok";
                     r.list = p;
+                    r.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
                 } else {
                     throw new Error("Team not found");
                 }
                 break;
             default:
-                let e;
                 if (cmd)
                     console.log('cmd=unknown');
-                try {
-                    e = await Event.findOne({_id: eventId});
-                } catch (err) {
-
-                }
-                if (e) {
-                    e.teams = [];
-                    //console.log("rendering event", e);
-                    let tmse = await TeamEvent.find({eventId:e.id});
-                    let tms = await Team.populate(tmse,'teamId');
-                    tms.forEach(t => e.teams.push({id:t.teamId.id, name:t.teamId.name}));
-
-                    //console.log("+++++ populated EVENT",e);
-
-                    return res.render('event', {event: e, user: req.user});
-                } else
-                    if (!cmd)
-                        return res.render('error',{message:"Stretnutie/turnaj nenájdený", error:{status:''}});
-
         }
     } catch (err) {
         r.error = {};
@@ -92,10 +104,59 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    const siteUrl = req.protocol + '://' + req.get("host");
     const cmd = req.body.cmd;
     console.log("/event - put");
     console.log(req.body);
+    const r = {result:"error", status:200};
+    try {
+        switch (cmd) {
+            case 'createEvent':
+                if (!req.user.isAdmin)
+                    return res.render('error',{message:"Prístup zamietnutý"});
+
+                let name = req.body.name;
+                console.log('Going to create event ', name);
+
+                let p = await Program.findOneActive({_id:req.body.programId});
+                if (!p) throw new Error("Program does not exist");
+                let io = await InvoicingOrg.findOneActive({_id:req.body.invOrgId});
+                if (!io) throw new Error("Invoicing org does not exist");
+
+                let e = await Event.findOneActive({name:name});
+                if (e) throw new Error("Duplicate event name");
+
+                try {
+                    e = await Event.create({name: name, programId: p.id, invoicingOrg: io.id});
+                    console.log("Event created", e.name, e.id);
+                    r.result = "ok";
+                    r.event = e;
+                } catch (er) {
+                    log.ERROR("Failed creating event: "+name+" err="+er.message);
+                    r.error = {};
+                    r.error.message = er.message;
+
+                }
+                break;
+
+            default:
+                console.log("cmd=unknown");
+
+        }
+    } catch (err) {
+        r.error = {};
+        r.error.message = err.message;
+    }
+    res.json(r);
+    res.end();
+
+});
+
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    const cmd = req.body.cmd;
+    console.log("/event/:id - put");
+    console.log(req.body);
+    console.log("SITE URL",siteUrl);
     const r = {result:"error", status:200};
     try {
         switch (cmd) {
@@ -107,36 +168,38 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 let p = await Program.findOneActive({_id:t.programId});
                 if (!p) throw new Error("Team not joined in program");
 
-                let e = await Event.findOneActive({programId:p.id, _id:req.body.eventId});
+                let e = await Event.findOneActive({programId:p.id, _id:req.event.id});
                 if (!e) throw new Error("Event not found or not relevant for program team is joined to");
 
-                let te = await TeamEvent.create({teamId:t.id, eventId:e.id, programId:p.id, registeredOn:Date.now()});
+                let te;
+                try {
+                    te = await TeamEvent.create({
+                        teamId: t.id,
+                        eventId: e.id,
+                        programId: p.id,
+                        registeredOn: Date.now()
+                    });
+                } catch (er) {
+                    log.ERROR("Failed registering team="+t.name+" for event="+e.name+" err="+er.message);
+                }
+
                 if (!te) throw new Error("Failed to register");
 
-                email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
+                let inv;
+                try {
+                    console.log('Going to create invoice');
+                    inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
+                } catch (er) {
+                    log.ERROR("Failed creating invoice for teamId="+te.teamId+" eventId="+te.eventId+" err="+er.message);
+                }
+
+                if (inv)
+                    email.sendInvoice(req.user, inv, siteUrl);
+                if (te)
+                    email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
 
                 r.result = "ok";
-                r.list = p;
-                break;
-            case 'createEvent':
-                if (req.user.role != 'A')
-                    return res.redirect('/profile');
-
-                let name = req.body.name;
-                console.log('Going to create event ', name);
-                try {
-                    let p = await Program.findOneActive({_id:req.body.programId});
-                    if (!p) throw new Error("Program does not exist");
-                    let e = await Event.findOneActive({name:name});
-                    if (e) throw new Error("Duplicate event name");
-                    e = await Event.create({name:name, programId:req.body.programId});
-                    console.log("Program created", p.name, p.id);
-                    r.result = "ok";
-                } catch (err) {
-                    r.error = {};
-                    r.error.message = err.message;
-                    console.log(err);
-                }
+                r.teamEvent = te;
                 break;
 
             default:

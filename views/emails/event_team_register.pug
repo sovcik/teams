@@ -9,10 +9,11 @@ div
     p Ďakujeme za vašu registráciu tímu na turnaj
     p Tím:
         =" "
-        a(href=siteUrl+"/team?id="+team.id)
+        a(href=siteUrl+"/team/"+team.id)
             b #{team.name}
 
     p Turnaj:
         =" "
-        b #{event.name}
+        a(href=siteUrl+"/event/"+event.id)
+            b #{event.name}
 
