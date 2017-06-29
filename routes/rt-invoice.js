@@ -79,7 +79,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     type: true,
                     issuedOn: true,
                     dueOn: true,
-                    paidOn: true
+                    paidOn: true,
+                    taxInvoice: true
                 });
                 r.result = "ok";
                 r.list = l;
@@ -171,6 +172,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
     console.log("/invoice - post (ID)");
     const invType = req.body.type;
 
@@ -181,14 +183,18 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
         switch (req.body.cmd) {
             case 'markAsPaid':
                 try {
+                    if (req.invoice.paidOn)
+                        throw new Error("Invoice already paid.");
                     if (!req.user.isAdmin && !req.user.isInvoicingOrgManager)
                         return res.render('error', {message: "Prístup zamietnutý"});
 
-                    console.log('Going to set invoice as paid', data.orgName);
-                    const i = await Invoice.findByIdAndUpdate(req.invoice.id, {$set: {paidOn: Date.now()}});
+                    console.log('Going to set invoice as paid', req.invoice.id);
+                    const i = await Invoice.findByIdAndUpdate(req.invoice.id, {$set: {paidOn: Date.now()}}, {new:true});
                     if (i) {
-                        log.info("invoice set to paid " + i.number + " " + i.id + " by user=" + req.user.username);
+                        log.INFO("invoice set to paid " + i.number + " " + i.id + " by user=" + req.user.username);
                         r.result = "ok";
+                        r.invoice = i;
+                        email.sendInvoice(req.user,i,siteUrl);
                     }
                 } catch (err) {
                     throw new Error("Failed marking invoice as paid. err=" + err.message);
@@ -196,16 +202,27 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 break;
             case 'copyToNew':
                 try {
-                    if (!user.isAdmin && !user.isInvoicingOrgManager) {
+                    if (!req.user.isAdmin && !req.user.isInvoicingOrgManager) {
                         console.log("Invoice copy - permission denied");
                         throw new Error("Permission denied");
                     }
 
-                    console.log('Going to create new invoice from existing invoice');
+                    console.log('Going to create new invoice from existing invoice',req.invoice.id);
                     const invNew = await libInvoice.copyInvoice(req.invoice.id, invType);
-                    r.result = "ok";
-                    r.invoice = invNew;
-                    console.log("INVOICE copied to", invNew.id);
+                    if (invNew) {
+                        req.invoice.taxInvoice = invNew.id;
+                        try {
+                            req.invoice.save();
+                        } catch (err) {
+                            log.WARN("Failed to save tax invoice number "+invNew.id+" to invoice "+req.invoice.id);
+                        }
+
+                        r.result = "ok";
+                        r.invoice = invNew;
+
+                        log.INFO("INVOICE copied to " + invNew.id);
+                        email.sendInvoice(req.user,invNew,siteUrl);
+                    }
                 } catch (err) {
                     throw new Error("Failed copying invoice "+req.invoice.id+" err="+err.message);
                 }
