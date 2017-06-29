@@ -61,3 +61,6 @@ typings/
 
 # Webstorm IDEA folder
 .idea
+
+# Folder containing files for runnig instance
+run
