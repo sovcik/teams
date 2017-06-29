@@ -390,32 +390,6 @@ function registerForEvent(teamId){
 
 }
 
-function createInvoice(eventId, teamId, invType, cbok, cberr){
-    console.log('Creating invoice');
-    $.post("/invoice",
-        {
-            cmd: 'create',
-            teamId: teamId,
-            eventId: eventId,
-            type: invType
-        },
-        function (res) {
-            console.log("createInvoice: Server returned",res);
-            if (res.result == "ok") {
-                console.log("invoice created", res.invoice.id);
-                cbok(res.invoice);
-            } else {
-                console.log("Error while creating invoice");
-                cberr(res);
-            }
-        }
-    )
-        .fail(function (err) {
-            console.log("Invoice creation failed",err);
-            cberr(err);
-        });
-
-}
 
 function loadInvoices(teamId){
     console.log('Loading invoices');
