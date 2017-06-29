@@ -166,7 +166,7 @@ function loadInvoicingOrgs(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<li class="list-group-item" value="'+item.id+'"">').append(item.org.name+", "+item.adr.city);
+                    let c = $('<a href="/invorg/'+item.id+'" class="list-group-item" >').append(item.org.name+", "+item.adr.city);
                     selIO.append(c);
                     c = $('<option value="'+item.id+'"">').append(item.org.name+", "+item.adr.city);
                     selEvIO.append(c);
