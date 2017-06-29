@@ -143,28 +143,31 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     try {
         switch (cmd) {
             case 'create':
-                if (!user.isAdmin) {
+                console.log('Going to create invoice');
+                if (!req.user.isAdmin && !req.user.isSuperAdmin) {
                     console.log("Invoice create - permission denied");
                     throw new Error("Permission denied");
                 }
 
-                console.log('Going to create invoice');
-                const inv = await libInvoice.createInvoice(teamId, eventId, invType);
-                r.result = "ok";
-                r.invoice = inv;
-                console.log("INVOICE created",inv.id);
+                try {
+                    const inv = await libInvoice.createInvoice(teamId, eventId, invType);
+                    r.result = "ok";
+                    r.invoice = inv;
+                    console.log("INVOICE created", inv.id);
+                } catch (err) {
+                    r.error = err;
+                    log.WARN("Failed creating invoice. err="+err);
+                }
 
                 break;
-
-
 
             default:
                 console.log("cmd=unknown");
 
         }
     } catch (err) {
-        r.error = {};
-        r.error.message = err.message;
+        r.error = err;
+
     }
     res.json(r);
     res.end();

@@ -55,6 +55,49 @@ router.get('/:id', async function (req, res, next) {
 
 });
 
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const cmd = req.query.cmd;
+    const eventId = req.params.id;
+    console.log("/event/:id - get (CMD)");
+    console.log(req.query);
+
+    const r = {result:"error", status:200};
+
+    try {
+        switch (cmd) {
+            case 'getTeams':
+                console.log('Going to get list of registered teams');
+                const te = await TeamEvent.find({eventId:eventId});
+                if (!te)
+                    throw new Error("Error while fetching teams for event "+eventId);
+
+                r.list = [];
+                for (let t of te) {
+                    try {
+                        let ti = await Team.findById(t.teamId);
+                        if (ti)
+                            r.list.push(ti);
+                    } catch (err) {
+
+                    }
+                }
+
+                r.result = "ok";
+                break;
+
+            default:
+                console.log('cmd=unknown');
+        }
+    } catch (err) {
+        r.error = err;
+        log.ERROR("GET /event/:id failed. err="+err);
+    }
+    res.json(r);
+    res.end();
+
+});
+
+
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     console.log("/event - get (CMD)");

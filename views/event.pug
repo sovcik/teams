@@ -10,7 +10,7 @@ block content
             if event.startDate
                 span= event.startDate.toLocaleDateString()
             else
-                span "ešte nebol určený"
+                span ešte nebol určený
         h4
             if event.address
                 if event.address.addrLine1
@@ -34,15 +34,17 @@ block content
     div(class="panel panel-primary")
         div(class='panel-heading') Prihlásené tímy
         div(class='panel-body')
-            ul(id="allTeams" class="list-group")
+            div(id="allTeams")
                 if event.teams && event.teams.length > 0
                     each t,idx in event.teams
                         a(class="list-group-item" href="/team/"+t.id) #{idx+1}. #{t.name}
                 else
-                    li(class="list-group-item") Zatiľ žiadne
+                    li(class="list-group-item") Zatiaľ žiadne
         div(class='panel-footer')
             if user.isAdmin || user.isEventOrganizer
             div
                 button(id='removeEvent' type='button' class='btn btn-default') Zruš turnaj
+    script.
+        initEvent();
 
 
