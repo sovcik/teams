@@ -9,41 +9,43 @@ block content
             div(class='form-group')
                 label(for='loginName' class='') Prihlasovacie meno
                 input(id='loginName' class='form-control' value=profile.username readonly)
-            div(class='form-group')
-                label(for='fullName' class='') Celé meno
-                input(id='fullName' class='form-control' value=profile.fullName readonly)
-            div(class='form-group')
-                label(for='email' class='') e-mail
-                input(id='email' class='form-control' value=profile.email readonly)
-            div(class='form-group')
-                button(type="button" class="btn btn-default" data-toggle="modal" data-target="#changePasswordModal") Zmeniť heslo
+            if (user && user.id == profile.id) || (user && (user.isAdmin || user.isSuperAdmin))
+                div(class='form-group')
+                    label(for='fullName' class='') Celé meno
+                    input(id='fullName' class='form-control' value=profile.fullName readonly)
+                div(class='form-group')
+                    label(for='email' class='') e-mail
+                    input(id='email' class='form-control' value=profile.email readonly)
+                div(class='form-group')
+                    button(type="button" class="btn btn-default" data-toggle="modal" data-target="#changePasswordModal") Zmeniť heslo
 
-    div(id='changePasswordModal' class='modal fade' role='dialog')
-        div(class='modal-dialog')
-            div(class='modal-content')
-                div(class='modal-header')
-                    button(type='button', class='close' data-dismiss='modal') &times;
-                    h4 Zmeniť heslo
-                div(class='modal-body')
-                    div(class='form-group has-feedback')
-                        label Pôvodné heslo
-                        input(id='oldPwd' type='password', placeholder='pôvodné heslo' name='oldPassword' class="form-control")
-                        span(class="glyphicon form-control-feedback")
-                    div(class='form-group')
-                        label Nové heslo
-                        input(id='newPwd' type='password', placeholder='nové heslo' name='newPassword' class="form-control")
-                    div(class='form-group')
-                        label Nové heslo - ešte raz
-                        input(id='newPwdConf' type='password', placeholder='nové heslo potvrdenie' name='newPasswordConf' class="form-control")
-                div(class='modal-footer')
-                    div(class='row')
-                        div(class='col-sm-12')
-                            span(id="pwdChangeStatus" class="text-warning")
-                    div(class='row')
-                        div(class='col-sm-12')
-                            button(id='changePwdBtn' type='button' class='btn btn-default') Zmeň heslo
+    if (user && user.id == profile.id) || (user && (user.isAdmin || user.isSuperAdmin))
+        div(id='changePasswordModal' class='modal fade' role='dialog')
+            div(class='modal-dialog')
+                div(class='modal-content')
+                    div(class='modal-header')
+                        button(type='button', class='close' data-dismiss='modal') &times;
+                        h4 Zmeniť heslo
+                    div(class='modal-body')
+                        div(class='form-group has-feedback')
+                            label Pôvodné heslo
+                            input(id='oldPwd' type='password', placeholder='pôvodné heslo' name='oldPassword' class="form-control")
+                            span(class="glyphicon form-control-feedback")
+                        div(class='form-group')
+                            label Nové heslo
+                            input(id='newPwd' type='password', placeholder='nové heslo' name='newPassword' class="form-control")
+                        div(class='form-group')
+                            label Nové heslo - ešte raz
+                            input(id='newPwdConf' type='password', placeholder='nové heslo potvrdenie' name='newPasswordConf' class="form-control")
+                    div(class='modal-footer')
+                        div(class='row')
+                            div(class='col-sm-12')
+                                span(id="pwdChangeStatus" class="text-warning")
+                        div(class='row')
+                            div(class='col-sm-12')
+                                button(id='PWD'+profile.id type='button' class='btn btn-default changePwdBtn') Zmeň heslo
 
-    if user.isAdmin || user.isSuperAdmin
+    if user && (user.isAdmin || user.isSuperAdmin)
         div(class="panel panel-primary")
             div(class='panel-heading') Administrátor
             div(class='panel-body container-fluid')
@@ -65,28 +67,29 @@ block content
                 div(class='panel col-sm-3')
                     p Žiadny
 
-    div(id='newTeamModal' class='modal fade' role='dialog')
-        div(class='modal-dialog')
-            div(class='modal-content')
-                div(class='modal-header')
-                    button(type='button', class='close' data-dismiss='modal') &times;
-                    h4 Nový tím
-                div(class='modal-body')
-                    div(id='newTeamName' class='form-group has-feedback')
-                        label Meno tímu
-                        input(type='text', placeholder='meno timu' name='newTeamName' class="form-control")
-                        span(class="glyphicon form-control-feedback")
-                    div(class='form-group')
-                        label Program/súťaž
-                        select(id='newTeamProgram' class="form-control")
-                            option -none-
-                div(class='modal-footer')
-                    div(class='row')
-                        div(class='col-sm-12')
-                            span(id="teamCreateStatus" class="text-warning")
-                    div(class='row')
-                        div(class='col-sm-12')
-                            button(id='createTeamBtn' type='button' class='btn btn-default' data-dismiss='modal') Vytvor tím
+    if (user && user.id == profile.id) || (user && (user.isAdmin || user.isSuperAdmin))
+        div(id='newTeamModal' class='modal fade' role='dialog')
+            div(class='modal-dialog')
+                div(class='modal-content')
+                    div(class='modal-header')
+                        button(type='button', class='close' data-dismiss='modal') &times;
+                        h4 Nový tím
+                    div(class='modal-body')
+                        div(id='newTeamName' class='form-group has-feedback')
+                            label Meno tímu
+                            input(type='text', placeholder='meno timu' name='newTeamName' class="form-control")
+                            span(class="glyphicon form-control-feedback")
+                        div(class='form-group')
+                            label Program/súťaž
+                            select(id='newTeamProgram' class="form-control")
+                                option -none-
+                    div(class='modal-footer')
+                        div(class='row')
+                            div(class='col-sm-12')
+                                span(id="teamCreateStatus" class="text-warning")
+                        div(class='row')
+                            div(class='col-sm-12')
+                                button(id='CTM'+profile.id type='button' class='btn btn-default createTeamBtn' data-dismiss='modal') Vytvor tím
 
 
     script.

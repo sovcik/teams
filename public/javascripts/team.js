@@ -46,7 +46,7 @@ function loadTeamCoaches(teamId){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     if (item.fullName) {
-                        var c = $('<a href="' + site + '/profile?id=' + item.id + '" class="btn btn-success btn-member" role="button">')
+                        var c = $('<a href="' + site + '/profile/' + item.id + '" class="btn btn-success btn-member" role="button">')
                             .append(item.fullName);
 
                         t.append(c);

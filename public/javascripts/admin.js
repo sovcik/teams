@@ -16,6 +16,7 @@ function initAdmin(){
     loadPrograms();
     loadEvents();
     loadInvoicingOrgs();
+    loadUsers();
 
     console.log("/admin - Initializing completed");
 }
@@ -274,6 +275,36 @@ function formatAddressDetails(data) {
     $("#billContactName").val(data.billingContact.name || '');
     $("#billContactPhone").val(data.billingContact.phone || '');
     $("#billContactEmail").val(data.billingContact.email || '');
+
+}
+
+function loadUsers(){
+    const sel = $('#allUsers');
+    console.log('Loading users');
+    $.get( "/profile?cmd=getList", function(res) {
+        console.log("Server returned",res);
+        console.log("List of",res.list.length,"records");
+        if (res.result === 'ok'){
+            // sort results by username
+            res.list.sort(function(a,b) {return (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0);} );
+            // clear page elements containing programs
+            sel.empty();
+
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    let c = $('<a href="/profile/'+item.id+'" class="list-group-item" >').append(item.org.name+", "+item.adr.city);
+                    sel.append(c);
+
+                });
+            } else {
+                sel.text('Žiadne');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
 
 }
 

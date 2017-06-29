@@ -6,7 +6,7 @@ div(class="container-fluid" style="padding:0")
         p(style="margin:0") Mlynské nivy 41, Bratislava
     div(id="user" class="pull-right")
         if user
-            a(href="/profile?id=" + user.id) #{user.username}
+            a(href="/profile/" + user.id) #{user.username}
             ="  "
             a(href="/logout") [odhlásiť]
         else
