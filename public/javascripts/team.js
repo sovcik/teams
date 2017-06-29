@@ -459,11 +459,19 @@ function loadInvoices(teamId){
                             .append($('<a href="/invoice/' + item._id + '?cmd=reloadInvoiceData" class="btn btn-default">')
                                 .append('Nahraj nové údaje')
                             )
-                            .append($('<a href="/invoice/' + item._id + '?cmd=createInvoice" class="btn btn-default">')
+                            .append($('<button id="'+item._id+'" class="btn btn-default createTaxInvoice">')
                                 .append('Vytvor faktúru')
                             );
+                    if (!item.paidOn)
+                        c
+                            .append($('<button id="'+item._id+'" class="btn btn-default markAsPaid">')
+                                .append('Zaplať')
+                            );
+
                     sel.append(c);
                 });
+
+                initInvoiceButtons();
 
             } else {
                 sel.text('Žiadne');
@@ -474,5 +482,58 @@ function loadInvoices(teamId){
 
     });
 
+}
+
+function initInvoiceButtons(){
+    $('.createTaxInvoice').on('click',createTaxInvoice);
+    $('.markAsPaid').on('click',markInvoiceAsPaid);
+}
+
+function createTaxInvoice(evt){
+    console.log('Creating tax invoice for '+this.id);
+    $.post("/invoice/"+this.id,
+        {
+            cmd: 'copyToNew',
+            type: 'I'
+        },
+        function (res) {
+            console.log("createTaxInvoice: Server returned",res);
+            if (res.result == "ok") {
+                console.log("tax invoice created", res.invoice.id);
+                loadInvoices(res.invoice.team);
+            } else {
+                console.log("Error while creating invoice",res);
+                alert("Nepodarilo sa vytvoriť faktúru");
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Invoice creation failed",err);
+            alert("Nepodarilo sa vytvoriť faktúru");
+        });
+
+}
+
+function markInvoiceAsPaid(evt){
+    console.log('Marking invoice as paid '+this.id);
+    $.post("/invoice/"+this.id,
+        {
+            cmd: 'markAsPaid'
+        },
+        function (res) {
+            console.log("markAsPaid: Server returned",res);
+            if (res.result == "ok") {
+                console.log("invoice marked as paid", res.invoice.id);
+                loadInvoices(res.invoice.team);
+            } else {
+                console.log("Error marking invoice as paid",res);
+                alert("Nepodarilo sa označiť faktúru ako zaplatenú");
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error marking invoice as paid",err);
+            alert("Nepodarilo sa označiť faktúru ako zaplatenú");
+        });
 }
 

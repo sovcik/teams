@@ -9,20 +9,32 @@ const log = require('../lib/logger');
 const libInvoice = require('../lib/invoice');
 
 const Invoice = mongoose.models.Invoice;
+const InvoicingOrg = mongoose.models.InvoicingOrg;
 const Team = mongoose.models.Team;
 
 module.exports = router;
 
-router.param('invoiceId', async function (req, res, next){
-    const invoiceId = req.params.invoiceId;
+router.param('id', async function (req, res, next){
+    const invoiceId = req.params.id;
     let inv;
     try {
         inv = await Invoice.findById(invoiceId);
         req.invoice = inv;
-        if (inv)
-            console.log("Invoice id=",invoiceId," num=",inv.number);
-        else
+        if (!inv)
             throw new Error("invoice not found");
+
+        log.DEBUG("Invoice id="+req.invoice.id+" num="+req.invoice.number+" iorg="+req.invoice.invoicingOrg);
+
+        try {
+            const iorg = await InvoicingOrg.findById(req.invoice.invoicingOrg);
+            if (iorg)
+                req.user.isInvoicingOrgManager = (iorg.managers.indexOf(req.user.id) >= 0);
+            if (req.user.isInvoicingOrgManager)
+                console.log("User is invoicing org manager");
+        } catch (err) {
+            log.WARN("Failed fetching invoicing org. err="+err);
+        }
+
         next();
     } catch (err) {
         res.render('error',{message:"Faktúra nenájdná",error:{}});
@@ -31,7 +43,7 @@ router.param('invoiceId', async function (req, res, next){
 });
 
 
-router.get('/:invoiceId', async function (req, res, next) {
+router.get('/:id', async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get("host");
     console.log("SITE URL",siteUrl);
     const cmd = req.query.cmd;
@@ -86,7 +98,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 });
 
-router.get('/:invoiceId', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     let inv, team;
     console.log("/invoice/ID - get (with CMD)");
@@ -130,7 +142,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     try {
         switch (cmd) {
             case 'create':
-                if (!isAdmin) {
+                if (!user.isAdmin) {
                     console.log("Invoice create - permission denied");
                     throw new Error("Permission denied");
                 }
@@ -143,19 +155,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
                 break;
 
-            case 'copyNew':
-                if (!isAdmin) {
-                    console.log("Invoice copy - permission denied");
-                    throw new Error("Permission denied");
-                }
 
-                console.log('Going to create new invoice from existing invoice');
-                const invNew = await libInvoice.copyInvoice(req.query.fromInv, invType);
-                r.result = "ok";
-                r.invoice = invNew;
-                console.log("INVOICE copied to",invNew.id);
-
-                break;
 
             default:
                 console.log("cmd=unknown");
@@ -169,5 +169,61 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     res.end();
 
 });
+
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/invoice - post (ID)");
+    const invType = req.body.type;
+
+    console.log(req.body);
+    const r = {result:"error", status:200};
+
+    try {
+        switch (req.body.cmd) {
+            case 'markAsPaid':
+                try {
+                    if (!req.user.isAdmin && !req.user.isInvoicingOrgManager)
+                        return res.render('error', {message: "Prístup zamietnutý"});
+
+                    console.log('Going to set invoice as paid', data.orgName);
+                    const i = await Invoice.findByIdAndUpdate(req.invoice.id, {$set: {paidOn: Date.now()}});
+                    if (i) {
+                        log.info("invoice set to paid " + i.number + " " + i.id + " by user=" + req.user.username);
+                        r.result = "ok";
+                    }
+                } catch (err) {
+                    throw new Error("Failed marking invoice as paid. err=" + err.message);
+                }
+                break;
+            case 'copyToNew':
+                try {
+                    if (!user.isAdmin && !user.isInvoicingOrgManager) {
+                        console.log("Invoice copy - permission denied");
+                        throw new Error("Permission denied");
+                    }
+
+                    console.log('Going to create new invoice from existing invoice');
+                    const invNew = await libInvoice.copyInvoice(req.invoice.id, invType);
+                    r.result = "ok";
+                    r.invoice = invNew;
+                    console.log("INVOICE copied to", invNew.id);
+                } catch (err) {
+                    throw new Error("Failed copying invoice "+req.invoice.id+" err="+err.message);
+                }
+
+                break;
+            default:
+                console.log('cmd=unknown');
+                break;
+        }
+    } catch (err) {
+        r.error = {};
+        r.error.message = err.message;
+    }
+    res.json(r);
+    res.end();
+
+
+});
+
 
 
