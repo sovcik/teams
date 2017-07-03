@@ -61,7 +61,8 @@ InvoiceSchema.statics.testData = function(rec, id){
     rec.currency = "€";
 
     rec.issuedOn = Date.now();
-    rec.dueOn = Date.now()+14;
+    rec.dueOn = Date.now();
+    rec.dueOn.setDate(rec.dueOn.getDate()+14);
 
     return rec;
 };
