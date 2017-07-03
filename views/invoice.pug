@@ -69,13 +69,13 @@ block content
                             br
                             ="č. "+inv.number
                         p Dátum vystavenia:
-                            =" " + inv.issuedOn.toLocaleDateString()
+                            =" " + fmt.fmtDate(inv.issuedOn, user.locales)
                             br
                             span Dátum dodania:
-                                =" " + inv.issuedOn.toLocaleDateString()
+                                =" " + fmt.fmtDate(inv.issuedOn, user.locales)
                             br
                             span(class="bold") Dátum splatnosti:
-                                =" " + inv.dueOn.toLocaleDateString()
+                                =" " + fmt.fmtDate(inv.dueOn, user.locales)
         p(style="font-size:80%") FIRST® LEGO® League is jointly held trademark of FIRST® (www.firstinspires.org) and the LEGO Group, neither of which is overseeing, involved with, or responsible for this activity, product, or service.
 
         table
@@ -163,7 +163,7 @@ block content
 
         if inv.paidOn
             h4(style="border: thin solid black;padding:5pt") Nič netreba platiť. Faktúra bola uhradená dňa
-                =" "+inv.paidOn.toLocaleDateString()
+                =" "+ fmt.fmtDate(inv.paidOn, user.locales)
 
         if !inv.paidOn
             table(style="border: thin solid black; width=100%")
@@ -172,7 +172,7 @@ block content
                         h5
                             span(class="bold") Uhradiť do:
                             br
-                            =" " + inv.dueOn.toLocaleDateString()
+                            =" " + fmt.fmtDate(inv.dueOn, user.locales)
                     td(class="itm")
                         h5
                             span(class="bold") IBAN:

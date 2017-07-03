@@ -15,7 +15,8 @@ const UserSchema = new Schema({
     passwordHash: { type: String, default:'' },
     salt: { type: String, default: '' },
     isAdmin: {type: Boolean, default: false},
-    isSuperAdmin: {type: Boolean, default: false}
+    isSuperAdmin: {type: Boolean, default: false},
+    locales: {type: String, default: 'en-GB'}
 });
 
 // helper function handling hash creation

@@ -7,6 +7,7 @@ const router = express.Router();
 const email = require('../lib/email');
 const log = require('../lib/logger');
 const libInvoice = require('../lib/invoice');
+const libFmt = require('../lib/fmt');
 
 const Invoice = mongoose.models.Invoice;
 const InvoicingOrg = mongoose.models.InvoicingOrg;
@@ -51,9 +52,10 @@ router.get('/:id', async function (req, res, next) {
 
     if (cmd)
         next();
-    else
-        res.render('invoice',{inv:req.invoice, siteUrl:siteUrl});
-
+    else {
+        let u = {locales:"sk-SK"};
+        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: (req.user ? req.user : u), fmt:libFmt} );
+    }
 });
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
