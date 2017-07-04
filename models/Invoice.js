@@ -60,8 +60,8 @@ InvoiceSchema.statics.testData = function(rec, id){
     rec.total = 1000.23;
     rec.currency = "€";
 
-    rec.issuedOn = Date.now();
-    rec.dueOn = Date.now();
+    rec.issuedOn = new Date();
+    rec.dueOn = new Date();
     rec.dueOn.setDate(rec.dueOn.getDate()+14);
 
     return rec;

@@ -32,7 +32,7 @@ EventSchema.plugin(statusPlugin);
 EventSchema.statics.testData = function(rec, id){
     if (!id) id = '';
     rec.name = "Event "+id;
-    rec.startDate = Date.now();
+    rec.startDate = new Date();
 
     return rec;
 };
