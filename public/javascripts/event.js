@@ -24,10 +24,10 @@ function loadRegisteredTeams(eventId){
                     let c = $('<div class="well well-sm container-fluid">')
                         .append($('<a href="/team/'+item.id+'" >')
                             .append(item.name+", "+item.billingAdr.city+", "+item.billingOrg.name))
-                        .append($('<button id="CNI'+item.id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
-                            .append("Vytvor proformu"))
-                        .append($('<button id="CTI'+item.id+'" class="btn btn-default btnCreateTaxInvoice" style="float:right">')
-                            .append("Vytvor faktúru"));
+                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="CNI'+item.id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
+                            .append("Vytvor proformu"):'')
+                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="CTI'+item.id+'" class="btn btn-default btnCreateTaxInvoice" style="float:right">')
+                            .append("Vytvor faktúru"):'');
 
                     sel.append(c);
 

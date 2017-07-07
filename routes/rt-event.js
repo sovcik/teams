@@ -7,6 +7,7 @@ const router = express.Router();
 const email = require('../lib/email');
 const log = require('../lib/logger');
 const libInvoice = require('../lib/invoice');
+const libFmt = require('../lib/fmt');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
@@ -51,7 +52,7 @@ router.get('/:id', async function (req, res, next) {
     if (cmd)
         next();
     else
-        res.render('event',{event: req.event, user: req.user});
+        res.render('event',{event: req.event, user: req.user, fmt:libFmt});
 
 });
 
@@ -62,6 +63,8 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     console.log(req.query);
 
     const r = {result:"error", status:200};
+    r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
+    r.isEventOrganizer = req.user.isEventOrganizer;
 
     try {
         switch (cmd) {
@@ -104,6 +107,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log(req.query);
 
     const r = {result:"error", status:200};
+    r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
+    r.isEventOrganizer = req.user.isEventOrganizer;
 
     try {
         switch (cmd) {
@@ -150,7 +155,11 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.body.cmd;
     console.log("/event - put");
     console.log(req.body);
+
     const r = {result:"error", status:200};
+    r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
+    r.isEventOrganizer = req.user.isEventOrganizer;
+
     try {
         switch (cmd) {
             case 'createEvent':
@@ -199,8 +208,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     const cmd = req.body.cmd;
     console.log("/event/:id - put");
     console.log(req.body);
-    console.log("SITE URL",siteUrl);
+
     const r = {result:"error", status:200};
+    r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
+    r.isEventOrganizer = req.user.isEventOrganizer;
+
     try {
         switch (cmd) {
             case 'registerTeam':

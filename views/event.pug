@@ -5,25 +5,29 @@ block content
     h1 Stretnutie/turnaj
     h2 #{event.name}
     div(class="panel")
-        h3 Dátum/čas začiatku
-            = " "
-            if event.startDate
-                span= event.startDate.toLocaleDateString()
-            else
-                span ešte nebol určený
-        h4
-            if event.address
-                if event.address.addrLine1
-                    =", " + event.address.addrLine1
-                if event.address.addrLine2
-                    =", "+event.address.addrLine2
-                if event.address.addrLine3
-                    =", " + event.address.addrLine3
-                h4 #{event.address.postCode}, #{event.address.city}
-        if user.isAdmin || user.isEventOrganizer
-            h5
-            h5 Fakturujúca organizácia
-            h5 #{event.invoicingOrg.org.name}, #{event.invoicingOrg.adr.city}
+        div(class="panel-body")
+            h3 Dátum/čas začiatku
+                = " "
+                if event.startDate
+                    span= fmt.fmtDate(event.startDate, user.locales)
+                else
+                    span ešte nebol určený
+            h4
+                if event.address
+                    if event.address.addrLine1
+                        =", " + event.address.addrLine1
+                    if event.address.addrLine2
+                        =", "+event.address.addrLine2
+                    if event.address.addrLine3
+                        =", " + event.address.addrLine3
+                    h4 #{event.address.postCode}, #{event.address.city}
+            if user && (user.isAdmin || user.isEventOrganizer)
+                h5
+                h5 Fakturujúca organizácia
+                h5 #{event.invoicingOrg.org.name}, #{event.invoicingOrg.adr.city}
+        div(class="panel-footer")
+            if user && (user.isAdmin || user.isEventOrganizer)
+                button(id='removeEvent' type='button' class='btn btn-default') Zruš turnaj
 
     if event.instructions
         div(class="panel panel-primary")
@@ -36,10 +40,6 @@ block content
         div(class='panel-body')
             div(id="allTeams")
 
-        div(class='panel-footer')
-            if user.isAdmin || user.isEventOrganizer
-            div
-                button(id='removeEvent' type='button' class='btn btn-default') Zruš turnaj
     script.
         initEvent();
 
