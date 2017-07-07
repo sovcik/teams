@@ -21,6 +21,7 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/', async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
     //const uv = new mongoose.model('UserVerify');
     //const username = req.body.email;
 
@@ -64,7 +65,7 @@ router.post('/', async function (req, res, next) {
             });
 
         log.INFO("User created: " + user.username + "===" + user.id);
-        email.sendSignupConfirmation(user);
+        email.sendSignupConfirmation(user, siteUrl);
         return res.render('signup-success');
     } catch (err) {
         return res.render('error', {message:"Nepodarilo sa vytvoriť účet", error:err});
