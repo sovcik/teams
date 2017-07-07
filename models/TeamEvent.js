@@ -5,7 +5,8 @@ const TeamEventSchema = new mongoose.Schema({
     eventId: { type: String, required: true },
     teamId: { type: String, required: true },
     programId: { type: String, required: true },
-    registeredOn: {type: Date, required: true }
+    registeredOn: {type: Date, required: true },
+    teamNumber: {type:String}
 });
 
 if (!mongoose.models.TeamEvent) {
