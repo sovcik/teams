@@ -3,6 +3,15 @@
 function initEvent(){
     const evId = getResourceId(location.href);
     loadRegisteredTeams(evId);
+    $("#btnSaveTeamNumber").on("click", function(ev){
+        const teamEventId = $("#teamEventId").val();
+        const teamNum = $("#teamnumber").val();
+        if (saveTeamNumber(teamEventId, teamNum)) {
+            $("#editTeamNumber").modal("hide");
+        } else {
+
+        }
+    });
 
 }
 
@@ -24,6 +33,8 @@ function loadRegisteredTeams(eventId){
                     let c = $('<div class="well well-sm container-fluid">')
                         .append($('<a href="/team/'+item.id+'" >')
                             .append(item.name+", "+item.billingAdr.city+", "+item.billingOrg.name))
+                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="ETN'+item.id+'" class="btn btn-default btnEditTeamNumber" style="float:right">')
+                            .append("Vytvor proformu"):'')
                         .append(res.isAdmin||res.isEventOrganizer?$('<button id="CNI'+item.id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
                             .append("Vytvor proformu"):'')
                         .append(res.isAdmin||res.isEventOrganizer?$('<button id="CTI'+item.id+'" class="btn btn-default btnCreateTaxInvoice" style="float:right">')
@@ -48,6 +59,11 @@ function loadRegisteredTeams(eventId){
                             alert("Zálohová Faktúra bola vytvorená. Nájdete ju na stránke tímu.");
                     });
                 });
+                $(".btnEditTeamNumber").on("click",function(event){
+                    $("#teamEventId").val(res.teamEvent);
+                    $("#editTeamNumber").modal();
+                });
+
 
             } else {
                 sel.text('Žiadne');
@@ -60,3 +76,8 @@ function loadRegisteredTeams(eventId){
 
 }
 
+function saveTeamNumber(teamId, eventId, callback){
+    // open modal dialog
+
+
+}

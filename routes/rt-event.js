@@ -78,8 +78,10 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 for (let t of te) {
                     try {
                         let ti = await Team.findById(t.teamId);
-                        if (ti)
+                        if (ti) {
+                            ti.teamEvent = t.id;
                             r.list.push(ti);
+                        }
                     } catch (err) {
 
                     }
