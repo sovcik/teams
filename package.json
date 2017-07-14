@@ -7,7 +7,7 @@
     "dev": "nodemon -e js,pug,css,json ./bin/www"
   },
   "engines": {
-    "node": "7.9.0"
+    "node": "^8.1.4"
   },
   "dependencies": {
     "bcrypt": "^1.0.2",
