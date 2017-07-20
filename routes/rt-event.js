@@ -77,13 +77,15 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 r.list = [];
                 for (let t of te) {
                     try {
+                        console.log("TE=",t.id);
                         let ti = await Team.findById(t.teamId);
+                        let a = JSON.parse(JSON.stringify(ti)); // ti is  frozen for adding properties, so copy is needed
                         if (ti) {
-                            ti.teamEvent = t.id;
-                            r.list.push(ti);
+                            a.teamEvent = t;
+                            r.list.push(a);
                         }
                     } catch (err) {
-
+                        throw new Error("Error while fetching data for teamEvent="+ti.teamEvent);
                     }
                 }
 

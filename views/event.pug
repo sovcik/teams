@@ -6,7 +6,7 @@ block content
     h2 #{event.name}
     div(class="panel")
         div(class="panel-body")
-            h3 Dátum/čas začiatku
+            h3 Dátum konania
                 = " "
                 if event.startDate
                     span= fmt.fmtDate(event.startDate, user.locales)
@@ -29,7 +29,7 @@ block content
             if user && (user.isAdmin || user.isEventOrganizer)
                 button(id='removeEvent' type='button' class='btn btn-default') Zruš turnaj
 
-    if (user && (user.isAdmin || user.isSuperAdmin || user.isEventOrganizer))
+    if (user && (user.isAdmin || user.isEventOrganizer))
         div(id='editTeamNumber' class='modal fade' role='dialog')
             div(class='modal-dialog')
                 div(class='modal-content')
