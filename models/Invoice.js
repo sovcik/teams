@@ -25,6 +25,7 @@ const InvoiceSchema = new mongoose.Schema({
     items: [InvoiceItemSchema],
     total: {type: Number},
     currency: {type: String},
+    event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
     taxInvoice: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice' }
 });
 
