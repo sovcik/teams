@@ -9,6 +9,7 @@ module.exports = function(app){
     app.use('/admin', require('./rt-admin.js'));
     app.use('/invoice', require('./rt-invoice.js'));
     app.use('/invorg', require('./rt-invorg.js'));
+    app.use('/teamevent', require('./rt-teamEvent.js'));
 
     app.get('/logout',
         function(req, res){

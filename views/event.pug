@@ -6,7 +6,7 @@ block content
     h2 #{event.name}
     div(class="panel")
         div(class="panel-body")
-            h3 Dátum/čas začiatku
+            h3 Dátum konania
                 = " "
                 if event.startDate
                     span= fmt.fmtDate(event.startDate, user.locales)
@@ -28,6 +28,28 @@ block content
         div(class="panel-footer")
             if user && (user.isAdmin || user.isEventOrganizer)
                 button(id='removeEvent' type='button' class='btn btn-default') Zruš turnaj
+
+    if (user && (user.isAdmin || user.isEventOrganizer))
+        div(id='editTeamNumber' class='modal fade' role='dialog')
+            div(class='modal-dialog')
+                div(class='modal-content')
+                    div(class='modal-header')
+                        button(type='button', class='close' data-dismiss='modal') &times;
+                        h4 Číslo tímu
+                    div(class='modal-body')
+                        input(type="hidden" value="" id="teamEventId")
+                        div(class='form-group has-feedback')
+                            label Číslo tímu
+                            input(id='teamNumber' type='text', placeholder='číslo tímu' name='teamNumber' class="form-control")
+                            span(class="glyphicon form-control-feedback")
+                    div(class='modal-footer')
+                        div(class='row')
+                            div(class='col-sm-12')
+                                span(id="teamNumberStatus" class="text-warning")
+                        div(class='row')
+                            div(class='col-sm-12')
+                                button(id='btnSaveTeamNumber' type='button' class='btn btn-default' data-dismiss='modal') Uložiť
+
 
     if event.instructions
         div(class="panel panel-primary")
