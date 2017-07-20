@@ -70,6 +70,7 @@ function loadRegisteredTeams(eventId){
                 $(".btnEditTeamNumber").on("click",function(evt){
                     let teId = evt.target.id.substr(3);
                     $("#teamEventId").val(teId);
+                    $("#teamNumber").val("");
                     $("#editTeamNumber").modal();
                 });
 
