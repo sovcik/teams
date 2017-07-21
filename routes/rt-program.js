@@ -3,6 +3,7 @@ const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
 const log = require('../lib/logger');
+const dbExport = require('../lib/db/export');
 
 const Program = mongoose.models.Program;
 const User = mongoose.models.User;
@@ -119,7 +120,12 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
             }
 
             log.WARN('Program data export requested by user='+req.user.username+' for program='+req.program.name);
-
+            try {
+                r.data = await dbExport.exportProgramData(req.program.id);
+                r.result = 'ok';
+            } catch (err) {
+                r.error = {message:"Failed to export program data. err="+err};
+            }
 
             break;
         default:

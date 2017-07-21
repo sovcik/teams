@@ -5,6 +5,7 @@ const viewProgram = {};
 viewProgram.init = function (){
     viewProgram.loadManagers();
     viewProgram.loadEvents();
+    $("#exportData").on("click",viewProgram.exportData);
 };
 
 viewProgram.loadManagers = function (){
@@ -40,7 +41,7 @@ viewProgram.loadManagers = function (){
 
 };
 
-viewProgram.loadEvents = function loadEvents(){
+viewProgram.loadEvents = function (){
     const selEv = $('#eventList');
     const progId = getResourceId(location.href);
     console.log('Loading events');
@@ -62,6 +63,21 @@ viewProgram.loadEvents = function loadEvents(){
             }
         } else {
             console.log("loadEvents: Server returned ERROR");
+        }
+
+    });
+
+};
+
+viewProgram.exportData = function (){
+    const progId = getResourceId(location.href);
+    console.log('Exporting program data');
+    $.get( "/program/"+progId+"?cmd=export", function(res) {
+        console.log("exportProg: Server returned",res);
+        if (res.result === 'ok'){
+            // sort events by name
+        } else {
+            console.log("exportProg: Server returned ERROR");
         }
 
     });
