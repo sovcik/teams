@@ -6,6 +6,7 @@ function initProfile(){
     loadCoachOfTeams();
     loadMemberOfTeams();
     loadPrograms();
+    loadMyPrograms();
 
     console.log("/profile - Initializing completed");
 }
@@ -17,7 +18,7 @@ function loadCoachOfTeams(){
     const t = $("#coachTeamsList");
     t.empty();
     $.get( "/profile/"+coachId+"?cmd=getCoachTeams", function(res) {
-        console.log("Server returned",res);
+        console.log("Server returned teams",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             t.empty();
@@ -50,7 +51,7 @@ function loadPrograms(){
     const selProg = $('#newTeamProgram');
     console.log('Loading programs');
     $.get( "/program?cmd=getList", function(res) {
-        console.log("Server returned",res);
+        console.log("Server returned available programs",res);
         console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort programs by name
@@ -60,6 +61,36 @@ function loadPrograms(){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     var c = $('<option value="'+item.id+'"">').append(item.name);
+                    selProg.append(c);
+                });
+            } else {
+                t.text('Žiadne programy');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
+
+}
+
+function loadMyPrograms(){
+    const profileId = getResourceId(location.href);
+    const selProg = $("#myPrograms");
+    if (null === document.getElementById('myPrograms')) // profile is not of program manager
+        return;
+    console.log('Loading programs profile manages');
+    $.get( "/program?cmd=getList&pm="+profileId, function(res) {
+        console.log("Server returned my programs",res);
+        console.log("List of",res.list.length,"records");
+        if (res.result === 'ok'){
+            // sort programs by name
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+            selProg.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    let c = $('<a href="/program/'+item.id+'" class="list-group-item" >').append(item.name);
                     selProg.append(c);
                 });
             } else {
@@ -87,7 +118,10 @@ function createNewTeam(coachId){
                 console.log("Team created");
                 selStatus.text('Tím vytvorený.');
                 selStatus.css("display", "inline").fadeOut(2000);
-                loadCoachOfTeams(coachId);
+                if (null === document.getElementById('coachTeamsList')) {
+                    window.location.reload(true);
+                } else
+                    loadCoachOfTeams(coachId);
                 selTeamName.val('');
             } else {
                 console.log("Error while creating team");

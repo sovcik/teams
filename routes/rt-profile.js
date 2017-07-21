@@ -8,6 +8,7 @@ const log = require('../lib/logger');
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
 const TeamUser = mongoose.model('TeamUser');
+const Program = mongoose.model('Program');
 
 const dbUser = require('../lib/db/User');
 
@@ -40,8 +41,21 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 
     if (cmd)
         next();
-    else
-        res.render('profile',{ profile:req.profile, coach:1, user:req.user });
+    else {
+        let isProgramManager = false;
+        let isCoach = false;
+        try {
+            let pm = await Program.findOne({managers:req.profile.id });
+            if (pm)
+                isProgramManager = true;
+            let tm = await TeamUser.findOne({userId:req.profile.id, role:'coach'});
+            if (tm)
+                isCoach = true;
+        } catch (err) {
+            log.WARN("Failed fetching program data for user profile. "+err);
+        }
+        res.render('profile', {profile: req.profile, coach: isCoach, user: req.user, isProgramManager:isProgramManager});
+    }
 
 });
 

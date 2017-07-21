@@ -107,7 +107,8 @@ function loadPrograms(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<li class="list-group-item" value="'+item.id+'"">').append(item.name);
+                    let c = $('<a href="/program/'+item.id+'" class="list-group-item" >').append(item.name);
+                    //let c = $('<li class="list-group-item" value="'+item.id+'"">').append(item.name);
                     selProg.append(c);
                     c = $('<option value="'+item.id+'"">').append(item.name);
                     selEvProg.append(c);

@@ -1,0 +1,22 @@
+extends includes/layout
+
+block content
+    style.
+        .card {
+            margin-left: 5pt;
+            margin-bottom: 5pt;
+            max-width: 200pt;
+            float: left;
+        }
+    include includes/header-sm
+    h1 Aktívne programy
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Programy
+        div(class='panel-body')
+            if programs
+                each p in programs
+                    a(class="list-group-item" href="/program/"+p.id) #{p.name}
+            else
+                p Žiadne aktívne programy
+

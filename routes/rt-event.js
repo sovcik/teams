@@ -107,6 +107,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
+    const progId = req.query.program;
     console.log("/event - get (CMD)");
     console.log(req.query);
 
@@ -118,7 +119,10 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         switch (cmd) {
             case 'getList':
                 console.log('Going to get list of all events');
-                const p = await Event.find({recordStatus: 'active'}, {
+                let q = {recordStatus: 'active'};
+                if (progId)
+                    q.programId = progId;
+                const p = await Event.find(q, {
                     name: true,
                     id: true
                 });

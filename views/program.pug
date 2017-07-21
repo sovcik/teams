@@ -1,0 +1,35 @@
+extends includes/layout
+
+block content
+    style.
+        .card {
+            margin-left: 5pt;
+            margin-bottom: 5pt;
+            max-width: 200pt;
+            float: left;
+        }
+    include includes/header-sm
+    h1 Program
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Detaily
+        div(class='panel-body')
+            div(class='form-group')
+                label(for='progName') Názov
+                input(id='progName' class='form-control' value=program.name readonly)
+        if user && (user.isAdmin || user.isProgramManager)
+            div(class='panel-footer')
+                button(id='exportData' type="button" class="btn btn-default") Export dát
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Manažéri programu
+        div(class='panel-body')
+            div(id='pmsList' class='container-fluid')
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Stretnutia/Turnaje
+        div(class='panel-body')
+            div(id='eventList' class='container-fluid')
+
+    script.
+        viewProgram.init();
