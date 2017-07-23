@@ -27,7 +27,7 @@ block content
                         tr
                             td
                                 a(href="/invoice/"+i.id) #{i.number}
-                            td #{(i.billOrg && i.billOrg.name)?i.billOrg.name:"xxx"}, #{(i.billOrg && i.billOrg.city)?i.billAdr.city:"xxx"}
+                            td #{(i.billOrg && i.billOrg.name)?i.billOrg.name:"xxx"}, #{(i.billAdr && i.billAdr.city)?i.billAdr.city:"xxx"}
                             td
                                 a(href="/team/"+i.team) [otvor tím]
                             td=i.total.toFixed(2)
