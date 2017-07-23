@@ -119,9 +119,9 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 break;
             }
 
-            log.WARN('Program data export requested by user='+req.user.username+' for program='+req.program.name);
             try {
-                r.data = await dbExport.exportProgramData(req.program.id);
+                log.WARN('Program data export requested by user='+req.user.username+' for program='+req.program._id);
+                r.data = await dbExport.exportProgramData(req.program._id);
                 r.result = 'ok';
             } catch (err) {
                 r.error = {message:"Failed to export program data. err="+err};
