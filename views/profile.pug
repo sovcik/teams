@@ -9,17 +9,20 @@ block content
             div(class='form-group')
                 label(for='loginName' class='') Prihlasovacie meno
                 input(id='loginName' class='form-control' value=profile.username readonly)
-            if (user && user.id == profile.id) || (user && (user.isAdmin || user.isSuperAdmin))
-                div(class='form-group')
-                    label(for='fullName' class='') Celé meno
-                    input(id='fullName' class='form-control' value=profile.fullName readonly)
+            div(class='form-group')
+                label(for='fullName' class='') Celé meno
+                input(id='fullName' class='form-control' value=profile.fullName readonly)
+            if (user && (user.id == profile.id || user.isAdmin))
                 div(class='form-group')
                     label(for='email' class='') e-mail
                     input(id='email' class='form-control' value=profile.email readonly)
                 div(class='form-group')
                     button(type="button" class="btn btn-default" data-toggle="modal" data-target="#changePasswordModal") Zmeniť heslo
+        if (user && (user.id == profile.id) || user.isAdmin)
+            div(class='panel-footer')
+                button(id='createTeam' type="button" class="btn btn-primary" data-toggle="modal" data-target="#newTeamModal") Vytvor nový tím
 
-    if (user && user.id == profile.id) || (user && (user.isAdmin || user.isSuperAdmin))
+    if (user && (user.id == profile.id) || user.isAdmin)
         div(id='changePasswordModal' class='modal fade' role='dialog')
             div(class='modal-dialog')
                 div(class='modal-content')
@@ -45,29 +48,27 @@ block content
                             div(class='col-sm-12')
                                 button(id='PWD'+profile.id type='button' class='btn btn-default changePwdBtn') Zmeň heslo
 
-    if profile && (profile.isAdmin || profile.isSuperAdmin)
+    if (user && user.isAdmin && profile.id == user.id)
         div(class="panel panel-primary")
             div(class='panel-heading') Administrátor
             div(class='panel-body container-fluid')
                 a(href="/admin" class="btn btn-default") Admin funkcie
 
-    if coach
+    if coach && (user && (user.id == profile.id) || user.isAdmin)
         div(class="panel panel-primary")
             div(class='panel-heading') Tímy, ktoré trénujem
             div(id='coachTeamsList' class='panel-body container-fluid')
                 div(class='panel col-sm-6')
                     p Žiadny
-            div(class='panel-footer')
-                button(id='createTeam' type="button" class="btn btn-default" data-toggle="modal" data-target="#newTeamModal") Vytvor nový tím
 
-    if memberTeams
+    if memberTeams && (user && (user.id == profile.id) || user.isAdmin)
         div(class="panel panel-primary")
             div(class='panel-heading') Tímy, v ktorých som členom
             div(id='memberTeamsList' class='panel-body container-fluid')
                 div(class='panel col-sm-3')
                     p Žiadny
 
-    if (user && user.id == profile.id) || (user && (user.isAdmin || user.isSuperAdmin))
+    if (user && (user.id == profile.id) || user.isAdmin)
         div(id='newTeamModal' class='modal fade' role='dialog')
             div(class='modal-dialog')
                 div(class='modal-content')
@@ -91,6 +92,11 @@ block content
                             div(class='col-sm-12')
                                 button(id='CTM'+profile.id type='button' class='btn btn-default createTeamBtn' data-dismiss='modal') Vytvor tím
 
+    if isProgramManager && (user && (user.id == profile.id) || user.isAdmin)
+        div(class="panel panel-primary")
+            div(class='panel-heading') Programy
+            div(class='panel-body container-fluid')
+                ul(id="myPrograms" class="list-group")
 
     script.
         initProfile();
