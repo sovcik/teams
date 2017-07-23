@@ -17,7 +17,10 @@ function initTeam(){
     });
 
     $("#btnRegister").on("click", function(){
-        registerForEvent(teamId);
+        if ($("#billOrg").val().length == 0 || $("#billCity").val().length == 0 || $("#billAdr1").val().length == 0)
+            alert("Pred registráciou je potrebné vyplniť fakturačné a korešpondenčné údaje.");
+        else
+            registerForEvent(teamId);
     });
 
 
