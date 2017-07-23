@@ -7,8 +7,8 @@ block content
             padding:3pt
         }
 
-    h1 Fakturujúca organnizácia
-    h2 #{(io.org && io.org.name)?io.org.name:"xxx"}, #{(io.org && io.org.city)?io.org.city:"xxx"}
+    h1 Fakturujúca organizácia
+    h2 #{(io.org && io.org.name)?io.org.name:"xxx"}, #{(io.org && io.adr.city)?io.adr.city:"xxx"}
 
     div(class="panel panel-primary")
         div(class='panel-heading') Vystavené faktúry
@@ -26,16 +26,16 @@ block content
                     each i,idx in io.invoices
                         tr
                             td
-                                a(href="/invoice/"+i.id) #{i.number}
+                                a(href="/invoice/"+i.id) #{i.type}-#{i.number}
                             td #{(i.billOrg && i.billOrg.name)?i.billOrg.name:"xxx"}, #{(i.billAdr && i.billAdr.city)?i.billAdr.city:"xxx"}
                             td
                                 a(href="/team/"+i.team) [otvor tím]
                             td=i.total.toFixed(2)
-                            td=i.issuedOn.toLocaleDateString()
-                            td=i.dueOn.toLocaleDateString()
+                            td=i.issuedOn.toLocaleDateString(user.locales)
+                            td=i.dueOn.toLocaleDateString(user.locales)
                             td
                                 if i.paidOn
-                                    =i.paidOn.toLocaleDateString()
+                                    =i.paidOn.toLocaleDateString(user.locales)
                                 else
                                     if user.isAdmin || user.isInvoicingOrgManager
                                         button(id='PAY'+i.id class="btn btn-default markAsPaid") Zaplať
