@@ -139,12 +139,20 @@ viewProgram.JSON2CSV = function(data,sep) {
         line += sep + t.coaches[0].fullName;
         line += sep + t.coaches[0].email;
 
-        line += sep + t.billingOrg.name;
-        line += sep + t.billingAdr.addrLine1
-            +(t.billingAdr.addrLine2?", "+t.billingAdr.addrLine2:"")
-            +(t.billingAdr.addrLine3?", "+t.billingAdr.addrLine3:"");
-        line += sep + t.billingAdr.city;
-        line += sep + t.billingAdr.postCode;
+        if (t.billingOrg)
+            line += sep + t.billingOrg.name;
+        else
+            line += sep + '';
+
+        if (t.billingAdr) {
+            line += sep + t.billingAdr.addrLine1
+                + (t.billingAdr.addrLine2 ? ", " + t.billingAdr.addrLine2 : "")
+                + (t.billingAdr.addrLine3 ? ", " + t.billingAdr.addrLine3 : "");
+            line += sep + t.billingAdr.city;
+            line += sep + t.billingAdr.postCode;
+        } else {
+            line += sep + sep + sep;
+        }
 
         for (let j = 0; j < 10; j++) {
             if (j < t.members.length)
