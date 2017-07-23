@@ -8,7 +8,7 @@ block content
         }
 
     h1 Fakturujúca organnizácia
-    h2 #{io.org.name?io.org.name:"xxx"}, #{io.org.city}
+    h2 #{(io.org && io.org.name)?io.org.name:"xxx"}, #{io.org.city}
 
     div(class="panel panel-primary")
         div(class='panel-heading') Vystavené faktúry
@@ -27,7 +27,7 @@ block content
                         tr
                             td
                                 a(href="/invoice/"+i.id) #{i.number}
-                            td #{i.billOrg.name?i.billOrg.name:"xxx"}, #{i.billAdr.city}
+                            td #{(i.billOrg && i.billOrg.name)?i.billOrg.name:"xxx"}, #{i.billAdr.city}
                             td
                                 a(href="/team/"+i.team) [otvor tím]
                             td=i.total.toFixed(2)
