@@ -234,6 +234,13 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
         switch (cmd) {
             case 'registerTeam':
                 console.log('Going to register team for an event');
+
+                if (!req.user.isAdmin && !req.user.isEventOrganizer){
+                    log.WARN("registerTeam: Permission denied for user="+req.user.username);
+                    r.error = {message:"permission denied"};
+                    break;
+                }
+
                 let t = await Team.findOneActive({_id: req.body.teamId});
                 if (!t) throw new Error("Team not found");
 
@@ -278,6 +285,13 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 break;
             case "addOrganizer":
                 console.log('Going to add organizer for an event');
+
+                if (!req.user.isAdmin && !req.user.isEventOrganizer){
+                    log.WARN("addOrganizer: Permission denied for user="+req.user.username);
+                    r.error = {message:"permission denied"};
+                    break;
+                }
+
                 let u = await User.findOneActive({username:req.body.username});
                 if (!u) throw new Error("User not found "+req.body.username);
 
@@ -292,14 +306,36 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     log.ERROR("Failed to save event organizer. err="+err);
                 }
                 break;
+            case "setDate":
+                console.log('Going to set event date');
+
+                if (!req.user.isAdmin && !req.user.isEventOrganizer){
+                    log.WARN("setDate: Permission denied for user="+req.user.username);
+                    r.error = {message:"permission denied"};
+                    break;
+                }
+
+                try {
+
+                    let newEvDate = new Date(req.body.newStartDate);
+
+                    let e = await Event.findOneAndUpdate({_id:req.event._id},{ $set: { startDate: newEvDate, endDate:newEvDate } });
+                    if (!e) throw new Error("Failed to update event="+req.event._id);
+
+                    r.result = "ok";
+                    r.event = e;
+                } catch (err) {
+                    log.ERROR("Failed to save new event date. err="+err);
+                }
+                break;
 
             default:
                 console.log("cmd=unknown");
 
         }
     } catch (err) {
-        r.error = {};
-        r.error.message = err.message;
+        console.log(err);
+        r.error = {message:err.message};
     }
     res.json(r);
     res.end();

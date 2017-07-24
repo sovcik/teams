@@ -30,3 +30,32 @@ libEvent.addOrganizer = function(eventId, username, callback){
         });
 
 };
+
+libEvent.setDate = function(eventId, newDate, callback){
+
+    if (typeof callback !== "function")
+        callback = function(res,err){return;};
+
+    console.log('Setting event date: date='+newDate+' event='+eventId);
+    $.post("/event/"+eventId,
+        {
+            cmd: 'setDate',
+            newStartDate: newDate
+        },
+        function (res) {
+            console.log("setDate: Server returned",res);
+            if (res.result == "ok") {
+                console.log("date set for event=", res.event._id);
+                callback(res);
+            } else {
+                console.log("Error setting date for event.",res);
+                callback(res, res.error);
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error setting date for event err=",err);
+            callback(null, err);
+        });
+
+};

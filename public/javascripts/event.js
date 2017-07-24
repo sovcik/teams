@@ -50,7 +50,44 @@ viewEvent.init = function (){
                     viewEvent.loadOrganizers(evId);
                 },
                 function (msg) {
-                    alert(msg);
+                    alert("Chyba pri pridávaní organizátora.\n\n"+msg);
+                }
+            )
+        }
+
+    );
+
+    $("#setDate").on(
+        "click",
+        function(ev) {
+            libModals.editValue(
+                "Nastav dátum",
+                "Dátum",
+                "",
+                "date",
+                new Date(),
+                function (browserEvent, newDate, onSuccess, onError) {
+                    if (typeof onSuccess !== "function")
+                        onSuccess = function (u) {
+                            return true;
+                        };
+                    if (typeof onError !== "function")
+                        onError = function (msg) {
+                            console.log("ERROR: ", msg);
+                        };
+
+                    libEvent.setDate(evId, newDate, function (res, err) {
+                        if (err)
+                            return onError(err.message);
+                        onSuccess(res);
+                    });
+                },
+                function (res) {
+                    console.log("new date set");
+                    location.reload(true);
+                },
+                function (msg) {
+                    alert("Chyba pri zapisovaní dátumu.\n\n"+msg);
                 }
             )
         }
