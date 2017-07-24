@@ -14,6 +14,7 @@ const Team = mongoose.models.Team;
 const TeamEvent = mongoose.models.TeamEvent;
 const Program = mongoose.models.Program;
 const InvoicingOrg = mongoose.models.InvoicingOrg;
+const User = mongoose.models.User;
 
 module.exports = router;
 
@@ -90,6 +91,13 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 }
 
                 r.result = "ok";
+                break;
+            case 'getOrganizers':
+                console.log('Going to get list of event organizers');
+                let e = await User.populate(req.event,{path:"managers", select:{fullName:1}});
+                r.list = e.managers;
+                r.result = "ok";
+
                 break;
 
             default:
@@ -214,6 +222,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get("host");
     const cmd = req.body.cmd;
+
     console.log("/event/:id - put");
     console.log(req.body);
 
@@ -231,8 +240,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 let p = await Program.findOneActive({_id:t.programId});
                 if (!p) throw new Error("Team not joined in program");
 
-                let e = await Event.findOneActive({programId:p.id, _id:req.event.id});
+                let e = await Event.findOneActive({programId:p._id, _id:req.event.id});
                 if (!e) throw new Error("Event not found or not relevant for program team is joined to");
+
+                e = await User.populate(e,"managers");
+                if (!e) throw new Error("Failed to populate event managers for event id="+e._id);
 
                 let te;
                 try {
@@ -263,6 +275,22 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
                 r.result = "ok";
                 r.teamEvent = te;
+                break;
+            case "addOrganizer":
+                console.log('Going to add organizer for an event');
+                let u = await User.findOneActive({username:req.body.username});
+                if (!u) throw new Error("User not found "+req.body.username);
+
+                try {
+
+                    let e = await Event.findOneAndUpdate({_id:req.event._id},{ $addToSet: { managers: u._id } });
+                    if (!e) throw new Error("Failed to update event="+req.event._id);
+
+                    r.result = "ok";
+                    r.event = e;
+                } catch (err) {
+                    log.ERROR("Failed to save event organizer. err="+err);
+                }
                 break;
 
             default:

@@ -6,6 +6,7 @@ viewEvent.init = function (){
     const evId = getResourceId(location.href);
 
     viewEvent.loadRegisteredTeams(evId);
+    viewEvent.loadOrganizers(evId);
 
     $("#btnSaveTeamNumber").on("click", function(ev){
         const teamEventId = $("#teamEventId").val();
@@ -22,6 +23,39 @@ viewEvent.init = function (){
                 }
             })
     });
+
+    $("#addOrganizer").on(
+        "click",
+        function(ev) {
+            libModals.selectUserDialog(
+                "Pridaj organizátora",
+                function (browserEvent, username, onSuccess, onError) {
+                    if (typeof onSuccess !== "function")
+                        onSuccess = function (u) {
+                            return true;
+                        };
+                    if (typeof onError !== "function")
+                        onError = function (msg) {
+                            console.log("ERROR: ", msg);
+                        };
+
+                    libEvent.addOrganizer(evId, username, function (res, err) {
+                        if (err)
+                            return onError(err.message);
+                        onSuccess(res);
+                    });
+                },
+                function (res) {
+                    console.log("event organizer added");
+                    viewEvent.loadOrganizers(evId);
+                },
+                function (msg) {
+                    alert(msg);
+                }
+            )
+        }
+
+    );
 
 };
 
@@ -111,5 +145,38 @@ viewEvent.assignTeamNumber = function(teamEventId, teamNum, cb){
             cb(null, err);
         });
 
+
+};
+
+viewEvent.loadOrganizers = function (resId){
+
+    const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    console.log("Loading event organizers");
+    const t = $("#eorgsList");
+    t.empty();
+    $.get( "/event/"+resId+"?cmd=getOrganizers", function(res) {
+        console.log("Server returned organizers",res);
+        if (res.result === 'ok'){
+            console.log("List of",res.list.length,"records");
+            t.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    if (item.fullName) {
+                        var c = $('<a href="' + site + '/profile/' + item.id + '" class="btn btn-success btn-member" role="button">')
+                            .append(item.fullName);
+
+                        t.append(c);
+                    }
+
+                });
+            } else {
+                t.text('Žiadni organizátori');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
 
 };
