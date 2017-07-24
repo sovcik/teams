@@ -1,29 +1,31 @@
 "use strict";
 
-function initEvent(){
+const viewEvent = {};
+
+viewEvent.init = function (){
     const evId = getResourceId(location.href);
 
-    loadRegisteredTeams(evId);
+    viewEvent.loadRegisteredTeams(evId);
 
     $("#btnSaveTeamNumber").on("click", function(ev){
         const teamEventId = $("#teamEventId").val();
         const teamNum = $("#teamNumber").val();
-        saveTeamNumber(teamEventId, teamNum,
+        viewEvent.assignTeamNumber(teamEventId, teamNum,
             function (res,err){
                 if (err) {
                     console.log("Error saving team number");
                     alert("Nepodarilo sa priradiť tímu číslo.");
                 } else {
-                    loadRegisteredTeams(evId);
+                    viewEvent.loadRegisteredTeams(evId);
                     alert("Číslo bolo úspešne priradené.");
                     $("#editTeamNumber").modal("hide");
                 }
             })
     });
 
-}
+};
 
-function loadRegisteredTeams(eventId){
+viewEvent.loadRegisteredTeams = function(eventId){
     const sel = $('#allTeams');
     console.log('Loading registered teams');
     $.get( "/event/"+eventId+"?cmd=getTeams", function(res) {
@@ -40,7 +42,7 @@ function loadRegisteredTeams(eventId){
                 res.list.forEach(function(item) {
                     let c = $('<div class="well well-sm container-fluid">')
                         .append($('<a href="/team/'+item.id+'" >')
-                            .append(item.name+(item.teamEvent.teamNumber?"  [#"+item.teamEvent.teamNumber+"]":"")+", "+item.billingAdr.city+", "+item.billingOrg.name))
+                            .append(item.name+(item.teamEvent.teamNumber?"  [#"+item.teamEvent.teamNumber+"]":"")+", "+(item.billingAdr?item.billingAdr.city:"xxx")+", "+(item.billingOrg?item.billingOrg.name:"xxx")))
                         .append(res.isAdmin||res.isEventOrganizer?$('<button id="ETN'+item.teamEvent._id+'" class="btn btn-default btnEditTeamNumber" style="float:right">')
                             .append("Číslo tímu"):'')
                         .append(res.isAdmin||res.isEventOrganizer?$('<button id="CNI'+item.id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
@@ -84,9 +86,9 @@ function loadRegisteredTeams(eventId){
 
     });
 
-}
+};
 
-function saveTeamNumber(teamEventId, teamNum, cb){
+viewEvent.assignTeamNumber = function(teamEventId, teamNum, cb){
     console.log('Assigning number #'+teamNum+' to teamEvent='+teamEventId);
     $.post("/teamevent/"+teamEventId,
         {
@@ -110,4 +112,4 @@ function saveTeamNumber(teamEventId, teamNum, cb){
         });
 
 
-}
+};
