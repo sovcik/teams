@@ -4,6 +4,8 @@ const libModals = {};
 
 libModals.selectUserDialog = function (title, fnValidate, onSuccess, onError){
 
+    $("#selectUserDlg").remove();
+    
     $("#modalDlgs").append(
         $("<div id='selectUserDlg' class='modal fade' role='dialog' >")
             .append($("<div class='modal-dialog'>")
@@ -30,7 +32,6 @@ libModals.selectUserDialog = function (title, fnValidate, onSuccess, onError){
             $("#usrname").val(),
             function(result){
                 $("#selectUserDlg").modal("hide");
-                $("#selectUserDlg").remove();
                 if (onSuccess)
                     onSuccess(result);
             },
@@ -44,6 +45,8 @@ libModals.selectUserDialog = function (title, fnValidate, onSuccess, onError){
 };
 
 libModals.editValue = function (title, label, placeholder, valType, oldValue, fnValidate, onSuccess, onError){
+
+    $("#editValueDlg").remove();
 
     $("#modalDlgs").append(
         $("<div id='editValueDlg' class='modal fade' role='dialog' >")
@@ -71,7 +74,7 @@ libModals.editValue = function (title, label, placeholder, valType, oldValue, fn
             $("#newValue").val(),
             function(result){
                 $("#editValueDlg").modal("hide");
-                $("#editValueDlg").remove();
+
                 if (onSuccess)
                     onSuccess(result);
             },
