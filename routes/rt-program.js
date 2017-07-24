@@ -172,3 +172,48 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 
 });
+
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/program - post (ID)");
+
+    console.log(req.body.cmd);
+    const r = {result:"error", status:200};
+
+    try {
+        switch (req.body.cmd) {
+            case "addManager":
+                console.log('Going to add manager to a program');
+
+                if (!req.user.isAdmin && !req.user.isProgramManager) {
+                    log.WARN("addManager: Permission denied for user=" + req.user.username);
+                    r.error = {message: "permission denied"};
+                    break;
+                }
+
+                let u = await User.findOneActive({username: req.body.username});
+                if (!u) throw new Error("User not found " + req.body.username);
+
+                try {
+
+                    let e = await Program.findOneAndUpdate({_id: req.program._id}, {$addToSet: {managers: u._id}});
+                    if (!e) throw new Error("Failed to update program=" + req.program._id);
+
+                    r.result = "ok";
+                    r.program = e;
+                } catch (err) {
+                    log.ERROR("Failed to save program manager. err=" + err);
+                }
+                break;
+            default:
+                console.log('cmd=unknown');
+                break;
+        }
+    } catch (err) {
+        console.log(err);
+        r.error = {message:err.message};
+    }
+    res.json(r);
+    res.end();
+
+
+});
