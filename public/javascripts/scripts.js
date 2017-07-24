@@ -1,3 +1,5 @@
+"use strict";
+
 function urlGetParam(param) {
     var vars = {};
     window.location.href.replace( location.hash, '' ).replace(
