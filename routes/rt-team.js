@@ -19,21 +19,22 @@ router.param('id', async function (req, res, next){
 
     console.log("Team id=",id);
     try {
-        //const r = await Team.findById(id);
-        const r = await dbTeam.getTeamDetails(req.user, id);
-        req.team = r;
+        let r = await Team.findById(id);
 
         if (r) {
             console.log("Team id=", r.id, " name=", r.name);
 
             if (req.user) {
-                let q = {teamId: req.team.id, userId: req.user.id, role: 'coach'};
+                let q = {teamId: id, userId: req.user.id, role: 'coach'};
                 let tu = await TeamUser.findOne(q);
                 if (tu) {
                     console.log('User is team coach');
                     req.user.isCoach = true;
                 }
             }
+
+            r = await dbTeam.getTeamDetails(req.user, id);
+            req.team = r;
 
         } else {
             console.log('team not found ',id);
