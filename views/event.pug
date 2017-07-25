@@ -26,12 +26,12 @@ block content
                 h5 Fakturujúca organizácia
                 h5 #{event.invoicingOrg.org.name}, #{event.invoicingOrg.adr.city}
         div(class="panel-footer")
-            if user && (user.isAdmin || user.isEventOrganizer)
+            if user && (user.isAdmin || user.isEventOrganizer || user.isProgramManager)
                 button(id='addOrganizer' type='button' class='btn btn-default') Pridaj organizátora
                 button(id='setDate' type='button' class='btn btn-default') Nastav dátum
 
     div(id='modalDlgs')
-        if (user && (user.isAdmin || user.isEventOrganizer))
+        if (user && (user.isAdmin || user.isProgramManager))
             div(id='editTeamNumber' class='modal fade' role='dialog')
                 div(class='modal-dialog')
                     div(class='modal-content')
