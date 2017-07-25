@@ -439,12 +439,13 @@ function loadInvoices(teamId){
                             .append($('<button id="CIN'+item._id+'" class="btn btn-default createTaxInvoice">')
                                 .append('Vytvor faktúru')
                             );
+                    /*
                     if (!item.paidOn)
                         c
                             .append($('<button id="PAY'+item._id+'" class="btn btn-default markAsPaid">')
                                 .append('Zaplať')
                             );
-
+                    */
                     sel.append(c);
                 });
 
