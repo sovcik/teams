@@ -10,17 +10,19 @@ viewProgram.init = function (){
         "click",
         function(){
             // get JSON data
-            let data = libProgram.exportData(resId);
-            // convert to CSV
-            data = libProgram.JSON2CSV(data,'\t');
-            // save to file
-            let encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
-            let link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "program_export.csv");
-            document.body.appendChild(link);
+            libProgram.exportData(resId, function(d){
+                // convert to CSV
+                let data = libProgram.JSON2CSV(d,'\t');
+                // save to file
+                let encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
+                let link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "program_export.csv");
+                document.body.appendChild(link);
 
-            link.click();
+                link.click();
+
+            });
         }
     );
 

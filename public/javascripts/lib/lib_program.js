@@ -2,15 +2,15 @@
 
 const libProgram = {};
 
-libProgram.exportData = function (progId){
+libProgram.exportData = function (progId,cb){
     console.log('Exporting program data');
     $.get( "/program/"+progId+"?cmd=export", function(res) {
         console.log("exportProg: Server returned",res);
         if (res.result === 'ok'){
-            return res.data;
+            return cb(res.data);
         } else {
             console.log("exportProg: Server returned ERROR");
-            return null;
+            return cb(null);
         }
 
     });
