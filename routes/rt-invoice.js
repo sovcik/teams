@@ -8,6 +8,7 @@ const email = require('../lib/email');
 const log = require('../lib/logger');
 const libInvoice = require('../lib/invoice');
 const libFmt = require('../lib/fmt');
+const libPerm = require('../lib/permissions');
 
 const Invoice = mongoose.models.Invoice;
 const InvoicingOrg = mongoose.models.InvoicingOrg;
@@ -27,13 +28,10 @@ router.param('id', async function (req, res, next){
         log.DEBUG("Invoice id="+req.invoice.id+" num="+req.invoice.number+" iorg="+req.invoice.invoicingOrg);
 
         try {
-            const iorg = await InvoicingOrg.findById(req.invoice.invoicingOrg);
-            if (iorg)
-                req.user.isInvoicingOrgManager = (iorg.managers.indexOf(req.user.id) >= 0);
-            if (req.user.isInvoicingOrgManager)
-                console.log("User is invoicing org manager");
+            const p = await libPerm.getUserInvoicePermissions(req.user.id,inv.id);
+            req.user.permissions = p;
         } catch (err) {
-            log.WARN("Failed fetching invoicing org. err="+err);
+            log.WARN("Failed fetching user permissions. err="+err.message);
         }
 
         next();
@@ -48,7 +46,7 @@ router.get('/:id', async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get("host");
     console.log("SITE URL",siteUrl);
     const cmd = req.query.cmd;
-    console.log("/invoice - get");
+    console.log("/invoice/ID - get");
 
     if (cmd)
         next();
@@ -103,8 +101,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
-    let inv, team;
-    console.log("/invoice/ID - get (with CMD)");
+    let team;
+    console.log("/invoice/ID - get (CMD)");
     console.log(req.query);
 
     const r = {result:"error", status:200, error:{}};
@@ -113,12 +111,17 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
         switch (cmd) {
             case 'reloadInvoiceData':
                 console.log('Reloading invoice data');
-                team = await Team.findById(req.invoice.team);
-                req.invoice.billOrg = team.billingOrg;
-                req.invoice.billAdr = team.billingAdr;
-                req.invoice.billContact = team.billingContact;
-                await req.invoice.save();
-                return res.redirect('/invoice/'+req.invoice.id);
+                if (req.user.permissions.canWrite || req.user.permissions.isCoach ) {
+                    team = await Team.findById(req.invoice.team);
+                    req.invoice.billOrg = team.billingOrg;
+                    req.invoice.billAdr = team.billingAdr;
+                    req.invoice.billContact = team.billingContact;
+                    await req.invoice.save();
+                    log.INFO("INVOICE data reloaded: id=" + req.invoice.id + " no=" + req.invoice.number + " by user=" + req.user.username);
+                    return res.redirect('/invoice/' + req.invoice.id);
+                } else {
+                    error.message="permission denied";
+                }
                 break;
 
             default:
@@ -146,7 +149,9 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         switch (cmd) {
             case 'create':
                 console.log('Going to create invoice');
-                if (!req.user.isAdmin && !req.user.isSuperAdmin) {
+                if (!req.user.permissions.isCoach
+                    && !req.user.permissions.isInvoicingOrgManager
+                    && !req.user.permissions.isAdmin) {
                     console.log("Invoice create - permission denied");
                     throw new Error("Permission denied");
                 }
@@ -155,10 +160,10 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     const inv = await libInvoice.createInvoice(teamId, eventId, invType);
                     r.result = "ok";
                     r.invoice = inv;
-                    console.log("INVOICE created", inv.id);
+                    log.INFO("INVOICE created: id=" + inv.id + " no=" + inv.number + " by user=" + req.user.username);
                 } catch (err) {
                     r.error = err;
-                    log.WARN("Failed creating invoice. err="+err);
+                    log.WARN("Failed creating invoice. err="+err.message);
                 }
 
                 break;
@@ -190,13 +195,17 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 try {
                     if (req.invoice.paidOn)
                         throw new Error("Invoice already paid.");
-                    if (!req.user.isAdmin && !req.user.isInvoicingOrgManager)
-                        return res.render('error', {message: "Prístup zamietnutý"});
+                    if (!req.user.permissions.isInvoicingOrgManager
+                        && !req.user.permissions.isAdmin)
+                        throw new Error("permission denied");
 
-                    console.log('Going to set invoice as paid', req.invoice.id);
-                    const i = await Invoice.findByIdAndUpdate(req.invoice.id, {$set: {paidOn: Date.now()}}, {new:true});
+                    // if specified, use that date otherwise use current date
+                    let dp = req.body.paidOn ? new Date(req.body.paidOn) : Date.now();
+                    log.DEBUG('Going to set invoice as paid. no='+req.invoice.number+' id='+req.invoice.id+" date="+dp);
+
+                    const i = await Invoice.findByIdAndUpdate(req.invoice.id, {$set: {paidOn: dp}}, {new:true});
                     if (i) {
-                        log.INFO("invoice set to paid " + i.number + " " + i.id + " by user=" + req.user.username);
+                        log.INFO("INVOICE paid: no=" + i.number + " id=" + i.id + " by user=" + req.user.username);
                         r.result = "ok";
                         r.invoice = i;
                         email.sendInvoice(req.user,i,siteUrl);
@@ -207,9 +216,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 break;
             case 'copyToNew':
                 try {
-                    if (!req.user.isAdmin && !req.user.isInvoicingOrgManager) {
+                    if (!req.user.permissions.isInvoicingOrgManager
+                        && !req.user.permissions.isCoach
+                        && !req.user.permissions.isAdmin ) {
                         console.log("Invoice copy - permission denied");
-                        throw new Error("Permission denied");
+                        throw new Error("permission denied");
                     }
 
                     console.log('Going to create new invoice from existing invoice',req.invoice.id);
