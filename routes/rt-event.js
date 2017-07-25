@@ -24,10 +24,13 @@ router.param('id', async function (req, res, next){
     console.log("Event id",id);
     try {
         r = await Event.findById(id);
+        r = await Program.populate(r,'programId');
+        r = await InvoicingOrg.populate(r,'invoicingOrg');
         req.event = r;
         if (r) {
             req.user.isEventOrganizer = (req.event.managers.indexOf(req.user.id) >= 0);
-            r = await InvoicingOrg.populate(r,'invoicingOrg');
+            req.user.isProgramManager = (req.event.programId.managers.indexOf(req.user.id) >= 0);
+            req.user.isInvoicingOrgManager = (req.event.invoicingOrg.managers.indexOf(req.user.id) >= 0);
             r.teams = [];
             let tmse = await TeamEvent.find({eventId: r.id});
             let tms = await Team.populate(tmse, 'teamId');
@@ -179,7 +182,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     try {
         switch (cmd) {
             case 'createEvent':
-                if (!req.user.isAdmin)
+                if (!req.user.isAdmin && !req.user.isProgramManager)
                     return res.render('error',{message:"Prístup zamietnutý"});
 
                 let name = req.body.name;
@@ -235,12 +238,6 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             case 'registerTeam':
                 console.log('Going to register team for an event');
 
-                if (!req.user.isAdmin && !req.user.isEventOrganizer){
-                    log.WARN("registerTeam: Permission denied for user="+req.user.username);
-                    r.error = {message:"permission denied"};
-                    break;
-                }
-
                 let t = await Team.findOneActive({_id: req.body.teamId});
                 if (!t) throw new Error("Team not found");
 
@@ -286,7 +283,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             case "addOrganizer":
                 console.log('Going to add organizer for an event');
 
-                if (!req.user.isAdmin && !req.user.isEventOrganizer){
+                if (!req.user.isAdmin && !req.user.isEventOrganizer && !req.user.isProgramManager){
                     log.WARN("addOrganizer: Permission denied for user="+req.user.username);
                     r.error = {message:"permission denied"};
                     break;
@@ -309,7 +306,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             case "setDate":
                 console.log('Going to set event date');
 
-                if (!req.user.isAdmin && !req.user.isEventOrganizer){
+                if (!req.user.isAdmin && !req.user.isEventOrganizer && !req.user.isProgramManager){
                     log.WARN("setDate: Permission denied for user="+req.user.username);
                     r.error = {message:"permission denied"};
                     break;
