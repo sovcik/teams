@@ -18,7 +18,7 @@ router.param('id', async function (req, res, next){
     const id = req.params.id;
     let u;
     try {
-        u = await User.findById(id);
+        u = await User.findById(id,{salt:0, passwordHash:0});
         req.profile = u;
         if (!u)
             throw new Error("profile not found");
@@ -46,11 +46,17 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
         let isCoach = false;
         try {
             let pm = await Program.findOne({managers:req.profile.id });
-            if (pm)
+            if (pm) {
                 isProgramManager = true;
+                console.log("Profile is program manager");
+            } else
+                console.log("Profile is NOT program manager");
             let tm = await TeamUser.findOne({userId:req.profile.id, role:'coach'});
-            if (tm)
+            if (tm) {
                 isCoach = true;
+                console.log("Profile is coach");
+            } else
+                console.log("Profile is NOT coach");
         } catch (err) {
             log.WARN("Failed fetching program data for user profile. "+err);
         }
