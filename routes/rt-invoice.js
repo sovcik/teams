@@ -52,6 +52,7 @@ router.get('/:id', async function (req, res, next) {
         next();
     else {
         let u = {locales:"sk-SK"};
+        let i = await Team.populate(req.invoice,'team');
         res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: (req.user ? req.user : u), fmt:libFmt} );
     }
 });

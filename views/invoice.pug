@@ -118,7 +118,8 @@ block content
                             span #{inv.billOrg.bankSWIFT}
 
 
-        p(style="margin-top:10pt") Faktúrujeme vám
+        p(style="margin-top:10pt") Fakturujeme vám za tím '#{inv.team.name}':
+
         table(style="border-top:2pt;border-bottom:2pt")
             tr
                 th(class="itm" style="width:20pt")
@@ -162,7 +163,7 @@ block content
                         =inv.total.toFixed(2) +" " + inv.currency
 
         if inv.paidOn
-            h4(style="border: thin solid black;padding:5pt") Nič netreba platiť. Faktúra bola uhradená dňa
+            h4(style="border: thin solid black;padding:5pt") Nič netreba platiť. Úhrada bola prijatá dňa
                 =" "+ fmt.fmtDate(inv.paidOn, user.locales)
 
         if !inv.paidOn
