@@ -7,7 +7,7 @@ libProgram.exportData = function (progId,cb){
     $.get( "/program/"+progId+"?cmd=export", function(res) {
         console.log("exportProg: Server returned",res);
         if (res.result === 'ok'){
-            return cb(res.data);
+            return cb(res);
         } else {
             console.log("exportProg: Server returned ERROR");
             return cb(null);
@@ -17,7 +17,7 @@ libProgram.exportData = function (progId,cb){
 
 };
 
-libProgram.JSON2CSV = function(data,sep) {
+libProgram.JSON2CSV = function(data,sep,locales) {
     var str = '';
 
     // header
@@ -64,10 +64,10 @@ libProgram.JSON2CSV = function(data,sep) {
 
         line += data.program.name;
         line += sep + t.event.eventId.name;
-        line += sep + t.event.eventId.startDate;
+        line += sep + (new Date(t.event.eventId.startDate)).toLocaleDateString(locales);
         line += sep + t.event.teamNumber;
         line += sep + t.name;
-        line += sep + t.event.registeredOn;
+        line += sep + (new Date(t.event.registeredOn)).toLocaleDateString(locales);
 
         line += sep + t.coaches[0].fullName;
         line += sep + t.coaches[0].email;

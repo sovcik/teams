@@ -12,7 +12,7 @@ viewProgram.init = function (){
             // get JSON data
             libProgram.exportData(resId, function(d){
                 // convert to CSV
-                let data = libProgram.JSON2CSV(d,'\t');
+                let data = libProgram.JSON2CSV(d.data,'\t');
                 // save to file
                 let encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
                 let link = document.createElement("a");
