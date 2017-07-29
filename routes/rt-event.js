@@ -133,10 +133,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 let q = {recordStatus: 'active'};
                 if (progId)
                     q.programId = progId;
-                const p = await Event.find(q, {
-                    name: true,
-                    id: true
-                });
+                const p = await Event.find(q, {id: 1, name: 1, startDate:1, endDate:1});
                 r.result = "ok";
                 r.list = p;
                 r.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
@@ -247,7 +244,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 let e = await Event.findOneActive({programId:p._id, _id:req.event.id});
                 if (!e) throw new Error("Event not found or not relevant for program team is joined to");
 
-                e = await User.populate(e,"managers");
+                e = await User.populate(e,"managers"); // needed in order to get event managers' emails
                 if (!e) throw new Error("Failed to populate event managers for event id="+e._id);
 
                 let te;
