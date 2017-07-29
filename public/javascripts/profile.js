@@ -155,7 +155,7 @@ function changePassword(userId){
         return;
     }
 
-    console.log("Posting request to create new team");
+    console.log("Posting request to change password");
     $.post("/profile/"+userId, {cmd: 'changePassword', oldPwd: selOldPwd.val(), newPwd:selNewPwd.val()}, function (res) {
         console.log("changePassword: Server returned",res);
         if (res.result == "ok") {

@@ -1,9 +1,12 @@
+"use strict";
+
 const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const log = require('../lib/logger');
+const email = require('../lib/email');
 
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
@@ -130,6 +133,8 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     console.log(req.body.cmd);
     const r = {result:"error", status:200};
     const id = req.params.id;
+    const siteUrl = req.protocol + '://' + req.get("host");
+
     switch (req.body.cmd){
         case 'createTeam':
             let teamName = req.body.name;
@@ -169,6 +174,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 if (user) {
                     log.INFO("Password changed for " + user.username +" by " + req.user.username);
                     r.result = "ok";
+                    email.sendPasswordChangedNotification(user, siteUrl);
                 } else {
                     log.WARN("Failed changing password for user "+id);
                 }
