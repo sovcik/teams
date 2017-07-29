@@ -37,7 +37,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     const siteUrl = req.protocol + '://' + req.get("host");
     console.log("SITE URL",siteUrl);
     const cmd = req.query.cmd;
-    console.log("/profile - get");
+    console.log("/profile/:id - get");
 
     if (cmd)
         next();
@@ -126,7 +126,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    console.log("/profile - post");
+    console.log("/profile/:id - post");
     console.log(req.body.cmd);
     const r = {result:"error", status:200};
     const id = req.params.id;
