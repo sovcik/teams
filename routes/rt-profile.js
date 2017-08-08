@@ -8,12 +8,14 @@ const bcrypt = require('bcrypt');
 const log = require('../lib/logger');
 const email = require('../lib/email');
 
-const Team = mongoose.model('Team');
-const User = mongoose.model('User');
-const TeamUser = mongoose.model('TeamUser');
-const Program = mongoose.model('Program');
+const Team = mongoose.models.Team;
+const User = mongoose.models.User;
+const TeamUser = mongoose.models.TeamUser;
+const Program = mongoose.models.Program;
+const OneTime = mongoose.models.OneTime;
 
 const dbUser = require('../lib/db/User');
+const libUser = require('../lib/user');
 
 module.exports = router;
 
@@ -35,36 +37,20 @@ router.param('id', async function (req, res, next){
 
 });
 
-
-router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    const siteUrl = req.protocol + '://' + req.get("host");
-    console.log("SITE URL",siteUrl);
+router.get('/', async function (req, res, next) {
     const cmd = req.query.cmd;
-    console.log("/profile/:id - get");
+    console.log("/profile - PUBLIC get");
+    console.log(req.query);
 
-    if (cmd)
-        next();
-    else {
-        let isProgramManager = false;
-        let isCoach = false;
-        try {
-            let pm = await Program.findOne({managers:req.profile.id });
-            if (pm) {
-                isProgramManager = true;
-                console.log("Profile is program manager");
-            } else
-                console.log("Profile is NOT program manager");
-            let tm = await TeamUser.findOne({userId:req.profile.id, role:'coach'});
-            if (tm) {
-                isCoach = true;
-                console.log("Profile is coach");
-            } else
-                console.log("Profile is NOT coach");
-        } catch (err) {
-            log.WARN("Failed fetching program data for user profile. "+err);
-        }
-        res.render('profile', {profile: req.profile, coach: isCoach, user: req.user, isProgramManager:isProgramManager});
+    switch (cmd){
+        case 'resetPwdRequest':
+            return res.render('resetPwdRequest');
+            break;
+        default:
+            console.log("cmd=unknown");
     }
+
+    next();
 
 });
 
@@ -99,6 +85,67 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 });
 
+router.get('/:id', async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    console.log("SITE URL",siteUrl);
+    const cmd = req.query.cmd;
+    console.log("/profile/:id - PUBLIC get");
+    var nextRouter = true;
+
+    switch (cmd) {
+        case "resetPwd":
+            let otc = req.query.otc;
+
+            let ot = await OneTime.findById(otc);
+            if (!ot || !ot.active)
+                throw new Error("onetime code not found, expired or already used");
+            if (ot.type !== "rstpwd")
+                throw new Error("wrong onetime code type specified");
+
+            log.INFO("OneTime used: id="+otc+" type="+ot.type);
+
+            res.render('resetPwd',{otc:otc, ot:ot, profile:req.profile});
+
+            nextRouter = false;
+            break;
+    }
+
+    if (nextRouter) next();
+
+});
+
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    console.log("SITE URL",siteUrl);
+    const cmd = req.query.cmd;
+    console.log("/profile/:id - get");
+
+    if (cmd)
+        next();
+    else {
+        let isProgramManager = false;
+        let isCoach = false;
+        try {
+            let pm = await Program.findOne({managers:req.profile.id });
+            if (pm) {
+                isProgramManager = true;
+                console.log("Profile is program manager");
+            } else
+                console.log("Profile is NOT program manager");
+            let tm = await TeamUser.findOne({userId:req.profile.id, role:'coach'});
+            if (tm) {
+                isCoach = true;
+                console.log("Profile is coach");
+            } else
+                console.log("Profile is NOT coach");
+        } catch (err) {
+            log.WARN("Failed fetching program data for user profile. "+err);
+        }
+        res.render('profile', {profile: req.profile, coach: isCoach, user: req.user, isProgramManager:isProgramManager});
+    }
+
+});
+
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const userId = req.params.id;
@@ -114,7 +161,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 r.result = "ok";
                 r.list = ut;
             } catch (err) {
-                log.WARN("Failed to fetch coach's teams. err="+err)
+                log.WARN("Failed to fetch coach's teams. err="+err);
                 r.error = err;
             }
             break;
@@ -125,6 +172,78 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     }
     res.json(r);
     res.end();
+
+});
+
+router.post('/', async function (req, res, next) {
+    console.log("/profile - PUBLIC post");
+    var cmd = req.body.cmd;
+    const siteUrl = req.protocol + '://' + req.get("host");
+    var nextRouter = true;
+    console.log(req.body);
+
+    console.log('cmd='+cmd);
+    switch (cmd) {
+        case 'resetPwdRequest':
+            let uname = req.body.loginName;
+            console.log(uname);
+            try {
+                let u = await User.findOneActive({username:uname});
+                if (!u)
+                    u = await User.findOneActive({email:uname});
+                if (u) {
+                    console.log('pwdReset user=',u.username);
+                    let ot = await OneTime.create(
+                        {
+                            type: 'rstpwd',
+                            user: {
+                                username: u.username,
+                                email: u.email
+                            }
+                        }
+                    );
+
+                    email.sendPwdResetCode(u,ot,siteUrl);
+
+                }
+                nextRouter = false;
+                res.render('error',{message:"Reset hesla"});
+            } catch (err) {
+                log.WARN('Failed to request password reset err'+err.message);
+            }
+
+    }
+
+    if (nextRouter) next();
+
+});
+
+router.post('/:id', async function (req, res, next) {
+    console.log("/profile/:id - PUBLIC post");
+    var cmd = req.body.cmd;
+    var otc = req.body.otc;
+    const siteUrl = req.protocol + '://' + req.get("host");
+    var nextRouter = true;
+    console.log(req.body);
+
+    switch (cmd) {
+        case 'resetPwd':
+            try {
+                let ot = await OneTime.findById(otc);
+                if (!ot || !ot.active) throw new Error("onetime code not found or used already");
+
+                // create new password
+                let user = await libUser.setPassword(null, req.profile.id, req.body.newPassword, siteUrl);
+                if (!user) throw new Error("Nepodarilo sa zmeniť heslo");
+                res.render('error',{message:"Heslo bolo zmenené"});
+                nextRouter = false;
+            } catch (err) {
+                log.WARN('Password reset failed. err='+err.message);
+            }
+
+    }
+
+    if (nextRouter) next();
 
 });
 
@@ -167,17 +286,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                         throw new Error("Invalid old password specified");
 
                 // create new password
-                let s = await bcrypt.genSalt(5);
-                let h = await bcrypt.hash(req.body.newPwd, s);
+                let user = await libUser.setPassword(req.user.id, id, req.body.newPwd, siteUrl);
+                if (!user) throw new Error("Error changing password");
+                r.result = "ok";
 
-                let user = await User.findByIdAndUpdate(id, { $set: { salt: s, passwordHash:h}}, { new: true });
-                if (user) {
-                    log.INFO("Password changed for " + user.username +" by " + req.user.username);
-                    r.result = "ok";
-                    email.sendPasswordChangedNotification(user, siteUrl);
-                } else {
-                    log.WARN("Failed changing password for user "+id);
-                }
             } catch (err) {
                 log.WARN('Error changing password for user '+id+" err="+err);
                 r.error = err;
