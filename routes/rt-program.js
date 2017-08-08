@@ -31,6 +31,41 @@ router.param('id', async function (req, res, next){
 
 });
 
+// PUBLIC PART OF API
+router.get('/:id', async function (req, res, next) {
+    let routerNext = false;
+    const cmd = req.query.cmd;
+    console.log("/program - PUBLIC get (ID,CMD)");
+    console.log(req.query);
+    const r = {result:"error", status:200};
+    switch (cmd){
+        case 'exportPublic':
+            try {
+                log.WARN('Program PUBLIC data export requested for program='+req.program._id);
+                r.data = await dbExport.exportProgramData(req.program._id, false);
+                r.user = req.user;
+                r.result = 'ok';
+            } catch (err) {
+                r.error = {message:"Failed to export program data. err="+err};
+            }
+
+            break;
+
+        default:
+            routerNext = true;
+            console.log("cmd=unknown");
+
+    }
+    if (routerNext)
+        next();
+    else {
+        res.json(r);
+        res.end();
+    }
+
+});
+
+
 router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     console.log("/program - get (ID)");
@@ -113,6 +148,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 r.error = {message:"error getting managers err=" + err};
             }
             break;
+
         case 'export':
             if (!req.user.isAdmin && !req.user.isProgramManager) {
                 r.error = {message:"permission denied"};
@@ -121,7 +157,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 
             try {
                 log.WARN('Program data export requested by user='+req.user.username+' for program='+req.program._id);
-                r.data = await dbExport.exportProgramData(req.program._id);
+                r.data = await dbExport.exportProgramData(req.program._id, true);
                 r.user = req.user;
                 r.result = 'ok';
             } catch (err) {
