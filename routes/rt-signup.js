@@ -45,7 +45,7 @@ router.post('/', async function (req, res, next) {
     console.log("CAPTCHA RESPONSE",resp);
     if (!resp.success){
         log.WARN('CAPTCHA ERROR '+resp['error-codes']);
-        return res.render('error',{message:"Konto môže vytvoriť iba človek.", error:{}});
+        return res.render('message',{message:"Konto môže vytvoriť iba človek.", error:{}});
     }
 
     try {
@@ -53,7 +53,7 @@ router.post('/', async function (req, res, next) {
         const h = await bcrypt.hash(req.body.password, s);
         const u = await User.findOneActive({username:req.body.userName});
 
-        if (u) return res.render('error',{message:"Užívateľ už existuje", error:{}});
+        if (u) return res.render('message',{message:"Užívateľ už existuje", error:{}});
 
         const user = await User.create(
             {
@@ -68,7 +68,7 @@ router.post('/', async function (req, res, next) {
         email.sendSignupConfirmation(user, siteUrl);
         return res.render('signup-success');
     } catch (err) {
-        return res.render('error', {message:"Nepodarilo sa vytvoriť účet", error:err});
+        return res.render('message', {message:"Nepodarilo sa vytvoriť účet", error:err});
     }
 
 });

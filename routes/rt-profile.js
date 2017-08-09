@@ -32,7 +32,7 @@ router.param('id', async function (req, res, next){
 
         next();
     } catch (err) {
-        res.render('error',{message:"Profil nenájdný",error:err});
+        res.render('message',{message:"Profil nenájdný",error:err});
     }
 
 });
@@ -207,7 +207,7 @@ router.post('/', async function (req, res, next) {
 
                 }
                 nextRouter = false;
-                res.render('error',{message:"Reset hesla"});
+                res.render('message',{message:"Reset hesla"});
             } catch (err) {
                 log.WARN('Failed to request password reset err'+err.message);
             }
@@ -239,7 +239,7 @@ router.post('/:id', async function (req, res, next) {
                 ot.active = false;
                 ot.save();
 
-                res.render('error',{message:"Heslo bolo zmenené"});
+                res.render('message',{message:"Heslo bolo zmenené"});
                 nextRouter = false;
             } catch (err) {
                 log.WARN('Password reset failed. err='+err.message);
@@ -302,7 +302,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
         case 'makeAdmin':
             console.log("Going to make admin",id);
             if (!req.user.isAdmin && !req.user.isSuperAdmin)
-                return res.render('error',{message:"Prístup zamietnutý"});
+                return res.render('message',{message:"Prístup zamietnutý"});
             try {
                 let user = await User.findByIdAndUpdate(id, {$set: {isAdmin: true}}, {new: true});
                 log.INFO("User " + user.username +" made admin by " + req.user.username);
