@@ -235,6 +235,10 @@ router.post('/:id', async function (req, res, next) {
                 // create new password
                 let user = await libUser.setPassword(null, req.profile.id, req.body.newPassword, siteUrl);
                 if (!user) throw new Error("Nepodarilo sa zmeniť heslo");
+
+                ot.active = false;
+                ot.save();
+
                 res.render('error',{message:"Heslo bolo zmenené"});
                 nextRouter = false;
             } catch (err) {
