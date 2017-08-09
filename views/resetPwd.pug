@@ -1,0 +1,23 @@
+extends includes/layout
+
+block content
+    include includes/header-sm
+    h1 Reset hesla používateľa
+    form(id="pwdReset" method="post" action="/profile/"+profile.id)
+        input(name="cmd" type="hidden" value="resetPwd")
+        input(name="otc" type="hidden" value=otc)
+        div(class='form-group')
+            label(for='loginName' class='') Prihlasovacie meno
+            input(id='loginName' class='form-control' value=profile.username readonly)
+        div(class='form-group')
+            label(for='email' class='') e-mail
+            input(id='email' class='form-control' value=profile.email readonly)
+        div(class='form-group')
+            label Nové heslo
+            input(id='newPwd' type='password', placeholder='nové heslo' name='newPassword' class="form-control")
+        div(class='form-group')
+            label Nové heslo - ešte raz
+            input(id='newPwdConf' type='password', placeholder='nové heslo potvrdenie' class="form-control")
+        div(class='form-group')
+            button(type="submit" class="btn btn-default") Zmeniť heslo
+

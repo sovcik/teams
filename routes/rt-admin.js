@@ -13,7 +13,7 @@ module.exports = router;
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log("/admin - get");
     if (!req.user.isAdmin)
-        return res.render('error',{message:"Prístup zamietnutý"});
+        return res.render('message',{title:"Prístup zamietnutý"});
 
     const cmd = req.query.cmd;
 
@@ -54,7 +54,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log("/admin - put");
     if (!req.user.isAdmin)
-        return res.render('error',{message:"Prístup zamietnutý"});
+        return res.render('message',{title:"Prístup zamietnutý"});
     
     const cmd = req.body.cmd;
     console.log(req.body);

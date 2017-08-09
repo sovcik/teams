@@ -42,7 +42,7 @@ router.param('id', async function (req, res, next){
         }
         next();
     } catch (err) {
-        res.render('error',{message:"Tím nenájdený",error:{status:err.message}});
+        res.render('message',{title:"Tím nenájdený",error:{status:err.message}});
     }
 
 });

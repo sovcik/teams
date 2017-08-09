@@ -36,7 +36,7 @@ router.param('id', async function (req, res, next){
 
         next();
     } catch (err) {
-        res.render('error',{message:"Faktúra nenájdná",error:{}});
+        res.render('message',{title:"Faktúra nenájdná",error:{}});
     }
 
 });

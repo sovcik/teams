@@ -43,7 +43,7 @@ router.param('id', async function (req, res, next){
             throw new Error("event not found");
         next();
     } catch (err) {
-        res.render('error',{message:"Stretnutie/Turnaj nenájdený",error:{status:err.message}});
+        res.render('message',{title:"Stretnutie/Turnaj nenájdený",error:{status:err.message}});
     }
 
 });
@@ -180,7 +180,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         switch (cmd) {
             case 'createEvent':
                 if (!req.user.isAdmin && !req.user.isProgramManager)
-                    return res.render('error',{message:"Prístup zamietnutý"});
+                    return res.render('message',{title:"Prístup zamietnutý"});
 
                 let name = req.body.name;
                 console.log('Going to create event ', name);

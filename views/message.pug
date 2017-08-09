@@ -1,0 +1,27 @@
+extends includes/layout
+
+block content
+    include includes/header-sm
+    h1= title
+    if error && error.status
+        h2= error.status
+
+    if message
+        h4 #{message}
+
+    if error && error.message
+        p #{error.message}
+    if error && error.stack
+        pre #{error.stack}
+
+    if link && link.url
+        h4
+            if link.description
+                =link.description
+            =" "
+            a(href=link.url)
+                if link.text
+                    =link.text
+                else
+                    =link.url
+

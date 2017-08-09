@@ -18,10 +18,16 @@ block content
                 label(for='password') Heslo:
                 input(id="password" type='password', placeholder='heslo' name='password' class="form-control")
             div(class="form-group")
-            button(type="submit" class="btn btn-default") Prihlásiť
+                button(type="submit" class="btn btn-default") Prihlásiť
     div
-        p Ak nemáte prihlasovacie meno a heslo tak si
+        p Ak nemáte prihlasovacie meno a heslo, tak si
             = " "
             a(href='/signup') kliknutím sem
             = " "
             span môžete vytvoriť účet
+        p Ak ste heslo zabudli
+            = " "
+            a(href='/profile?cmd=resetPwdRequest') kliknutím sem
+            = " "
+            span ho môžete resetnúť
+
