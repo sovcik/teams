@@ -27,7 +27,7 @@ router.param('id', async function (req, res, next){
             throw new Error("invoicing org not found");
         next();
     } catch (err) {
-        res.render('message',{message:"Fakturujúca organizácia nenájdená",error:{status:err.message}});
+        res.render('message',{title:"Fakturujúca organizácia nenájdená",error:{status:err.message}});
     }
 
 });
@@ -89,7 +89,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     switch (req.body.cmd){
         case 'create':
             if (!req.user.isAdmin)
-                return res.render('message',{message:"Prístup zamietnutý"});
+                return res.render('message',{title:"Prístup zamietnutý"});
             try {
                 let data = JSON.parse(req.body.data);
                 let ioId = req.body.invOrgId;

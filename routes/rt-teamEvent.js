@@ -23,7 +23,7 @@ router.param('id', async function (req, res, next){
 
         next();
     } catch (err) {
-        res.render('message',{message:"TeamEvent nenájdný",error:err});
+        res.render('message',{title:"TeamEvent nenájdný",error:err});
     }
 
 });

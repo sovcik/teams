@@ -1,7 +1,20 @@
 extends includes/layout
 
 block content
-    h1= message
+    h1= title
     if error
         h2= error.status
         pre #{error.stack}
+
+    if message
+        h4= message
+
+    if error
+        p= error.message
+        pre #{error.stack}
+
+    if link
+        h4= link.description
+            =" "
+            a(href=link.url)=link.text
+

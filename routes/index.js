@@ -32,7 +32,7 @@ module.exports = function(app){
 
         // render the error page
         res.status(err.status || 500);
-        res.render('message');
+        res.render('message', {title:"Chyba", error:err});
     });
 
 };

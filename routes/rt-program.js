@@ -26,7 +26,7 @@ router.param('id', async function (req, res, next){
 
         next();
     } catch (err) {
-        res.render('message',{message:"Program nenájdený",error:err});
+        res.render('message',{title:"Program nenájdený",error:err});
     }
 
 });
@@ -184,7 +184,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     switch (req.body.cmd){
         case 'createProgram':
             if (!req.user.isAdmin)
-                return res.render('message',{message:"Prístup zamietnutý"});
+                return res.render('message',{title:"Prístup zamietnutý"});
 
             let name = req.body.name;
             console.log('Going to create program ', name);

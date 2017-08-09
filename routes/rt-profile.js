@@ -32,7 +32,7 @@ router.param('id', async function (req, res, next){
 
         next();
     } catch (err) {
-        res.render('message',{message:"Profil nenájdný",error:err});
+        res.render('message',{title:"Profil nenájdný",error:err});
     }
 
 });
@@ -207,7 +207,16 @@ router.post('/', async function (req, res, next) {
 
                 }
                 nextRouter = false;
-                res.render('message',{message:"Reset hesla"});
+                res.render('message',{
+                    title:"Reset hesla",
+                    message:"Ak ste zadali existujúce prihlasovacie meno alebo email, tak v nasledujúcich pár minútach by ste mali dostať email obsahujúci linku, cez ktorú budete môcť vaše heslo zmenit.",
+                    link:{
+                        description:"Pre pokračovanie kliknite na",
+                        url:"/login",
+                        text: "tento link"
+                    }
+
+                });
             } catch (err) {
                 log.WARN('Failed to request password reset err'+err.message);
             }
@@ -239,10 +248,21 @@ router.post('/:id', async function (req, res, next) {
                 ot.active = false;
                 ot.save();
 
-                res.render('message',{message:"Heslo bolo zmenené"});
+                res.render('message',{
+                    title:"Heslo bolo úspešne zmenené",
+                    message:"Teraz sa už môžete prihlásiť použitím vášho nového hesla.",
+                    link:{
+                        description:"Pre pokračovanie kliknite na",
+                        url:"/login",
+                        text: "tento link"
+                    }
+                });
                 nextRouter = false;
             } catch (err) {
                 log.WARN('Password reset failed. err='+err.message);
+                res.render('message',{ title:"Chyba", error:err });
+
+
             }
 
     }
@@ -302,7 +322,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
         case 'makeAdmin':
             console.log("Going to make admin",id);
             if (!req.user.isAdmin && !req.user.isSuperAdmin)
-                return res.render('message',{message:"Prístup zamietnutý"});
+                return res.render('message',{title:"Prístup zamietnutý"});
             try {
                 let user = await User.findByIdAndUpdate(id, {$set: {isAdmin: true}}, {new: true});
                 log.INFO("User " + user.username +" made admin by " + req.user.username);
