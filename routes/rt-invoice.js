@@ -61,6 +61,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     const teamId = req.query.teamId;
     const invType = req.query.type;
+    const invOrg = req.query.invOrg;
+    const isPaid = req.query.isPaid;
     console.log("/invoice - get (with CMD)");
     console.log(req.query);
 
@@ -70,10 +72,13 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         switch (cmd) {
             case 'getList':
 
-                console.log('Going to get list of invoices');
                 let q = {};
                 if (teamId)  q.team = teamId;
                 if (invType) q.type = invType;
+                if (isPaid && isPaid != "A") q.paidOn = (isPaid == "N"?null:{$type:"date"});
+                if (invOrg) q.invoicingOrg = invOrg;
+                console.log('Going to get list of invoices',q);
+
                 const l = await Invoice.find(q, {
                     team: true,
                     number: true,
@@ -81,10 +86,15 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     issuedOn: true,
                     dueOn: true,
                     paidOn: true,
-                    taxInvoice: true
+                    taxInvoice: true,
+                    billOrg: true,
+                    billAdr: true,
+                    total:true,
+                    currency:true
                 });
                 r.result = "ok";
                 r.list = l;
+                r.user = req.user;
                 break;
 
             default:

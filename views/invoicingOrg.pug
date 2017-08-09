@@ -13,39 +13,21 @@ block content
     div(class="panel panel-primary")
         div(class='panel-heading') Vystavené faktúry
         div(class='panel-body')
-            table(id="allInvoices" class="list-group")
-                tr
-                    th Číslo
-                    th Odberateľ
-                    th Tím
-                    th Suma
-                    th Vystavená
-                    th Splatná
-                    th Zaplatená
-                if io.invoices && io.invoices.length > 0
-                    each i,idx in io.invoices
-                        tr
-                            td
-                                a(href="/invoice/"+i.id) #{i.type}-#{i.number}
-                            td #{(i.billOrg && i.billOrg.name)?i.billOrg.name:"xxx"}, #{(i.billAdr && i.billAdr.city)?i.billAdr.city:"xxx"}
-                            td
-                                a(href="/team/"+i.team) [otvor tím]
-                            td=i.total.toFixed(2)
-                            td=i.issuedOn.toLocaleDateString(user.locales)
-                            td=i.dueOn.toLocaleDateString(user.locales)
-                            td
-                                if i.paidOn
-                                    =i.paidOn.toLocaleDateString(user.locales)
-                                else
-                                    if user.isAdmin || user.isInvoicingOrgManager
-                                        button(id='PAY'+i.id class="btn btn-default markAsPaid") Zaplať
-                                    else
-                                        ="---"
-                                if i.type === "P" && !i.taxInvoice
-                                    if user.isAdmin || user.isInvoicingOrgManager
-                                        button(id='CIN'+i.id class="btn btn-default createTaxInvoice") Vytvor faktúru
+            div(class="form-inline")
+                div(class="form-group" style="margin-bottom:8pt;margin-right:5pt")
+                    label(for="filterPaidStatus") Zaplatené:
+                    select(class="form-control" id="filterPaidStatus")
+                        option(value="A") všetky
+                        option(value="Y") áno
+                        option(value="N") nie
+                div(class="form-group" style="margin-bottom:8pt;margin-right:5pt")
+                    label(for="filterInvType") Typ:
+                    select(class="form-control" id="filterInvType")
+                        option(value="A") všetky
+                        option(value="P") zálohové
+                        option(value="I") daňové
 
-                else
-                    p Zatiaľ žiadne
+            table(id="allInvoices")
+
     script.
-        initInvOrg();
+        viewInvOrg.init();

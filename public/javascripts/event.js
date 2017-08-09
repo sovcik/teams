@@ -125,7 +125,7 @@ viewEvent.loadRegisteredTeams = function(eventId){
 
                 });
                 $(".btnCreateNTInvoice").on("click",function(event){
-                    createInvoice(this.id.substr(3),eventId,"P",function(res,err){
+                    libInvoice.create(this.id.substr(3),eventId,"P",function(res,err){
                         if (err)
                             alert("Chyba pri vytváraní zálohovej faktúry.",err);
                         else
@@ -133,7 +133,7 @@ viewEvent.loadRegisteredTeams = function(eventId){
                     });
                 });
                 $(".btnCreateTaxInvoice").on("click",function(event){
-                    createInvoice(this.id.substr(3),eventId,"I",function(res,err){
+                    libInvoice.create(this.id.substr(3),eventId,"I",function(res,err){
                         if (err)
                             alert("Chyba pri vytváraní zálohovej faktúry.",err);
                         else

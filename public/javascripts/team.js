@@ -449,7 +449,7 @@ function loadInvoices(teamId){
                     sel.append(c);
                 });
 
-                initInvoiceButtons(
+                libInvoice.initInvoiceButtons(
                     function(){ loadInvoices(teamId);}
                 );
 
