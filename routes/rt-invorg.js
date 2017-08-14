@@ -19,7 +19,10 @@ router.param('id', async function (req, res, next){
         r = await InvoicingOrg.findById(id);
         req.iorg = r;
         if (r) {
-            req.user.isInvoicingOrgManager = (req.iorg.managers.indexOf(req.user.id) >= 0);
+            if (req.user)
+                req.user.isInvoicingOrgManager = (req.iorg.managers.indexOf(req.user.id) >= 0);
+            else
+                req.user = {isInvoicingOrgManager:false};
 
             console.log("Invoicing org id=", r.id, " name=", r.org.name);
 

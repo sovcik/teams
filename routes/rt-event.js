@@ -28,9 +28,17 @@ router.param('id', async function (req, res, next){
         r = await InvoicingOrg.populate(r,'invoicingOrg');
         req.event = r;
         if (r) {
-            req.user.isEventOrganizer = (req.event.managers.indexOf(req.user.id) >= 0);
-            req.user.isProgramManager = (req.event.programId.managers.indexOf(req.user.id) >= 0);
-            req.user.isInvoicingOrgManager = (req.event.invoicingOrg.managers.indexOf(req.user.id) >= 0);
+            if (req.user) {
+                req.user.isEventOrganizer = (req.event.managers.indexOf(req.user.id) >= 0);
+                req.user.isProgramManager = (req.event.programId.managers.indexOf(req.user.id) >= 0);
+                req.user.isInvoicingOrgManager = (req.event.invoicingOrg.managers.indexOf(req.user.id) >= 0);
+            } else {
+                req.user = {
+                    isEventOrganizer:false,
+                    isProgramManager:false,
+                    isInvoicingOrgManager:false
+                }
+            }
             r.teams = [];
             let tmse = await TeamEvent.find({eventId: r.id});
             let tms = await Team.populate(tmse, 'teamId');

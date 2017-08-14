@@ -31,6 +31,8 @@ router.param('id', async function (req, res, next){
                     console.log('User is team coach');
                     req.user.isCoach = true;
                 }
+            } else {
+                req.user = {isCoach:false};
             }
 
             r = await dbTeam.getTeamDetails(req.user, id);

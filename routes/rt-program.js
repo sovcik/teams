@@ -21,6 +21,8 @@ router.param('id', async function (req, res, next){
 
         if (req.user)
             req.user.isProgramManager = (req.program.managers.indexOf(req.user.id) >= 0);
+        else
+            req.user = {isProgramManager:false};
 
         log.DEBUG("Program id="+req.program.id);
 
