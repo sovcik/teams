@@ -1,17 +1,21 @@
-function initProfile(){
-    console.log("/profile - Initializing");
-    $(".createTeamBtn").on("click",function(ev){ createNewTeam(this.id.substr(3)); });
-    $(".changePwdBtn").on("click",function(ev){ changePassword(this.id.substr(3)); } );
+"use strict";
 
-    loadCoachOfTeams();
-    loadMemberOfTeams();
-    loadPrograms();
-    loadMyPrograms();
+const viewProfile = {};
+
+viewProfile.init = function(){
+    console.log("/profile - Initializing");
+    $(".createTeamBtn").on("click",function(ev){ viewProfile.createNewTeam(this.id.substr(3)); });
+    $(".changePwdBtn").on("click",function(ev){ viewProfile.changePassword(this.id.substr(3)); } );
+
+    viewProfile.loadCoachOfTeams();
+    viewProfile.loadMemberOfTeams();
+    viewProfile.loadPrograms();
+    viewProfile.loadMyPrograms();
 
     console.log("/profile - Initializing completed");
-}
+};
 
-function loadCoachOfTeams(){
+viewProfile.loadCoachOfTeams = function(){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     const coachId = getResourceId(location.href);
     console.log("Loading coach teams. Coach = ",coachId);
@@ -40,14 +44,14 @@ function loadCoachOfTeams(){
 
     });
 
-}
+};
 
-function loadMemberOfTeams(){
+viewProfile.loadMemberOfTeams = function(){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading user's teams is not implemented yet");
-}
+};
 
-function loadPrograms(){
+viewProfile.loadPrograms = function (){
     const selProg = $('#newTeamProgram');
     console.log('Loading programs');
     $.get( "/program?cmd=getList", function(res) {
@@ -72,9 +76,9 @@ function loadPrograms(){
 
     });
 
-}
+};
 
-function loadMyPrograms(){
+viewProfile.loadMyPrograms = function (){
     const profileId = getResourceId(location.href);
     const selProg = $("#myPrograms");
     if (null === document.getElementById('myPrograms')) // profile is not of program manager
@@ -102,9 +106,9 @@ function loadMyPrograms(){
 
     });
 
-}
+};
 
-function createNewTeam(coachId){
+viewProfile.createNewTeam = function(coachId){
     //const coachId = getResourceId(location.href);
     const selTeamNameGrp = $("#newTeamName");
     const selTeamName = $("#newTeamName > input:first");
@@ -121,7 +125,7 @@ function createNewTeam(coachId){
                 if (null === document.getElementById('coachTeamsList')) {
                     window.location.reload(true);
                 } else
-                    loadCoachOfTeams(coachId);
+                    viewProfile.loadCoachOfTeams(coachId);
                 selTeamName.val('');
             } else {
                 console.log("Error while creating team");
@@ -138,9 +142,9 @@ function createNewTeam(coachId){
         selStatus.text('Tím musí mať meno.');
         selStatus.css("display", "inline").fadeOut(2000);
     }
-}
+};
 
-function changePassword(userId){
+viewProfile.changePassword = function (userId){
     const selDialog = $('#changePasswordModal');
     const selOldPwd = $('#oldPwd');
     const selNewPwd = $('#newPwd');
@@ -176,4 +180,4 @@ function changePassword(userId){
             selStatus.css("display", "inline").fadeOut(10000);
             console.log("Password change failed");
         });
-}
+};
