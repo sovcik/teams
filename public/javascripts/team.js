@@ -177,14 +177,14 @@ viewTeam.loadMembers = function(teamId){
                         let btnRemove = $('<button type="button" class="btn btn-link btn-xs">');
                         btnRemove.memberId = item.id;
                         btnRemove.on("click", function () {
-                            removeMember(item.id, teamId);
+                            viewTeam.removeMember(item.id, teamId);
                         });
                         btnRemove.append($('<span class="glyphicon glyphicon-remove">'));
 
                         let btnEdit = $('<button type="button" class="btn btn-link btn-xs">');
                         btnEdit.memberId = item.id;
                         btnEdit.on("click", function () {
-                            editMember(item.id);
+                            viewTeam.editMember(item.id);
                         });
                         btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
 
@@ -267,7 +267,7 @@ viewTeam.createNewTeamMember = function (teamId){
         selStatus.text('Člen tímu musí mať meno.');
         selStatus.css("display", "inline").fadeOut(5000);
     }
-}
+};
 
 viewTeam.removeMember = function (id, teamId){
     console.log("Removing member",id);
@@ -289,11 +289,11 @@ viewTeam.removeMember = function (id, teamId){
     .fail(function (err) {
         console.log("Member removal failed",err);
     });
-}
+};
 
 viewTeam.editMember = function (id){
     console.log("Editing ",id);
-}
+};
 
 viewTeam.saveAddressDetails2 = function (detType, fields, teamId, cb){
     console.log("Saving address details #2", detType);
