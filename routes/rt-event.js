@@ -246,6 +246,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 let t = await Team.findOneActive({_id: req.body.teamId});
                 if (!t) throw new Error("Team not found");
 
+                // check if required data has been provided
+                if (!(t.foundingOrg.name && t.billingOrg.name && t.shippingOrg.name ))
+                    throw new Error("Required team data not provided");
+
                 let p = await Program.findOneActive({_id:t.programId});
                 if (!p) throw new Error("Team not joined in program");
 

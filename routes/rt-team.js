@@ -107,7 +107,7 @@ router.get('/:id',cel.ensureLoggedIn('/login'), async function (req, res, next) 
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    console.log("/team - post");
+    console.log("/team/ID - post");
     console.log(req.body);
     const r = {result:"error", status:200};
 
@@ -125,27 +125,12 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
         case 'saveAdrDetails':
             console.log('Going to save team address details');
             try {
-                let doc = {};
-                let data = JSON.parse(req.body.data);
-                switch(req.body.type){
-                    case 'billing':
-                        doc.billingContact = {};
-                        doc.billingAdr = {};
-                        doc.billingOrg = {};
-                        formatTeamDoc(data, doc.billingOrg, doc.billingAdr, doc.billingContact);
-                        break;
-                    case 'shipping':
-                        doc.shippingContact = {};
-                        doc.shippingAdr = {};
-                        doc.shippingOrg = {};
-                        formatTeamDoc(data, doc.shippingOrg, doc.shippingAdr, doc.shippingContact);
-                        break;
-                }
+                let doc = JSON.parse(req.body.data);
                 console.log("DOCUMENT",doc);
                 const nd = await dbTeam.saveTeamDetails(req.user, req.team.id, doc);
                 r.result = "ok";
             } catch (err) {
-                r.message = err.message;
+                r["error.message"] = err.message;
                 console.log(err);
             }
             break;
@@ -162,7 +147,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 r.memberId = m.id;
 
             } catch (err) {
-                r.message = err.message;
+                r["error.message"] = err.message;
                 console.log(err);
             }
             break;
@@ -175,7 +160,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     r.result = "ok"
                 }
             } catch(err) {
-                r.message = err.message;
+                r["error.message"] = err.message;
                 console.log(err);
             }
             break;
@@ -189,19 +174,54 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
 });
 
-function formatTeamDoc(data, org, adr, con){
-    console.log("Formatting team document from posted data");
-    console.log("DATA",data);
-    org.name = data.orgName;
-    org.companyNo = data.compNo;
-    org.taxNo = data.taxNo;
+router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/team - post");
+    console.log(req.body);
+    const r = {result:"error", status:200};
 
-    adr.addrLine1 = data.addr1;
-    adr.addrLine2 = data.addr2;
-    adr.city = data.city;
-    adr.postCode = data.postCode;
+    // no modifications allowed unless user is team coach or admin
+    if (!req.user.isAdmin && !req.user.isCoach){
+        r.error = {};
+        r.error.message = "permission denied";
+        res.json(r);
+        res.end();
+        return;
+    }
 
-    con.name = data.conName;
-    con.phone = data.conPhone;
-    con.email = data.conEmail;
-}
+    switch (req.body.cmd){
+        case 'create':
+            let teamName = req.body.name;
+            console.log('Going to create team: ', teamName);
+            try {
+                let t = await Team.findOneActive({name:teamName});
+                if (t) {
+                    r.message = 'Duplicate team name';
+                } else {
+                    let c = await User.findOneActive({_id:req.body.coach});
+                    if (!c) throw new Error("coach not found id="+req.body.coach);
+
+                    t = await Team.create({
+                        name:teamName,
+                        programId:req.body.programId
+                    });
+                    console.log("Team created", t.name, t.id);
+                    let ut = await TeamUser.create({userId:c.id, teamId:t.id, role:'coach'});
+                    r.result = "ok";
+                    t.teamId = t.id;
+                }
+            } catch (err) {
+                r.error = err;
+                log.WARN("Failed creating team for coach "+id+". err="+err);
+            }
+            break;
+
+        default:
+            console.log('cmd=unknown');
+            break;
+    }
+    res.json(r);
+    res.end();
+
+});
+
+
