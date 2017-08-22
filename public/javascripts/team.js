@@ -6,11 +6,11 @@ viewTeam.init = function(){
     const teamId = getResourceId(location.href);
     console.log("/team - Initializing");
     $("#createTeamMemberBtn").on("click", function(){
-        createNewTeamMember(teamId);
+        viewTeam.createNewTeamMember(teamId);
     });
 
     $("#btnRegister").on("click", function(){
-        registerForEvent(teamId);
+        viewTeam.registerForEvent(teamId);
     });
 
     $("#btnFounderDetails").on("click", function(event){
@@ -27,14 +27,14 @@ viewTeam.init = function(){
                 {id:"foundingContact.email", label:"E-mail", type:"email"}
             ];
 
-        loadAddressDetails2(teamId,fields,function(res,err) {
+        viewTeam.loadAddressDetails2(teamId,fields,function(res,err) {
 
             libModals.multiFieldDialog(
                 "Zriaďovateľ",
                 "Organizácia, ktorá je zriaďovateľom tímu",
                 res,
                 function (flds, cb) {
-                    saveAddressDetails2("founding", flds, teamId, cb)
+                    viewTeam.saveAddressDetails2("founding", flds, teamId, cb)
                 },
                 function cb(res, err) {
                     if (err) {
@@ -61,14 +61,14 @@ viewTeam.init = function(){
             {id:"billingContact.email", label:"E-mail", type:"email"}
         ];
 
-        loadAddressDetails2(teamId,fields,function(res,err) {
+        viewTeam.loadAddressDetails2(teamId,fields,function(res,err) {
 
             libModals.multiFieldDialog(
                 "Fakturačné údaje",
                 "Tieto údaje sa použijú na vystavenie faktúr. Osoba tu uvedená bude kontaktovaná v prípade otázok týkajúcich sa faktúr.",
                 res,
                 function (flds, cb) {
-                    saveAddressDetails2("billing", flds, teamId, cb)
+                    viewTeam.saveAddressDetails2("billing", flds, teamId, cb)
                 },
                 function cb(res, err) {
                     if (err) {
@@ -93,14 +93,14 @@ viewTeam.init = function(){
             {id:"shippingContact.email", label:"E-mail", type:"email"}
         ];
 
-        loadAddressDetails2(teamId,fields,function(res,err) {
+        viewTeam.loadAddressDetails2(teamId,fields,function(res,err) {
 
             libModals.multiFieldDialog(
                 "Korešpondenčné údaje",
                 "Tieto údaje sa použijú pri zasielaní dokumentov/balíkov bežnou poštou alebo kuriérom. Osoba tu uvedená bude kontaktovaná v prípade otázok týkajúcich sa zásielky.",
                 res,
                 function (flds, cb) {
-                    saveAddressDetails2("shipping", flds, teamId, cb)
+                    viewTeam.saveAddressDetails2("shipping", flds, teamId, cb)
                 },
                 function cb(res, err) {
                     if (err) {
@@ -117,8 +117,8 @@ viewTeam.init = function(){
 
     viewTeam.loadCoaches(teamId);
     viewTeam.loadMembers(teamId);
-    loadAvailableEvents(teamId);
-    loadInvoices(teamId);
+    viewTeam.loadAvailableEvents(teamId);
+    viewTeam.loadInvoices(teamId);
 
     console.log("/team - Initializing completed");
 };
@@ -218,7 +218,7 @@ viewTeam.loadMembers = function(teamId){
 
 };
 
-function createNewTeamMember(teamId){
+viewTeam.createNewTeamMember = function (teamId){
 
     const selDialog = $("#newMemberModal");
     const selNameGrp = $("#newMemberName");
@@ -269,7 +269,7 @@ function createNewTeamMember(teamId){
     }
 }
 
-function removeMember(id, teamId){
+viewTeam.removeMember = function (id, teamId){
     console.log("Removing member",id);
     $.post("/team/"+teamId,
         {
@@ -291,11 +291,11 @@ function removeMember(id, teamId){
     });
 }
 
-function editMember(id){
+viewTeam.editMember = function (id){
     console.log("Editing ",id);
 }
 
-function saveAddressDetails2(detType, fields, teamId, cb){
+viewTeam.saveAddressDetails2 = function (detType, fields, teamId, cb){
     console.log("Saving address details #2", detType);
     if (typeof cb !== "function") cb = libCommon.noop();
 
@@ -332,9 +332,9 @@ function saveAddressDetails2(detType, fields, teamId, cb){
 
         });
 
-}
+};
 
-function loadAddressDetails2(teamId,fields,cb){
+viewTeam.loadAddressDetails2 = function (teamId,fields,cb){
     console.log("Loading team address details #2");
     $.get("/team/"+teamId+"?cmd=getAdrDetails")
         .done(function (res) {
@@ -345,7 +345,7 @@ function loadAddressDetails2(teamId,fields,cb){
                     if (v)
                         fields[i].value = v;
                 }
-                //formatAddressDetails(res.details);
+
                 cb(fields);
             } else {
                 console.log("Error while loading details");
@@ -354,9 +354,9 @@ function loadAddressDetails2(teamId,fields,cb){
         .fail(function (err) {
             console.log("Load failed",err);
         });
-}
+};
 
-function loadAvailableEvents(teamId){
+viewTeam.loadAvailableEvents = function (teamId){
     const sel = $('#availEvents');
     console.log('Loading events');
     $.get( "/event?cmd=getAvailTeamEvents&teamId="+teamId, function(res) {
@@ -381,9 +381,9 @@ function loadAvailableEvents(teamId){
 
     });
 
-}
+};
 
-function loadTeamData(teamId){
+viewTeam.loadTeamData = function (teamId){
     $.get( "/team/"+teamId+"?cmd=getData", function(res) {
         console.log('Server returned team data',res);
         if (res.result === 'ok'){
@@ -392,12 +392,11 @@ function loadTeamData(teamId){
             console.log('Server returned error');
         }
     });
-}
+};
 
-function registerForEvent(teamId){
+viewTeam.registerForEvent = function (teamId){
     console.log('Registering for event');
     const eventId = $('#availEvents').val();
-    const selStatus = $('#registerStatus');
     $.post("/event/"+eventId,
         {
             cmd: 'registerTeam',
@@ -410,10 +409,7 @@ function registerForEvent(teamId){
                 location.reload(true);
             } else {
                 console.log("Error while registering for event");
-                alert("Registrácia tímu nebola úspešná.\nSkontrolujte, či ste zadali všetky potrebné údaje o zriaďovateľovi\n a vyplnili fakturačnú a korešpondenčnú adresu.\n\n"+res.error.toString());
-                //selStatus.text('Nepodarilo sa registrovať.');
-                //selStatus.css("display", "inline").fadeOut(5000);
-
+                alert("Registrácia tímu nebola úspešná.\nSkontrolujte, či ste zadali všetky potrebné údaje o zriaďovateľovi\n a vyplnili fakturačnú a korešpondenčnú adresu.\n\n"+res.error.message);
             }
         }
     )
@@ -421,10 +417,10 @@ function registerForEvent(teamId){
             console.log("Registration for event failed",err);
         });
 
-}
+};
 
 
-function loadInvoices(teamId){
+viewTeam.loadInvoices = function(teamId){
     console.log('Loading invoices');
     const sel = $("#invoices");
     $.get( "/invoice?cmd=getList&teamId="+teamId, function(res) {
@@ -492,5 +488,5 @@ function loadInvoices(teamId){
 
     });
 
-}
+};
 
