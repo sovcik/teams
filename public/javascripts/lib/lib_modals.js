@@ -86,3 +86,116 @@ libModals.editValue = function (title, label, placeholder, valType, oldValue, fn
     $("#editValueDlg").modal("show");
 
 };
+
+libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
+
+    function showErrFields(flds){
+        for (let e of flds)
+            document.getElementById("MFDG" + e.field).classList.add("has-error");
+    }
+
+    if (typeof cb !== "function") cb = libCommon.noop();
+
+    // if no second-level validation provided
+    if (typeof fnvalidate !== "function")
+        fnvalidate = function(flds,cb2){
+            if (typeof cb2 !== "function") cb2 = libCommon.noop();
+            cb2(flds);
+        };
+
+    $("#multiFieldDlg").remove();
+
+    let flds = $("<div class='modal-body'>");
+
+    for(let f of fields){
+        let gr = $("<div id='MFDG"+f.id+"'>");
+        switch (f.type){
+            case "checkbox":
+            case "option":
+                gr
+                    .append($("<div class='"+f.type+"'>")
+                        .append($("<label>")
+                            .append($("<input id='MFDF"+f.id
+                                +"' type='"+f.type+"' "
+                                +(f.value?("value='"+f.value+"'"):" ")
+                                +" name='"+f.name+"'>"))
+                            .append(f.label)
+                        )
+                    );
+                break;
+            default:
+                gr
+                    .append($("<div class='form-group'>")
+                        .append($("<label for='MFDF"+f.id+"'>").append(f.label))
+                        .append($("<input id='MFDF"+f.id
+                            +"' type='"+f.type+"' "
+                            +(f.placeholder?("placeholder='"+f.placeholder+"'"):" ")
+                            +(f.value?("value='"+f.value+"'"):" ")
+                            +" class='form-control' name='"+f.name+"'>")
+                        )
+                    );
+
+        }
+        flds.append(gr);
+    }
+
+    $("#modalDlgs").append(
+        $("<div id='multiFieldDlg' class='modal fade' role='dialog' >")
+            .append($("<div class='modal-dialog'>")
+                .append($("<div class='modal-content'>")
+                    .append($("<div class='modal-header'>")
+                        .append($("<button type='button' class='close' data-dismiss='modal'>").append("&times;"))
+                        .append($("<h4 class='modal-title'>").append(title))
+                        .append($("<p>").append(subtitle))
+                    )
+                    .append(flds)
+                    .append($("<div class='modal-footer'>")
+                        .append($("<button id='MFDbtnOK' type='button' class='btn btn-default'>").append("OK"))
+                    )
+                )
+            )
+    );
+
+    $("#MFDbtnOK").on("click",function(ev){
+        console.log("MFD OK clicked");
+
+        for(let i = 0;i<fields.length;i++) {
+            switch (fields[i].type) {
+                case "checkbox":
+                    fields[i].value = document.getElementById("MFDF" + fields[i].id).checked;
+                    break;
+                default:
+                    fields[i].value = document.getElementById("MFDF" + fields[i].id).value;
+            }
+        }
+
+        for (let i = 0;i<fields.length;i++)
+            document.getElementById("MFDG" + fields[i].id).classList.remove("has-error");
+
+        console.log(fields);
+
+        libForms.validate(
+            fields,
+            function(result, err){
+                if (!err)
+                    // second level validation can validate e.g. against database
+                    fnvalidate(result,function(res2,err2){
+                        if (!err2)
+                            $("#multiFieldDlg").modal("hide");
+                        else
+                            showErrFields(err2.errors);
+                        cb(res2, err2);
+                    });
+
+                else {
+                    showErrFields(err.errors);
+                    cb(result, err);
+                }
+            }
+        );
+    });
+
+    console.log("Opening multi-field dialog");
+    $("#multiFieldDlg").modal("show");
+
+};
