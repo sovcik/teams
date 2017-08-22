@@ -1,39 +1,129 @@
 'use strict';
 
-function initTeam(){
-    //const teamId = urlGetParam('id');
+const viewTeam = {};
+
+viewTeam.init = function(){
     const teamId = getResourceId(location.href);
     console.log("/team - Initializing");
     $("#createTeamMemberBtn").on("click", function(){
         createNewTeamMember(teamId);
     });
 
-    $("#saveBillingDetails").on("click", function(){
-        saveAddressDetails('billing',teamId);
-    });
-
-    $("#saveShippingDetails").on("click", function(){
-        saveAddressDetails('shipping',teamId);
-    });
-
     $("#btnRegister").on("click", function(){
-        if ($("#billOrg").val().length == 0 || $("#billCity").val().length == 0 || $("#billAdr1").val().length == 0)
-            alert("Pred registráciou je potrebné vyplniť fakturačné a korešpondenčné údaje.");
-        else
-            registerForEvent(teamId);
+        registerForEvent(teamId);
+    });
+
+    $("#btnFounderDetails").on("click", function(event){
+        const fields = [
+                {id:"foundingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
+                {id:"foundingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
+                {id:"foundingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
+                {id:"foundingAdr.city",  label:"Mesto", type:"text", placeholder:"mesto", required:1},
+                {id:"foundingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1},
+                {id:"foundingOrg.companyNo", label:"IČO", type:"text"},
+                {id:"foundingOrg.taxNo", label:"DIČ", type:"text"},
+                {id:"foundingContact.name", label:"Kontaktná osoba", type:"text"},
+                {id:"foundingContact.phone", label:"Telefón", type:"text"},
+                {id:"foundingContact.email", label:"E-mail", type:"email"}
+            ];
+
+        loadAddressDetails2(teamId,fields,function(res,err) {
+
+            libModals.multiFieldDialog(
+                "Zriaďovateľ",
+                "Organizácia, ktorá je zriaďovateľom tímu",
+                res,
+                function (flds, cb) {
+                    saveAddressDetails2("founding", flds, teamId, cb)
+                },
+                function cb(res, err) {
+                    if (err) {
+                        console.log("CB-ERROR", err);
+                        alert(err.message);
+                    }
+                    console.log("CB-DONE");
+                }
+            );
+        });
+    });
+
+    $("#btnBillingDetails").on("click", function(event){
+        const fields = [
+            {id:"billingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
+            {id:"billingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
+            {id:"billingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
+            {id:"billingAdr.city",  label:"Mesto", type:"text", placeholder:"mesto", required:1},
+            {id:"billingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1},
+            {id:"billingOrg.companyNo", label:"IČO", type:"text"},
+            {id:"billingOrg.taxNo", label:"DIČ", type:"text"},
+            {id:"billingContact.name", label:"Kontaktná osoba", type:"text"},
+            {id:"billingContact.phone", label:"Telefón", type:"text"},
+            {id:"billingContact.email", label:"E-mail", type:"email"}
+        ];
+
+        loadAddressDetails2(teamId,fields,function(res,err) {
+
+            libModals.multiFieldDialog(
+                "Fakturačné údaje",
+                "Tieto údaje sa použijú na vystavenie faktúr. Osoba tu uvedená bude kontaktovaná v prípade otázok týkajúcich sa faktúr.",
+                res,
+                function (flds, cb) {
+                    saveAddressDetails2("billing", flds, teamId, cb)
+                },
+                function cb(res, err) {
+                    if (err) {
+                        console.log("CB-ERROR", err);
+                        alert(err.message);
+                    }
+                    console.log("CB-DONE");
+                }
+            );
+        });
+    });
+
+    $("#btnShippingDetails").on("click", function(event){
+        const fields = [
+            {id:"shippingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
+            {id:"shippingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
+            {id:"shippingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
+            {id:"shippingAdr.city",  label:"Mesto", type:"text", placeholder:"mesto", required:1},
+            {id:"shippingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1},
+            {id:"shippingContact.name", label:"Kontaktná osoba", type:"text"},
+            {id:"shippingContact.phone", label:"Telefón", type:"text"},
+            {id:"shippingContact.email", label:"E-mail", type:"email"}
+        ];
+
+        loadAddressDetails2(teamId,fields,function(res,err) {
+
+            libModals.multiFieldDialog(
+                "Korešpondenčné údaje",
+                "Tieto údaje sa použijú pri zasielaní dokumentov/balíkov bežnou poštou alebo kuriérom. Osoba tu uvedená bude kontaktovaná v prípade otázok týkajúcich sa zásielky.",
+                res,
+                function (flds, cb) {
+                    saveAddressDetails2("shipping", flds, teamId, cb)
+                },
+                function cb(res, err) {
+                    if (err) {
+                        console.log("CB-ERROR", err);
+                        alert(err.message);
+                    }
+                    console.log("CB-DONE");
+                }
+            );
+        });
     });
 
 
-    loadTeamCoaches(teamId);
-    loadTeamMembers(teamId);
-    loadAddressDetails(teamId);
+
+    viewTeam.loadCoaches(teamId);
+    viewTeam.loadMembers(teamId);
     loadAvailableEvents(teamId);
     loadInvoices(teamId);
 
     console.log("/team - Initializing completed");
-}
+};
 
-function loadTeamCoaches(teamId){
+viewTeam.loadCoaches = function (teamId){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading team coaches");
     const t = $("#coachList");
@@ -65,9 +155,9 @@ function loadTeamCoaches(teamId){
 
     });
 
-}
+};
 
-function loadTeamMembers(teamId){
+viewTeam.loadMembers = function(teamId){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading team members");
     const t = $("#memberList");
@@ -105,7 +195,7 @@ function loadTeamMembers(teamId){
                                 //.append(btnEdit)
                             )
                             .append($('<div class="panel-body form-inline">')
-                                .append($('<input class="form-control" type="date" readonly value="' + (item.dateOfBirth ? item.dateOfBirth.substr(0, 10) : null) + '">'))
+                                .append($('<input class="form-control" type="date" readonly '+ (item.dateOfBirth ? 'value="'+item.dateOfBirth.substr(0, 10)+'"' : "")+ '>'))
                                 .append($('<input class="form-control" type="string" readonly value="' + (item.email ? item.email : '') + '">'))
                             );
 
@@ -126,7 +216,7 @@ function loadTeamMembers(teamId){
             t.text('Chyba pri komunikácii so serverom');
         });
 
-}
+};
 
 function createNewTeamMember(teamId){
 
@@ -161,7 +251,7 @@ function createNewTeamMember(teamId){
                     selEmail.val('');
                     selDOB.val('');
                     selDialog.modal("hide");
-                    loadTeamMembers(teamId);
+                    viewTeam.loadMembers(teamId);
                 } else {
                     console.log("Error while creating team-member");
                     selStatus.text('Nepodarilo sa vytvoriť člena tímu.');
@@ -190,7 +280,7 @@ function removeMember(id, teamId){
             console.log("removeTeamMember: Server returned",res);
             if (res.result == "ok") {
                 console.log("Member removed");
-                loadTeamMembers(teamId);
+                viewTeam.loadMembers(teamId);
             } else {
                 console.log("Error while creating team");
             }
@@ -205,85 +295,58 @@ function editMember(id){
     console.log("Editing ",id);
 }
 
-function saveAddressDetails(detType, teamId){
-    var succ = false;
-    var selStatus;
-    var selDialog;
-    console.log("Saving address details", detType);
+function saveAddressDetails2(detType, fields, teamId, cb){
+    console.log("Saving address details #2", detType);
+    if (typeof cb !== "function") cb = libCommon.noop();
 
-    const details = {};
-
-    if (detType === 'billing'){
-        selStatus = $("#saveBillingStatus");
-        selDialog = $("#billingAddress");
-
-        details.orgName = $("#billOrg").val();
-        details.addr1 = $("#billAdr1").val();
-        details.addr2 = $("#billAdr2").val();
-        details.city = $("#billCity").val();
-        details.postCode = $("#billPostCode").val();
-        details.compNo = $("#billCompNo").val();
-        details.taxNo = $("#billTaxNo").val();
-        details.conName = $("#billContactName").val();
-        details.conPhone = $("#billContactPhone").val();
-        details.conEmail = $("#billContactEmail").val();
-    } else {
-        selStatus = $("#saveShippingStatus");
-        selDialog = $("#shippingAddress");
-
-        details.orgName = $("#shipOrg").val();
-        details.addr1 = $("#shipAdr1").val();
-        details.addr2 = $("#shipAdr2").val();
-        details.city = $("#shipCity").val();
-        details.postCode = $("#shipPostCode").val();
-        details.conName = $("#shipContactName").val();
-        details.conPhone = $("#shipContactPhone").val();
-        details.conEmail = $("#shipContactEmail").val();
+    let doc = {};
+    for (let f of fields){
+        doc[f.id] = f.value;
     }
-
     console.log("Posting request to save address details");
 
     $.ajax({
-            type:"POST",
-            url:"/team/"+teamId,
-            dataType: "json",
-            data: {
-                cmd: 'saveAdrDetails',
-                type: detType,
-                data: JSON.stringify(details)
-            }
+        type:"POST",
+        url:"/team/"+teamId,
+        dataType: "json",
+        data: {
+            cmd: 'saveAdrDetails',
+            type: detType,
+            data: JSON.stringify(doc)
+        }
 
-        })
+    })
         .done( function (res) {
             console.log("saveAdrDetails: Server returned",res);
             if (res.result == "ok") {
                 console.log("Details saved");
-                selStatus.text('Uložené');
-                selStatus.css("display", "inline").fadeOut(2000);
-                loadAddressDetails(teamId);
-                selDialog.modal("hide");
+                cb(res);
             } else {
                 console.log("Error while saving details");
-                selStatus.text('Nepodarilo sa uložiť.');
-                selStatus.css("display", "inline").fadeOut(5000);
+                cb(res,{message:"Zadané údaje sa nepodarilo uložiť.\n"+res.error.message});
             }
         })
         .fail(function (err) {
-            selStatus.text('Nepodarilo sa uložiť detaily.');
-            selStatus.css("display", "inline").fadeOut(5000);
             console.log("Save failed",err);
+            cb(null,{message:"Zadané údaje sa nepodarilo uložiť.\n"+err.message});
+
         });
 
-    return succ;
 }
 
-function loadAddressDetails(teamId){
-    console.log("Loading team address details");
+function loadAddressDetails2(teamId,fields,cb){
+    console.log("Loading team address details #2");
     $.get("/team/"+teamId+"?cmd=getAdrDetails")
         .done(function (res) {
             console.log("loadAdrDetails: Server returned",res);
             if (res.result == "ok") {
-                formatAddressDetails(res.details);
+                for (let i=0; i<fields.length; i++){
+                    let v = libCommon.objPathGet(res.details,fields[i].id);
+                    if (v)
+                        fields[i].value = v;
+                }
+                //formatAddressDetails(res.details);
+                cb(fields);
             } else {
                 console.log("Error while loading details");
             }
@@ -291,40 +354,6 @@ function loadAddressDetails(teamId){
         .fail(function (err) {
             console.log("Load failed",err);
         });
-}
-
-function formatAddressDetails(data) {
-
-    if (!data.billingOrg) data.billingOrg = {};
-    $("#billOrg").val(data.billingOrg.name || '');
-    $("#billCompNo").val(data.billingOrg.companyNo || '');
-    $("#billTaxNo").val(data.billingOrg.taxNo || '');
-
-    if (!data.billingAdr) data.billingAdr = {};
-    $("#billAdr1").val(data.billingAdr.addrLine1 || '');
-    $("#billAdr2").val(data.billingAdr.addrLine2 || '');
-    $("#billCity").val(data.billingAdr.city || '');
-    $("#billPostCode").val(data.billingAdr.postCode || '');
-
-    if (!data.billingContact) data.billingContact = {};
-    $("#billContactName").val(data.billingContact.name || '');
-    $("#billContactPhone").val(data.billingContact.phone || '');
-    $("#billContactEmail").val(data.billingContact.email || '');
-
-    if (!data.shippingOrg) data.shippingOrg = {};
-    $("#shipOrg").val(data.shippingOrg.name || '');
-
-    if (!data.shippingAdr) data.shippingAdr = {};
-    $("#shipAdr1").val(data.shippingAdr.addrLine1 || '');
-    $("#shipAdr2").val(data.shippingAdr.addrLine2 || '');
-    $("#shipCity").val(data.shippingAdr.city || '');
-    $("#shipPostCode").val(data.shippingAdr.postCode || '');
-
-    if (!data.shippingContact) data.shippingContact = {};
-    $("#shipContactName").val(data.shippingContact.name || '');
-    $("#shipContactPhone").val(data.shippingContact.phone || '');
-    $("#shipContactEmail").val(data.shippingContact.email || '');
-
 }
 
 function loadAvailableEvents(teamId){
