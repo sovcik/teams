@@ -112,13 +112,13 @@ viewEvent.loadRegisteredTeams = function(eventId){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     let c = $('<div class="well well-sm container-fluid">')
-                        .append($('<a href="/team/'+item.id+'" >')
+                        .append($('<a href="/team/'+item._id+'" >')
                             .append(item.name+(item.teamEvent.teamNumber?"  [#"+item.teamEvent.teamNumber+"]":"")+", "+(item.billingAdr?item.billingAdr.city:"xxx")+", "+(item.billingOrg?item.billingOrg.name:"xxx")))
                         .append(res.isAdmin||res.isEventOrganizer?$('<button id="ETN'+item.teamEvent._id+'" class="btn btn-default btnEditTeamNumber" style="float:right">')
                             .append("Číslo tímu"):'')
-                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="CNI'+item.id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
+                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="CNI'+item._id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
                             .append("Vytvor proformu"):'')
-                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="CTI'+item.id+'" class="btn btn-default btnCreateTaxInvoice" style="float:right">')
+                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="CTI'+item._id+'" class="btn btn-default btnCreateTaxInvoice" style="float:right">')
                             .append("Vytvor faktúru"):'');
 
                     sel.append(c);
@@ -200,7 +200,7 @@ viewEvent.loadOrganizers = function (resId){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     if (item.fullName) {
-                        var c = $('<a href="' + site + '/profile/' + item.id + '" class="btn btn-success btn-member" role="button">')
+                        var c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
                             .append(item.fullName);
 
                         t.append(c);

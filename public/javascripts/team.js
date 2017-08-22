@@ -139,7 +139,7 @@ viewTeam.loadCoaches = function (teamId){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     if (item.fullName) {
-                        var c = $('<a href="' + site + '/profile/' + item.id + '" class="btn btn-success btn-member" role="button">')
+                        var c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
                             .append(item.fullName);
 
                         t.append(c);
@@ -175,16 +175,16 @@ viewTeam.loadMembers = function(teamId){
                     // display member only if full name is defined
                     if (item.fullName) {
                         let btnRemove = $('<button type="button" class="btn btn-link btn-xs">');
-                        btnRemove.memberId = item.id;
+                        btnRemove.memberId = item._id;
                         btnRemove.on("click", function () {
-                            viewTeam.removeMember(item.id, teamId);
+                            viewTeam.removeMember(item._id, teamId);
                         });
                         btnRemove.append($('<span class="glyphicon glyphicon-remove">'));
 
                         let btnEdit = $('<button type="button" class="btn btn-link btn-xs">');
-                        btnEdit.memberId = item.id;
+                        btnEdit.memberId = item._id;
                         btnEdit.on("click", function () {
-                            viewTeam.editMember(item.id);
+                            viewTeam.editMember(item._id);
                         });
                         btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
 
@@ -369,7 +369,7 @@ viewTeam.loadAvailableEvents = function (teamId){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    var c = $('<option value="'+item.id+'"">').append(item.name);
+                    var c = $('<option value="'+item._id+'"">').append(item.name);
                     sel.append(c);
                 });
             } else {

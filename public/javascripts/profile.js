@@ -29,7 +29,7 @@ viewProfile.loadCoachOfTeams = function(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    var c = $('<a href="'+site+'/team/'+item.id+'" class="btn btn-success btn-member" role="button">')
+                    var c = $('<a href="'+site+'/team/'+item._id+'" class="btn btn-success btn-member" role="button">')
                             .append(item.name);
 
                     t.append(c);
@@ -64,7 +64,7 @@ viewProfile.loadPrograms = function (){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    var c = $('<option value="'+item.id+'"">').append(item.name);
+                    var c = $('<option value="'+item._id+'"">').append(item.name);
                     selProg.append(c);
                 });
             } else {
@@ -94,7 +94,7 @@ viewProfile.loadMyPrograms = function (){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a href="/program/'+item.id+'" class="list-group-item" >').append(item.name);
+                    let c = $('<a href="/program/'+item._id+'" class="list-group-item" >').append(item.name);
                     selProg.append(c);
                 });
             } else {

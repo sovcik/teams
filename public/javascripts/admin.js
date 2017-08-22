@@ -107,10 +107,10 @@ function loadPrograms(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a href="/program/'+item.id+'" class="list-group-item" >').append(item.name);
-                    //let c = $('<li class="list-group-item" value="'+item.id+'"">').append(item.name);
+                    let c = $('<a href="/program/'+item._id+'" class="list-group-item" >').append(item.name);
+                    //let c = $('<li class="list-group-item" value="'+item._id+'"">').append(item.name);
                     selProg.append(c);
-                    c = $('<option value="'+item.id+'"">').append(item.name);
+                    c = $('<option value="'+item._id+'"">').append(item.name);
                     selEvProg.append(c);
                 });
             } else {
@@ -137,7 +137,7 @@ function loadEvents(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a class="list-group-item" href="/event/'+item.id+'"">').append(item.name);
+                    let c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name);
                     selEv.append(c);
                 });
             } else {
@@ -167,9 +167,9 @@ function loadInvoicingOrgs(){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a href="/invorg/'+item.id+'" class="list-group-item" >').append(item.org.name+", "+item.adr.city);
+                    let c = $('<a href="/invorg/'+item._id+'" class="list-group-item" >').append(item.org.name+", "+item.adr.city);
                     selIO.append(c);
-                    c = $('<option value="'+item.id+'"">').append(item.org.name+", "+item.adr.city);
+                    c = $('<option value="'+item._id+'"">').append(item.org.name+", "+item.adr.city);
                     selEvIO.append(c);
 
                 });
@@ -270,7 +270,7 @@ function loadAddressDetails(orgId, callback){
 function formatAddressDetails(data) {
 
     if (!data.billingOrg) data.billingOrg = {};
-    $("#invOrgId").val(data.id || '');
+    $("#invOrgId").val(data._id || '');
 
     $("#billOrg").val(data.billingOrg.name || '');
     $("#billCompNo").val(data.billingOrg.companyNo || '');
@@ -306,11 +306,11 @@ function loadUsers(){
                 //style="padding:3pt;width:100%;margin:2pt"
                 res.list.forEach(function(item) {
                     let c = $('<div class="well well-sm container-fluid">')
-                        .append($('<a href="/profile/'+item.id+'" >')
+                        .append($('<a href="/profile/'+item._id+'" >')
                             .append(item.username+", "+item.fullName+", "+item.email))
-                        .append($('<button id="MKA'+item.id+'" class="btn btn-default btnMakeAdmin" style="float:right">')
+                        .append($('<button id="MKA'+item._id+'" class="btn btn-default btnMakeAdmin" style="float:right">')
                             .append("Urob admin"))
-                        .append($('<button id="SSU'+item.id+'" class="btn btn-default btnSuspend" style="float:right">')
+                        .append($('<button id="SSU'+item._id+'" class="btn btn-default btnSuspend" style="float:right">')
                             .append("Zakáž"));
 
                     sel.append(c);

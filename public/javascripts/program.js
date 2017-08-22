@@ -79,7 +79,7 @@ viewProgram.loadManagers = function (progId){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     if (item.fullName) {
-                        var c = $('<a href="' + site + '/profile/' + item.id + '" class="btn btn-success btn-member" role="button">')
+                        var c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
                             .append(item.fullName);
 
                         t.append(c);
@@ -110,7 +110,7 @@ viewProgram.loadEvents = function (progId){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a class="list-group-item" href="/event/'+item.id+'"">').append(item.name);
+                    let c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name);
                     selEv.append(c);
                 });
             } else {
