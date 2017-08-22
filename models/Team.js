@@ -18,13 +18,11 @@ const TeamSchema = new mongoose.Schema({
     foundingContact: {type: ContactSchema, default:{}},
 
     // billing organization gets to pay invoices
-    billingAsFounding: {type:Boolean, default:true},
     billingOrg: {type: OrgSchema, default:{}},
     billingAdr: {type: AddressSchema, default:{}},
     billingContact: {type: ContactSchema, default:{}},
 
     // this address is used for sending paper-mail
-    shippingAsFounding: {type:Boolean, default:true},
     shippingOrg: {type: OrgSchema, default:{}},
     shippingAdr: {type: AddressSchema, default:{}},
     shippingContact: {type: ContactSchema, default:{}},
