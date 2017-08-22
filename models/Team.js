@@ -12,19 +12,22 @@ const ContactSchema = require('./Contact');
 const TeamSchema = new mongoose.Schema({
     name: { type: String, required: true },
 
-    foundingOrg: OrgSchema, // team has been created by founding organization (e.g school)
-    foundingAdr: AddressSchema,
-    foundingContact: ContactSchema,
+    // team has been created by founding organization (e.g school)
+    foundingOrg: {type: OrgSchema, default: {}},
+    foundingAdr: {type: AddressSchema, default:{}},
+    foundingContact: {type: ContactSchema, default:{}},
 
+    // billing organization gets to pay invoices
     billingAsFounding: {type:Boolean, default:true},
-    billingOrg: OrgSchema, // billing organization gets to pay invoices
-    billingAdr: AddressSchema,
-    billingContact: ContactSchema,
+    billingOrg: {type: OrgSchema, default:{}},
+    billingAdr: {type: AddressSchema, default:{}},
+    billingContact: {type: ContactSchema, default:{}},
 
+    // this address is used for sending paper-mail
     shippingAsFounding: {type:Boolean, default:true},
-    shippingOrg: OrgSchema, // this address is used for sending paper-mail
-    shippingAdr: AddressSchema,
-    shippingContact: ContactSchema,
+    shippingOrg: {type: OrgSchema, default:{}},
+    shippingAdr: {type: AddressSchema, default:{}},
+    shippingContact: {type: ContactSchema, default:{}},
 
     programId: { type: String, required: true }
 });
