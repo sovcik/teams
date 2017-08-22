@@ -112,7 +112,7 @@ function createNewTeam(coachId){
     var selStatus = $("#teamCreateStatus");
     if (selTeamName.val().trim() != '') {
         console.log("Posting request to create new team");
-        $.post("/profile/"+coachId, {cmd: 'createTeam', name: selTeamName.val(), programId:selProg.val()}, function (res) {
+        $.post("/team/", {cmd: 'create', name: selTeamName.val(), programId:selProg.val(), coach:coachId}, function (res) {
             console.log("createTeam: Server returned",res);
             if (res.result == "ok") {
                 console.log("Team created");

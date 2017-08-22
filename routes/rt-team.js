@@ -107,7 +107,7 @@ router.get('/:id',cel.ensureLoggedIn('/login'), async function (req, res, next) 
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    console.log("/team - post");
+    console.log("/team/ID - post");
     console.log(req.body);
     const r = {result:"error", status:200};
 
@@ -173,3 +173,55 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     res.end();
 
 });
+
+router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/team - post");
+    console.log(req.body);
+    const r = {result:"error", status:200};
+
+    // no modifications allowed unless user is team coach or admin
+    if (!req.user.isAdmin && !req.user.isCoach){
+        r.error = {};
+        r.error.message = "permission denied";
+        res.json(r);
+        res.end();
+        return;
+    }
+
+    switch (req.body.cmd){
+        case 'create':
+            let teamName = req.body.name;
+            console.log('Going to create team: ', teamName);
+            try {
+                let t = await Team.findOneActive({name:teamName});
+                if (t) {
+                    r.message = 'Duplicate team name';
+                } else {
+                    let c = await User.findOneActive({_id:req.body.coach});
+                    if (!c) throw new Error("coach not found id="+req.body.coach);
+
+                    t = await Team.create({
+                        name:teamName,
+                        programId:req.body.programId
+                    });
+                    console.log("Team created", t.name, t.id);
+                    let ut = await TeamUser.create({userId:c.id, teamId:t.id, role:'coach'});
+                    r.result = "ok";
+                    t.teamId = t.id;
+                }
+            } catch (err) {
+                r.error = err;
+                log.WARN("Failed creating team for coach "+id+". err="+err);
+            }
+            break;
+
+        default:
+            console.log('cmd=unknown');
+            break;
+    }
+    res.json(r);
+    res.end();
+
+});
+
+

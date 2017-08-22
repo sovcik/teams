@@ -279,25 +279,6 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     const siteUrl = req.protocol + '://' + req.get("host");
 
     switch (req.body.cmd){
-        case 'createTeam':
-            let teamName = req.body.name;
-            console.log('Going to create team: ', teamName);
-            try {
-                let t = await Team.findOneActive({name:teamName});
-                if (t) {
-                    r.message = 'Duplicate team name';
-                } else {
-                    t = await Team.create({name:teamName, programId:req.body.programId});
-                    console.log("Team created", t.name, t.id);
-                    let ut = await TeamUser.create({userId:id, teamId:t.id, role:'coach'});
-                    r.result = "ok";
-                    t.teamId = t.id;
-                }
-            } catch (err) {
-                r.error = err;
-                log.WARN("Failed creating team for coach "+id+". err="+err);
-            }
-            break;
         case 'changePassword':
             try {
                 const up1 = await User.findOneActive({_id: id});

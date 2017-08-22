@@ -410,8 +410,9 @@ function registerForEvent(teamId){
                 location.reload(true);
             } else {
                 console.log("Error while registering for event");
-                selStatus.text('Nepodarilo sa registrovať.');
-                selStatus.css("display", "inline").fadeOut(5000);
+                alert("Registrácia tímu nebola úspešná.\nSkontrolujte, či ste zadali všetky potrebné údaje o zriaďovateľovi\n a vyplnili fakturačnú a korešpondenčnú adresu.\n\n"+res.error.toString());
+                //selStatus.text('Nepodarilo sa registrovať.');
+                //selStatus.css("display", "inline").fadeOut(5000);
 
             }
         }
