@@ -179,6 +179,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log(req.body);
     const r = {result:"error", status:200};
 
+    /*
     // no modifications allowed unless user is team coach or admin
     if (!req.user.isAdmin && !req.user.isCoach){
         r.error = {};
@@ -187,9 +188,12 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         res.end();
         return;
     }
+    */
 
     switch (req.body.cmd){
         case 'create':
+            // permissions for creating a team are not tested as every user can create team
+
             let teamName = req.body.name;
             console.log('Going to create team: ', teamName);
             try {
