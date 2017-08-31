@@ -19,6 +19,12 @@ module.exports = router;
 router.param('id', async function (req, res, next){
     const invoiceId = req.params.id;
     let inv;
+    // if user not logged in
+    if (!req.user)
+        req.user = {
+            locales:"sk-SK"
+        };
+
     try {
         inv = await Invoice.findById(invoiceId);
         req.invoice = inv;
@@ -28,7 +34,8 @@ router.param('id', async function (req, res, next){
         log.DEBUG("Invoice id="+req.invoice.id+" num="+req.invoice.number+" iorg="+req.invoice.invoicingOrg);
 
         try {
-            const p = await libPerm.getUserInvoicePermissions(req.user.id,inv.id);
+            
+            const p = await libPerm.getUserInvoicePermissions(req.user.id, inv.id);
             req.user.permissions = p;
         } catch (err) {
             log.WARN("Failed fetching user permissions. err="+err.message);
@@ -51,9 +58,8 @@ router.get('/:id', async function (req, res, next) {
     if (cmd)
         next();
     else {
-        let u = {locales:"sk-SK"};
         let i = await Team.populate(req.invoice,'team');
-        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: (req.user ? req.user : u), fmt:libFmt} );
+        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt} );
     }
 });
 
