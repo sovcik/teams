@@ -129,8 +129,9 @@ viewTeam.init = function(){
                         };
 
                     libTeam.addCoach(teamId, username, function (res, err) {
-                        if (err)
+                        if (err) {
                             return onError(err.message);
+                        }
                         onSuccess(res);
                     });
                 },
@@ -197,7 +198,7 @@ viewTeam.loadCoaches = function (teamId){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     if (item.fullName) {
-                        let g = $('<div class="btn-group">');
+                        let g = $('<div class="btn-group coach">');
                         let c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
                             .append(item.fullName);
                         g.append(c);
