@@ -68,38 +68,43 @@ router.get('/:id',cel.ensureLoggedIn('/login'), async function (req, res, next) 
     console.log(req.query);
 
     var r = {result:"error", status:200};
-    switch (cmd){
-        case 'getTeamCoaches':
-            console.log('Going to get team coaches');
-            const tc = await dbTeam.getTeamCoaches(req.user, req.team.id);
-            r.result = "ok";
-            r.list = tc;
-            break;
+    try {
+        switch (cmd) {
+            case 'getTeamCoaches':
+                console.log('Going to get team coaches');
+                const tc = await dbTeam.getTeamCoaches(req.user, req.team.id);
+                r.result = "ok";
+                r.list = tc;
+                break;
 
-        case 'getTeamMembers':
-            console.log('Going to get team members');
-            const tm = await dbTeam.getTeamMembers(req.user, req.team.id);
-            r.result = "ok";
-            r.list = tm;
-            break;
+            case 'getTeamMembers':
+                console.log('Going to get team members');
+                const tm = await dbTeam.getTeamMembers(req.user, req.team.id);
+                r.result = "ok";
+                r.list = tm;
+                break;
 
-        case 'getAdrDetails':
-            console.log('Going to get team address details');
-            //const tad = await dbTeam.getTeamDetails(req.user, req.team.id, req);
-            r.result = "ok";
-            r.details = req.team;
-            break;
+            case 'getAdrDetails':
+                console.log('Going to get team address details');
+                //const tad = await dbTeam.getTeamDetails(req.user, req.team.id, req);
+                r.result = "ok";
+                r.details = req.team;
+                break;
 
-        case 'getData':
-            console.log('Going to get team details');
-            //const td = await dbTeam.getTeamDetails(req.user, req.team.id, req);
-            r.result = 'ok';
-            r.team = req.team;
-            break;
+            case 'getData':
+                console.log('Going to get team details');
+                //const td = await dbTeam.getTeamDetails(req.user, req.team.id, req);
+                r.result = 'ok';
+                r.team = req.team;
+                break;
 
-        default:
-            console.log('cmd=unknown');
+            default:
+                console.log('cmd=unknown');
 
+        }
+    } catch(err) {
+        r.error = {message:err.message};
+        log.ERROR(err);
     }
     res.json(r);
     res.end();
