@@ -34,7 +34,7 @@ router.param('id', async function (req, res, next){
         log.DEBUG("Invoice id="+req.invoice.id+" num="+req.invoice.number+" iorg="+req.invoice.invoicingOrg);
 
         try {
-            
+
             const p = await libPerm.getUserInvoicePermissions(req.user.id, inv.id);
             req.user.permissions = p;
         } catch (err) {

@@ -130,7 +130,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 const nd = await dbTeam.saveTeamDetails(req.user, req.team.id, doc);
                 r.result = "ok";
             } catch (err) {
-                r["error.message"] = err.message;
+                r.error = err;
                 console.log(err);
             }
             break;
@@ -147,7 +147,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 r.memberId = m.id;
 
             } catch (err) {
-                r["error.message"] = err.message;
+                r.error = err;
                 console.log(err);
             }
             break;
@@ -160,8 +160,45 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     r.result = "ok"
                 }
             } catch(err) {
-                r["error.message"] = err.message;
+                r.error = err;
                 console.log(err);
+            }
+            break;
+        case "addCoach":
+            console.log('Going to add coach to team',req.team.id);
+
+            try {
+                let u = await User.findOneActive({username:req.body.username});
+                if (!u) throw new Error("User not found "+req.body.username);
+
+                let tu = await TeamUser.findOne({userId:u.id, teamId:req.team.id, role:'coach'});
+                if (tu) throw new Error("User is already coaching this team");
+
+                tu = await TeamUser.create({userId:u.id, teamId:req.team.id, role:'coach'});
+                if (!tu) throw new Error("Failed to add team coach for team="+req.team._id);
+
+                r.result = "ok";
+                r.teamuser = tu;
+            } catch (err) {
+                log.ERROR("Failed to add team coach. err="+err);
+            }
+            break;
+        case 'removeCoach':
+            console.log('Going to remove coach: ', req.body.coachId, "from team", req.team.id);
+            try{
+                if (req.body.coachId == req.user._id)
+                    throw new Error("User can't remove himself");
+                let cc = await TeamUser.count({teamId:req.team.id, role:'coach'});
+                if (cc <= 1)
+                    throw new Error("At least one coach is required per team");
+                let conf = await TeamUser.deleteOne({"userId":req.body.coachId, "teamId":req.team.id});
+                if (conf.deletedCount > 0) {
+                    console.log('Coach removed', req.body.coachId);
+                    r.result = "ok"
+                }
+            } catch(err) {
+                r.error = {message:err.message};
+                console.log(err.message);
             }
             break;
 

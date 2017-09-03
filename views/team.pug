@@ -64,6 +64,11 @@ block content
         div(id='coachList' class='panel-body container-fluid')
             div(class='panel col-sm-6')
                 p Žiadny
+        if user && (user.isAdmin || user.isCoach)
+            div(class='panel-footer')
+                button(id='btnAddCoach' type="button" class="btn btn-default")
+                    span(class="glyphicon glyphicon-user") +
+                    | Pridať trénera
 
     div(class="panel panel-primary")
         div(class='panel-heading') Členovia tímu

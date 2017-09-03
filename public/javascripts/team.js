@@ -113,7 +113,38 @@ viewTeam.init = function(){
         });
     });
 
+    $("#btnAddCoach").on(
+        "click",
+        function(ev) {
+            libModals.selectUserDialog(
+                "Pridaj trénera",
+                function (browserEvent, username, onSuccess, onError) {
+                    if (typeof onSuccess !== "function")
+                        onSuccess = function (u) {
+                            return true;
+                        };
+                    if (typeof onError !== "function")
+                        onError = function (msg) {
+                            console.log("ERROR: ", msg);
+                        };
 
+                    libTeam.addCoach(teamId, username, function (res, err) {
+                        if (err)
+                            return onError(err.message);
+                        onSuccess(res);
+                    });
+                },
+                function (res) {
+                    console.log("team coach added");
+                    viewTeam.loadCoaches(teamId);
+                },
+                function (msg) {
+                    alert("Chyba pri pridávaní trénera.\n\n"+msg);
+                }
+            )
+        }
+
+    );
 
     viewTeam.loadCoaches(teamId);
     viewTeam.loadMembers(teamId);
@@ -121,6 +152,33 @@ viewTeam.init = function(){
     viewTeam.loadInvoices(teamId);
 
     console.log("/team - Initializing completed");
+};
+
+viewTeam.removeCoach = function (teamId, userId) {
+    let cfm = window.confirm("Kliknite OK ak naozaj chcete odstrániť tohto trénera z tímu.");
+    if (cfm) {
+        console.log("Posting request to remove coach team=",teamId,"caoch=",userId);
+        $.post("/team/"+teamId,
+            {
+                cmd: 'removeCoach',
+                coachId: userId
+            },
+            function (res) {
+                console.log("removeCoach: Server returned",res);
+                if (res.result == "ok") {
+                    console.log("Coach Removed");
+                    viewTeam.loadCoaches(teamId);
+                } else {
+                    console.log("Error while removing coach");
+                    alert('Nepodarilo sa odstrániť trénera.\n\n'+res.error.message);
+                }
+            }
+        )
+            .fail(function (err) {
+                console.log("Error while removing coach");
+                alert('Nepodarilo sa odstrániť trénera.\n\n'+err.message);
+            });
+    }
 };
 
 viewTeam.loadCoaches = function (teamId){
@@ -139,13 +197,22 @@ viewTeam.loadCoaches = function (teamId){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     if (item.fullName) {
-                        var c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
+                        let g = $('<div class="btn-group">');
+                        let c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
                             .append(item.fullName);
+                        g.append(c);
+                        c = $('<button id="RMC' + item._id + '" class="btn btn-success coach-remove">')
+                            .append($('<span  class="glyphicon glyphicon-remove">'));
+                        g.append(c);
 
-                        t.append(c);
+                        t.append(g);
                     }
 
                 });
+                $(".coach-remove").on("click", function(ev){
+                    viewTeam.removeCoach(teamId, this.id.substr(3));
+                })
+
             } else {
                 t.text('Žiadni tréneri');
             }
