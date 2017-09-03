@@ -18,6 +18,10 @@ block content
     div(class="panel panel-primary")
         div(class='panel-heading') Detaily
         div(class='panel-body')
+            if team.recordStatus !== 'active'
+                div(class="alert alert-warning")
+                    strong Pozor!
+                    =" Tento záznam už nie je aktívny a je udržiavaný iba pre archívne účely."
             div(class='form-group')
                 label(for='teamName') Názov
                 input(id='teamName' class='form-control' value=team.name readonly)
@@ -33,16 +37,19 @@ block content
                         span(id="pInvoice")
                         span(id="iInvoice")
                 else
-                    if user && (user.isAdmin || user.isCoach)
+                    if user && (user.isAdmin || user.isCoach) && team.recordStatus == 'active'
                         button(class="btn btn-success" data-toggle="modal" data-target="#registerEvent") Registruj na turnaj
             div(class='form-group')
                 ul(class='list-group' id="invoices")
         div(class='panel-footer')
             div(class='form-group')
-                if user && (user.isAdmin || user.isCoach)
-                    button(id="btnFounderDetails" class="btn btn-default") Zriaďovateľ
-                    button(id="btnBillingDetails" class="btn btn-default") Fakturačné údaje
-                    button(id="btnShippingDetails" class="btn btn-default") Korešpondenčné údaje
+                if user && (user.isAdmin || user.isCoach) && team.recordStatus == 'active'
+                    div(class='btn-group')
+                        button(id="btnFounderDetails" class="btn btn-default") Zriaďovateľ
+                        button(id="btnBillingDetails" class="btn btn-default") Fakturačné údaje
+                        button(id="btnShippingDetails" class="btn btn-default") Korešpondenčné údaje
+                    div(class='btn-group pull-right')
+                        button(id="btnRemoveTeam" class="btn btn-default") Zruš tím
 
     div(id='registerEvent' class='modal fade' role='dialog')
         div(class='modal-dialog')
@@ -68,7 +75,7 @@ block content
         div(id='coachList' class='panel-body container-fluid')
             div(class='panel col-sm-6')
                 p Žiadny
-        if user && (user.isAdmin || user.isCoach)
+        if user && (user.isAdmin || user.isCoach) && team.recordStatus == 'active'
             div(class='panel-footer')
                 button(id='btnAddCoach' type="button" class="btn btn-default")
                     span(class="glyphicon glyphicon-user") +
@@ -82,7 +89,7 @@ block content
             div(id='memberList' class='container-fluid')
                 div(class='panel')
                     p Žiadny
-        if user && (user.isAdmin || user.isCoach)
+        if user && (user.isAdmin || user.isCoach) && team.recordStatus == 'active'
             div(class='panel-footer')
                 button(id='createMember' type="button" class="btn btn-default" data-toggle="modal" data-target="#newMemberModal")
                     span(class="glyphicon glyphicon-user") +

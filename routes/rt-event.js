@@ -149,7 +149,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
             case 'getAvailTeamEvents':
                 console.log('Going to get list of team events');
-                const t = await Team.findOneActive({_id: req.query.teamId});
+                const t = await Team.findById(req.query.teamId);
                 if (t) {
                     const p = await Event.find({recordStatus: 'active', programId: t.programId}, {
                         name: true,

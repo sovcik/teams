@@ -13,6 +13,10 @@ viewTeam.init = function(){
         viewTeam.registerForEvent(teamId);
     });
 
+    $("#btnRemoveTeam").on("click", function(){
+        viewTeam.removeTeam(teamId);
+    });
+
     $("#btnFounderDetails").on("click", function(event){
         const fields = [
                 {id:"foundingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
@@ -153,6 +157,33 @@ viewTeam.init = function(){
     viewTeam.loadInvoices(teamId);
 
     console.log("/team - Initializing completed");
+};
+
+viewTeam.removeTeam = function (teamId) {
+    let cfm = window.confirm("Kliknite OK ak naozaj chcete zrušiť tento tím.");
+    if (cfm) {
+        console.log("Posting request to remove team=",teamId);
+        $.post("/team/",
+            {
+                cmd: 'remove',
+                teamId: teamId
+            },
+            function (res) {
+                console.log("removeTeam: Server returned",res);
+                if (res.result == "ok") {
+                    console.log("Team Removed");
+                    location.reload();
+                } else {
+                    console.log("Error while removing team");
+                    alert('Nepodarilo sa zrušiť tím.\n\n'+res.error.message);
+                }
+            }
+        )
+            .fail(function (err) {
+                console.log("Error while removing team");
+                alert('Nepodarilo sa zrušiť tím.\n\n'+err.message);
+            });
+    }
 };
 
 viewTeam.removeCoach = function (teamId, userId) {
@@ -443,7 +474,7 @@ viewTeam.loadAvailableEvents = function (teamId){
                 sel.text('Žiadne');
             }
         } else {
-            console.log("Server returned ERROR");
+            console.log("Server returned events - error");
         }
 
     });
@@ -456,7 +487,7 @@ viewTeam.loadTeamData = function (teamId){
         if (res.result === 'ok'){
 
         } else {
-            console.log('Server returned error');
+            console.log('Server returned team data - error');
         }
     });
 };
@@ -520,8 +551,6 @@ viewTeam.loadInvoices = function(teamId){
                             .append("  Splatná " + (item.dueOn ? dOn.toLocaleDateString() : "-error-"))
                             .append((item.paidOn ? "  Zaplatená "+pOn.toLocaleDateString() : ''))
                         );
-
-                    console.log("=== TAXINVOICE",item.taxInvoice);
 
                     if (item.type == "P" && !item.taxInvoice)
                         c

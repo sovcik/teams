@@ -10,7 +10,10 @@ const dbTeam = require('../lib/db/Team');
 
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
+const Event = mongoose.model('Event');
 const TeamUser = mongoose.model('TeamUser');
+const TeamEvent = mongoose.model('TeamEvent');
+const Invoice = mongoose.model('Invoice');
 
 module.exports = router;
 
@@ -119,6 +122,13 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     // no modifications allowed unless user is team coach or admin
     if (!req.user.isAdmin && !req.user.isCoach){
         r.error = {message:"permission denied"};
+        res.json(r);
+        res.end();
+        return;
+    }
+
+    if (!req.user.isAdmin && req.team.recordStatus !== 'active'){
+        r.error = {message:"inactive record"};
         res.json(r);
         res.end();
         return;
@@ -235,7 +245,6 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     switch (req.body.cmd){
         case 'create':
             // permissions for creating a team are not tested as every user can create team
-
             let teamName = req.body.name;
             console.log('Going to create team: ', teamName);
             try {
@@ -258,6 +267,55 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             } catch (err) {
                 r.error = {message:err.message};
                 log.WARN("Failed creating team for coach "+id+". err="+err);
+            }
+            break;
+        case 'remove':
+            console.log('Going to remove team', req.body.teamId);
+            try{
+                let t = await Team.findById(req.body.teamId);
+                if (!t)
+                    throw new Error("Team not found");
+
+                let te = await TeamEvent.find({teamId:t._id});
+                if (te) {
+                    // now check if any of events team is registered for is active
+                    te = await Event.populate(te,"eventId");
+                    let eact = te.length > 0;
+                    let td = new Date();
+                    td.setHours(0,0,0,0);
+                    for (let i=0; i<te.length && eact; i++)
+                        eact = te[i].eventId.endDate >= td;
+
+                    if (eact)
+                        throw new Error("One of events team is registered for is active.");
+
+                    // check if there are any unpaid invoices related to this team
+                    let inv = await Invoice.find({team:t._id});
+                    if (inv){
+                        let pd = inv.length > 0;
+                        td = new Date(1900,0,1);
+                        for (let i=0; i< inv.length && pd; i++)
+                            pd = inv[i].paidOn > td;
+
+                        if (!pd)
+                            throw new Error("One of invoices is not paid.");
+                    }
+
+                }
+
+                if (t.recordStatus == 'active') {
+                    t.deactivate();
+                    await t.save();
+                }
+
+                console.log("Team",t._id,"removed");
+                r.result = "ok";
+
+                //todo: notify coaches
+
+            } catch(err) {
+                r.error = {message:err.message};
+                console.log(err.message);
             }
             break;
 
