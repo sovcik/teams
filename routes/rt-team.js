@@ -292,7 +292,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     // check if there are any unpaid invoices related to this team
                     let inv = await Invoice.find({team:t._id});
                     if (inv){
-                        let pd = inv.length > 0;
+                        let pd = true;
                         td = new Date(1900,0,1);
                         for (let i=0; i< inv.length && pd; i++)
                             pd = inv[i].paidOn > td;
