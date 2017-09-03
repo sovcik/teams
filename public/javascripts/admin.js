@@ -97,7 +97,6 @@ function loadPrograms(){
     console.log('Loading programs');
     $.get( "/program?cmd=getList", function(res) {
         console.log("loadProgs: Server returned",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort results by program name
             res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
@@ -129,7 +128,6 @@ function loadEvents(){
     console.log('Loading events');
     $.get( "/event?cmd=getList", function(res) {
         console.log("loadEvents: Server returned",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort events by name
             res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
@@ -157,7 +155,6 @@ function loadInvoicingOrgs(){
     console.log('Loading invoicing orgs');
     $.get( "/invorg?cmd=getList", function(res) {
         console.log("loadInvOrgs: Server returned",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort results by program name
             res.list.sort(function(a,b) {return (a.org.name > b.org.name) ? 1 : ((b.org.name > a.org.name) ? -1 : 0);} );
@@ -294,7 +291,6 @@ function loadUsers(){
     console.log('Loading users');
     $.get( "/profile?cmd=getList", function(res) {
         console.log("loadUsers: Server returned",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort results by username
             res.list.sort(function(a,b) {return (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0);} );

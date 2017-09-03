@@ -429,7 +429,6 @@ viewTeam.loadAvailableEvents = function (teamId){
     console.log('Loading events');
     $.get( "/event?cmd=getAvailTeamEvents&teamId="+teamId, function(res) {
         console.log("Server returned events",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort events by name
             res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
@@ -493,7 +492,6 @@ viewTeam.loadInvoices = function(teamId){
     const sel = $("#invoices");
     $.get( "/invoice?cmd=getList&teamId="+teamId, function(res) {
         console.log("Server returned invoices",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort invoices by issuing date
             res.list.sort(function(a,b) {return (a.issuedOn > b.issuedOn) ? 1 : ((b.issuedOn > a.issuedOn) ? -1 : 0);} );

@@ -101,7 +101,6 @@ viewEvent.loadRegisteredTeams = function(eventId){
     console.log('Loading registered teams');
     $.get( "/event/"+eventId+"?cmd=getTeams", function(res) {
         console.log("loadTeams: Server returned",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort results
             res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );

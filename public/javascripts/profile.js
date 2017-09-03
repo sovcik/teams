@@ -23,7 +23,6 @@ viewProfile.loadCoachOfTeams = function(){
     t.empty();
     $.get( "/profile/"+coachId+"?cmd=getCoachTeams", function(res) {
         console.log("Server returned teams",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             t.empty();
             if (res.list.length > 0) {
@@ -56,7 +55,6 @@ viewProfile.loadPrograms = function (){
     console.log('Loading programs');
     $.get( "/program?cmd=getList", function(res) {
         console.log("Server returned available programs",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort programs by name
             res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
@@ -86,7 +84,6 @@ viewProfile.loadMyPrograms = function (){
     console.log('Loading programs profile manages');
     $.get( "/program?cmd=getList&pm="+profileId, function(res) {
         console.log("Server returned my programs",res);
-        console.log("List of",res.list.length,"records");
         if (res.result === 'ok'){
             // sort programs by name
             res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
