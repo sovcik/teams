@@ -113,8 +113,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
     // no modifications allowed unless user is team coach or admin
     if (!req.user.isAdmin && !req.user.isCoach){
-        r.error = {};
-        r.error.message = "permission denied";
+        r.error = {message:"permission denied"};
         res.json(r);
         res.end();
         return;
@@ -130,7 +129,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 const nd = await dbTeam.saveTeamDetails(req.user, req.team.id, doc);
                 r.result = "ok";
             } catch (err) {
-                r.error = err;
+                r.error = {message:err.message};
                 console.log(err);
             }
             break;
@@ -147,7 +146,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 r.memberId = m.id;
 
             } catch (err) {
-                r.error = err;
+                r.error = {message:err.message};
                 console.log(err);
             }
             break;
@@ -160,7 +159,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     r.result = "ok"
                 }
             } catch(err) {
-                r.error = err;
+                r.error = {message:err.message};
                 console.log(err);
             }
             break;
@@ -169,10 +168,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
             try {
                 let u = await User.findOneActive({username:req.body.username});
-                if (!u) throw new Error("User not found "+req.body.username);
+                if (!u) throw new Error("User not found '"+req.body.username+"'");
 
                 let tu = await TeamUser.findOne({userId:u.id, teamId:req.team.id, role:'coach'});
-                if (tu) throw new Error("User is already coaching this team");
+                if (tu) throw new Error("User '"+u.username+"' is already coaching team '"+req.team.name+"'");
 
                 tu = await TeamUser.create({userId:u.id, teamId:req.team.id, role:'coach'});
                 if (!tu) throw new Error("Failed to add team coach for team="+req.team._id);
@@ -180,7 +179,8 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 r.result = "ok";
                 r.teamuser = tu;
             } catch (err) {
-                log.ERROR("Failed to add team coach. err="+err);
+                r.error = {message:err.message};
+                log.ERROR("Failed adding team coach. err="+err);
             }
             break;
         case 'removeCoach':
@@ -251,7 +251,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     t.teamId = t.id;
                 }
             } catch (err) {
-                r.error = err;
+                r.error = {message:err.message};
                 log.WARN("Failed creating team for coach "+id+". err="+err);
             }
             break;
