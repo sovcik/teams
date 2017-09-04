@@ -4,8 +4,37 @@ const viewProfile = {};
 
 viewProfile.init = function(){
     console.log("/profile - Initializing");
+    const profileId = getResourceId(location.href);
     $(".createTeamBtn").on("click",function(ev){ viewProfile.createNewTeam(this.id.substr(3)); });
     $(".changePwdBtn").on("click",function(ev){ viewProfile.changePassword(this.id.substr(3)); } );
+
+    $("#btnEditProfile").on("click", function(event){
+        const fields = [
+            {id:"username", label:"Prihlasovacie meno", type:"text", required:1},
+            {id:"fullName", label:"Celé meno", type:"text", required:1},
+            {id:"email", label:"e-mail", type:"email", required:1},
+            {id:"phone",  label:"Telefón", type:"text", placeholder:"telefónne číslo"}
+        ];
+
+        viewProfile.loadProfileFields(profileId,fields,function(res,err) {
+
+            libModals.multiFieldDialog(
+                "Profil užívateľa",
+                "",
+                res,
+                function (flds,cb) {
+                    viewProfile.saveProfileFields(flds, profileId, cb)
+                },
+                function cb(res, err) {
+                    if (err) {
+                        console.log("CB-ERROR", err);
+                        alert(err.message);
+                    }
+                    location.reload(true);
+                }
+            );
+        });
+    });
 
     viewProfile.loadCoachOfTeams();
     viewProfile.loadMemberOfTeams();
@@ -14,6 +43,67 @@ viewProfile.init = function(){
 
     console.log("/profile - Initializing completed");
 };
+
+viewProfile.saveProfileFields = function (fields, profileId, cb){
+    console.log("Saving profile fields");
+    if (typeof cb !== "function") cb = libCommon.noop();
+
+    let doc = {};
+    for (let f of fields){
+        doc[f.id] = f.value;
+    }
+    console.log("Posting request to save profile fields");
+
+    $.ajax({
+        type:"POST",
+        url:"/profile/"+profileId,
+        dataType: "json",
+        data: {
+            cmd: 'saveFields',
+            data: JSON.stringify(doc)
+        }
+
+    })
+        .done( function (res) {
+            console.log("saveProfileFields: Server returned",res);
+            if (res.result == "ok") {
+                console.log("Fields saved");
+                cb(res);
+            } else {
+                console.log("Error while saving fields");
+                cb(res,{message:"Zadané údaje sa nepodarilo uložiť.\n"+res.error.message});
+            }
+        })
+        .fail(function (err) {
+            console.log("Save failed",err);
+            cb(null,{message:"Zadané údaje sa nepodarilo uložiť.\n"+err.message});
+
+        });
+
+};
+
+viewProfile.loadProfileFields = function (profileId,fields,cb){
+    console.log("Loading profile fields");
+    $.get("/profile/"+profileId+"?cmd=getFields")
+        .done(function (res) {
+            console.log("loadProfileFields: Server returned",res);
+            if (res.result == "ok") {
+                for (let i=0; i<fields.length; i++){
+                    let v = libCommon.objPathGet(res.fields,fields[i].id);
+                    if (v)
+                        fields[i].value = v;
+                }
+
+                cb(fields);
+            } else {
+                console.log("Error while loading fields");
+            }
+        })
+        .fail(function (err) {
+            console.log("Load failed",err);
+        });
+};
+
 
 viewProfile.loadCoachOfTeams = function(){
     const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');

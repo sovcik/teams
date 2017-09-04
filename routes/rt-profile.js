@@ -154,6 +154,17 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     console.log(req.query);
     const r = {result:"error", status:200};
     switch (cmd){
+        case 'getFields':
+            log.DEBUG('Going to get profile fields');
+            try {
+                const u = await User.findById(req.profile.id,{username:1, fullName:1, email:1, phone:1});
+                r.result = "ok";
+                r.fields = u;
+            } catch (err) {
+                log.WARN("Failed to fetch profile fields. err="+err);
+                r.error = err;
+            }
+            break;
         case 'getCoachTeams':
             console.log('Going to get Coach teams');
             try {
@@ -279,6 +290,18 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     const siteUrl = req.protocol + '://' + req.get("host");
 
     switch (req.body.cmd){
+        case 'saveFields':
+            log.DEBUG('Going to save profile fields');
+            try {
+                let doc = JSON.parse(req.body.data);
+                log.TRACE("DOCUMENT="+doc);
+                let user = await libUser.saveFields(req.user.id, req.profile.id, doc, siteUrl);
+                r.result = "ok";
+            } catch (err) {
+                r.error = {message:err.message};
+                log.ERROR("Error saving profile fields. err="+err);
+            }
+            break;
         case 'changePassword':
             try {
                 const up1 = await User.findOneActive({_id: id});

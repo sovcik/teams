@@ -11,6 +11,7 @@ const UserSchema = new Schema({
     username: { type: String },
     fullName: { type:String, required:true },
     email: { type: String },
+    phone: { type: String },
     dateOfBirth: {type:Date },
     passwordHash: { type: String, default:'' },
     salt: { type: String, default: '' },

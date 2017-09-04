@@ -17,7 +17,11 @@ block content
                     label(for='email' class='') e-mail
                     input(id='email' class='form-control' value=profile.email readonly)
                 div(class='form-group')
-                    button(type="button" class="btn btn-default" data-toggle="modal" data-target="#changePasswordModal") Zmeniť heslo
+                    label(for='phone' class='') Telefón
+                    input(id='phone' class='form-control' value=profile.phone readonly)
+                div(class='form-group btn-group')
+                    button(id="btnEditProfile" type="button" class="btn btn-default") Edituj
+                    button(type="button" class="btn btn-default" data-toggle="modal" data-target="#changePasswordModal") Zmeň heslo
         if (user && (user.id == profile.id) || user.isAdmin)
             div(class='panel-footer')
                 button(id='createTeam' type="button" class="btn btn-primary" data-toggle="modal" data-target="#newTeamModal") Vytvor nový tím
@@ -97,6 +101,8 @@ block content
             div(class='panel-heading') Programy
             div(class='panel-body container-fluid')
                 ul(id="myPrograms" class="list-group")
+
+    div(id="modalDlgs")
 
     script.
         viewProfile.init();
