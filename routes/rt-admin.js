@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
+const log = require('../lib/logger');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
@@ -22,7 +23,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     try {
         switch (cmd) {
             case 'getAvailTeamEvents':
-                console.log('Going to get list of team events');
+                log.INFO('u('+req.user.username+') Going to get list of team events');
                 const t = await Team.findOneActive({_id: req.query.teamId});
                 if (t) {
                     const p = await Event.find({recordStatus: 'active', programId: t.programId}, {
@@ -44,7 +45,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         }
     } catch (err) {
         r.error = {};
-        r.errpr.message = err.message;
+        r.error.message = err.message;
     }
     res.json(r);
     res.end();
