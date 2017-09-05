@@ -63,7 +63,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         switch (cmd) {
             case 'getList':
                 console.log('Going to get list of teams');
-                let q = {};
+                let q = {recordStatus:'active'};
                 if (progId)
                     q.programId = progId;
 
