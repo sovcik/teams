@@ -19,6 +19,7 @@ viewTeam.init = function(){
 
     $("#btnFounderDetails").on("click", function(event){
         let fields = [
+            {id:"btnCpyFromBill", label:"Kopíruj údaje z fakturačných", type:"button", onclick:"viewTeam.cpyAdr('B','F','"+teamId+"')"},
             {id:"foundingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"foundingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"foundingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
