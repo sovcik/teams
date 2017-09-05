@@ -2,6 +2,8 @@
 
 const libModals = {};
 
+libModals.fields = [];
+
 libModals.selectUserDialog = function (title, fnValidate, onSuccess, onError){
 
     $("#selectUserDlg").remove();
@@ -87,6 +89,21 @@ libModals.editValue = function (title, label, placeholder, valType, oldValue, fn
 
 };
 
+libModals.mfdUpdateFields = function(fields){
+    for (let f of fields){
+        switch (f.type){
+            case 'checkbox':
+                document.getElementById("MFDF" + f.id).checked = f.value;
+                break;
+            case 'button':
+                break;
+            default:
+                document.getElementById("MFDF" + f.id).value = f.value;
+
+        }
+    }
+};
+
 libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
 
     function showErrFields(flds){
@@ -110,6 +127,12 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
     for(let f of fields){
         let gr = $("<div id='MFDG"+f.id+"'>");
         switch (f.type){
+            case "button":
+                gr
+                    .append($('<button id="MFDF'+f.id+'" class="btn btn-info" type="button" onclick="'+f.onclick+'">')
+                        .append(f.label)
+                    );
+                break;
             case "checkbox":
             case "option":
                 gr
@@ -161,6 +184,8 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
 
         for(let i = 0;i<fields.length;i++) {
             switch (fields[i].type) {
+                case "button":
+                    break;
                 case "checkbox":
                     fields[i].value = document.getElementById("MFDF" + fields[i].id).checked;
                     break;

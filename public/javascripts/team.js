@@ -18,18 +18,20 @@ viewTeam.init = function(){
     });
 
     $("#btnFounderDetails").on("click", function(event){
-        const fields = [
-                {id:"foundingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
-                {id:"foundingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
-                {id:"foundingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
-                {id:"foundingAdr.city",  label:"Mesto", type:"text", placeholder:"mesto", required:1},
-                {id:"foundingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1},
-                {id:"foundingOrg.companyNo", label:"IČO", type:"text"},
-                {id:"foundingOrg.taxNo", label:"DIČ", type:"text"},
-                {id:"foundingContact.name", label:"Kontaktná osoba", type:"text"},
-                {id:"foundingContact.phone", label:"Telefón", type:"text"},
-                {id:"foundingContact.email", label:"E-mail", type:"email"}
-            ];
+        let fields = [
+            {id:"foundingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
+            {id:"foundingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
+            {id:"foundingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
+            {id:"foundingAdr.city",  label:"Mesto", type:"text", placeholder:"mesto", required:1},
+            {id:"foundingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1},
+            {id:"foundingOrg.companyNo", label:"IČO", type:"text"},
+            {id:"foundingOrg.taxNo", label:"DIČ", type:"text"},
+            {id:"foundingContact.name", label:"Kontaktná osoba", type:"text"},
+            {id:"foundingContact.phone", label:"Telefón", type:"text"},
+            {id:"foundingContact.email", label:"E-mail", type:"email"}
+        ];
+
+        libModals.fields = fields;
 
         viewTeam.loadAddressDetails2(teamId,fields,function(res,err) {
 
@@ -52,7 +54,8 @@ viewTeam.init = function(){
     });
 
     $("#btnBillingDetails").on("click", function(event){
-        const fields = [
+        let fields = [
+            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zakladateľa", type:"button", onclick:"viewTeam.cpyAdr('F','B','"+teamId+"')"},
             {id:"billingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"billingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"billingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
@@ -64,6 +67,8 @@ viewTeam.init = function(){
             {id:"billingContact.phone", label:"Telefón", type:"text"},
             {id:"billingContact.email", label:"E-mail", type:"email"}
         ];
+
+        libModals.fields = fields;
 
         viewTeam.loadAddressDetails2(teamId,fields,function(res,err) {
 
@@ -86,7 +91,9 @@ viewTeam.init = function(){
     });
 
     $("#btnShippingDetails").on("click", function(event){
-        const fields = [
+
+        let fields = [
+            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zakladateľa", type:"button", onclick:"viewTeam.cpyAdr('F','S','"+teamId+"')"},
             {id:"shippingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"shippingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"shippingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
@@ -96,6 +103,8 @@ viewTeam.init = function(){
             {id:"shippingContact.phone", label:"Telefón", type:"text"},
             {id:"shippingContact.email", label:"E-mail", type:"email"}
         ];
+
+        libModals.fields = fields;
 
         viewTeam.loadAddressDetails2(teamId,fields,function(res,err) {
 
@@ -157,6 +166,67 @@ viewTeam.init = function(){
     viewTeam.loadInvoices(teamId);
 
     console.log("/team - Initializing completed");
+};
+
+viewTeam.cpyAdr = function(ff,ft,teamId){
+    console.log("Copying team address details #2");
+    $.get("/team/"+teamId+"?cmd=getAdrDetails")
+        .done(function (res) {
+            console.log("cpyAdr: Server returned",res);
+            if (res.result == "ok") {
+                let fo, fa, fc;
+                switch (ff){
+                    case 'F':
+                        fo = res.details.foundingOrg;
+                        fa = res.details.foundingAdr;
+                        fc = res.details.foundingContact;
+                        break;
+                    case 'B':
+                        fo = res.details.billingOrg;
+                        fa = res.details.billingAdr;
+                        fc = res.details.billingContact;
+                        break;
+                    case 'S':
+                        fo = res.details.shippingOrg;
+                        fa = res.details.shippingAdr;
+                        fc = res.details.shippingContact;
+                        break;
+                }
+                switch (ft){
+                    case 'F':
+                        res.details.foundingOrg = fo;
+                        res.details.foundingAdr = fa;
+                        res.details.foundingContact = fc;
+                        break;
+                    case 'B':
+                        res.details.billingOrg = fo;
+                        res.details.billingAdr = fa;
+                        res.details.billingContact = fc;
+                        break;
+                    case 'S':
+                        res.details.shippingOrg = fo;
+                        res.details.shippingAdr = fa;
+                        res.details.shippingContact = fc;
+                        break;
+
+                }
+
+                let fields = libModals.fields;
+                for (let i=0; i<fields.length; i++){
+                    let v = libCommon.objPathGet(res.details,fields[i].id);
+                    if (v)
+                        fields[i].value = v;
+                }
+
+                libModals.mfdUpdateFields(fields);
+
+            } else {
+                console.log("Error while copying details");
+            }
+        })
+        .fail(function (err) {
+            console.log("Copy failed",err);
+        });
 };
 
 viewTeam.removeTeam = function (teamId) {
