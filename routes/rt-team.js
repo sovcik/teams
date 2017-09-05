@@ -52,6 +52,39 @@ router.param('id', async function (req, res, next){
 
 });
 
+router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const cmd = req.query.cmd;
+    const progId = req.query.programId;
+    console.log("/team - get");
+    console.log(req.query);
+
+    var r = {result:"error", status:200};
+    try {
+        switch (cmd) {
+            case 'getList':
+                console.log('Going to get list of teams');
+                let q = {};
+                if (progId)
+                    q.programId = progId;
+
+                const tc = await Team.find(q,{name:1, programId:1, foundingOrg:1, foundingAdr:1});
+                r.result = "ok";
+                r.list = tc;
+                break;
+
+            default:
+                console.log('cmd=unknown');
+
+        }
+    } catch(err) {
+        r.error = {message:err.message};
+        log.ERROR(err);
+    }
+    res.json(r);
+    res.end();
+
+});
+
 router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     console.log("/team/:id - get");
