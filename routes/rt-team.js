@@ -47,6 +47,7 @@ router.param('id', async function (req, res, next){
         }
         next();
     } catch (err) {
+        log.ERROR(err);
         res.render('message',{title:"Tím nenájdený",error:{status:err.message}});
     }
 
@@ -62,7 +63,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     try {
         switch (cmd) {
             case 'getList':
-                console.log('Going to get list of teams');
+                log.DEBUG('Going to get list of teams');
                 let q = {recordStatus:'active'};
                 if (progId)
                     q.programId = progId;
@@ -168,12 +169,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     }
 
     switch (req.body.cmd){
-
         case 'saveAdrDetails':
-            console.log('Going to save team address details');
+            log.DEBUG('Going to save team address details');
             try {
                 let doc = JSON.parse(req.body.data);
-                console.log("DOCUMENT",doc);
                 const nd = await dbTeam.saveTeamDetails(req.user, req.team.id, doc);
                 r.result = "ok";
             } catch (err) {
@@ -188,7 +187,8 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             try {
 
                 let m = await User.create({fullName:req.body.name, email:req.body.email, dateOfBirth:req.body.dob});
-                console.log("Member created", m.fullName, m.id);
+                if (!m)
+                    throw new Error("Failed creating team member");
                 let mt = await TeamUser.create({userId:m.id, teamId:req.team.id, role:'member'});
                 r.result = "ok";
                 r.memberId = m.id;
@@ -203,7 +203,6 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             try{
                 let conf = await TeamUser.deleteOne({"userId":req.body.memberId, "teamId":req.team.id});
                 if (conf.deletedCount > 0) {
-                    console.log('Member removed', req.body.memberId);
                     r.result = "ok"
                 }
             } catch(err) {
