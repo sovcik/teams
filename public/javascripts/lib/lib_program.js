@@ -72,17 +72,17 @@ libProgram.JSON2CSV = function(data,sep,locales) {
         line += sep + t.coaches[0].fullName;
         line += sep + t.coaches[0].email;
 
-        if (t.billingOrg)
-            line += sep + t.billingOrg.name;
+        if (t.foundingOrg)
+            line += sep + t.foundingOrg.name;
         else
             line += sep + '';
 
-        if (t.billingAdr) {
-            line += sep + t.billingAdr.addrLine1
-                + (t.billingAdr.addrLine2 ? ", " + t.billingAdr.addrLine2 : "")
-                + (t.billingAdr.addrLine3 ? ", " + t.billingAdr.addrLine3 : "");
-            line += sep + t.billingAdr.city;
-            line += sep + t.billingAdr.postCode;
+        if (t.foundingAdr) {
+            line += sep + t.foundingAdr.addrLine1
+                + (t.foundingAdr.addrLine2 ? ", " + t.foundingAdr.addrLine2 : "")
+                + (t.foundingAdr.addrLine3 ? ", " + t.foundingAdr.addrLine3 : "");
+            line += sep + t.foundingAdr.city;
+            line += sep + t.foundingAdr.postCode;
         } else {
             line += sep + sep + sep;
         }
