@@ -1,26 +1,28 @@
 'use strict';
 
-function initAdmin(){
+const viewAdmin = {};
+
+viewAdmin.init = function(){
     console.log("/admin - Initializing");
-    $("#newProgramBtn").on("click",createNewProgram);
-    $("#newEventBtn").on("click",createNewEvent);
+    $("#newProgramBtn").on("click",viewAdmin.createNewProgram);
+    $("#newEventBtn").on("click",viewAdmin.createNewEvent);
     $("#saveInvOrgDetails").on("click", function(event){
-        saveIODetails();
+        viewAdmin.saveIODetails();
     });
 
     $("#newInvOrgBtn").on("click",function(event){
-        editInvoicingOrg();
+        viewAdmin.editInvoicingOrg();
     });
 
-    loadPrograms();
-    loadEvents();
-    loadInvoicingOrgs();
-    loadUsers();
+    viewAdmin.loadPrograms();
+    viewAdmin.loadEvents();
+    viewAdmin.loadInvoicingOrgs();
+    viewAdmin.loadUsers();
 
     console.log("/admin - Initializing completed");
-}
+};
 
-function editInvoicingOrg(invOrgId){
+viewAdmin.editInvoicingOrg = function(invOrgId){
     console.log(invOrgId);
     const dlgEdit = $('#invOrgDetails');
     // clear fields
@@ -31,15 +33,15 @@ function editInvoicingOrg(invOrgId){
     }
 
     if (invOrgId)
-        loadAddressDetails(invOrgId,function(){
+        viewAdmin.loadAddressDetails(invOrgId,function(){
             dlgEdit.modal("show");
         });
     else
         dlgEdit.modal("show");
 
-}
+};
 
-function createNewProgram(){
+viewAdmin.createNewProgram = function (){
     const selProgName = $('#newProgramName');
     var selStatus = $("#teamCreateStatus");
     if (selProgName.val().trim() != '') {
@@ -48,7 +50,7 @@ function createNewProgram(){
             console.log("createProgram: Server returned",res);
             if (res.result == "ok") {
                 console.log("Program created");
-                loadPrograms();
+                viewAdmin.loadPrograms();
                 selProgName.val('');
             } else {
                 console.log("Error while creating program");
@@ -62,9 +64,9 @@ function createNewProgram(){
         selStatus.text('Program musí mať meno.');
         selStatus.css("display", "inline").fadeOut(2000);
     }
-}
+};
 
-function createNewEvent(){
+viewAdmin.createNewEvent = function (){
     const selEvName = $('#newEventName');
     const selStatus = $("#teamCreateStatus");
     const selEvProg = $('#eventProgram');
@@ -75,7 +77,7 @@ function createNewEvent(){
             console.log("createEvent: Server returned",res);
             if (res.result == "ok") {
                 console.log("Event created");
-                loadEvents();
+                viewAdmin.loadEvents();
                 selEvName.val('');
             } else {
                 console.log("Error while creating event");
@@ -89,9 +91,9 @@ function createNewEvent(){
         selStatus.text('Turnaj musí mať meno.');
         selStatus.css("display", "inline").fadeOut(2000);
     }
-}
+};
 
-function loadPrograms(){
+viewAdmin.loadPrograms = function (){
     const selProg = $('#allPrograms');
     const selEvProg = $('#eventProgram');
     console.log('Loading programs');
@@ -121,9 +123,9 @@ function loadPrograms(){
 
     });
 
-}
+};
 
-function loadEvents(){
+viewAdmin.loadEvents = function (){
     const selEv = $('#allEvents');
     console.log('Loading events');
     $.get( "/event?cmd=getList", function(res) {
@@ -147,9 +149,9 @@ function loadEvents(){
 
     });
 
-}
+};
 
-function loadInvoicingOrgs(){
+viewAdmin.loadInvoicingOrgs = function (){
     const selIO = $('#allInvoicingOrgs');
     const selEvIO = $('#eventInvOrg');
     console.log('Loading invoicing orgs');
@@ -179,9 +181,9 @@ function loadInvoicingOrgs(){
 
     });
 
-}
+};
 
-function saveIODetails(orgId){
+viewAdmin.saveIODetails = function (orgId){
     var succ = false;
     var selStatus;
     var selDialog;
@@ -231,7 +233,7 @@ function saveIODetails(orgId){
                 selStatus.text('Uložené');
                 selStatus.css("display", "inline").fadeOut(2000);
                 selDialog.modal("hide");
-                loadInvoicingOrgs();
+                viewAdmin.loadInvoicingOrgs();
             } else {
                 console.log("Error while saving details");
                 selStatus.text('Nepodarilo sa uložiť.');
@@ -245,15 +247,15 @@ function saveIODetails(orgId){
         });
 
     return succ;
-}
+};
 
-function loadAddressDetails(orgId, callback){
+viewAdmin.loadAddressDetails = function (orgId, callback){
     console.log("Loading invoicing org address details");
     $.get("/invorg/"+orgId+"&cmd=getAdrDetails")
         .done(function (res) {
             console.log("loadAdrDetails: Server returned",res);
             if (res.result == "ok") {
-                formatAddressDetails(res.details);
+                viewAdmin.formatAddressDetails(res.details);
                 callback(orgId);
             } else {
                 console.log("Error while loading details");
@@ -262,9 +264,9 @@ function loadAddressDetails(orgId, callback){
         .fail(function (err) {
             console.log("Load failed",err);
         });
-}
+};
 
-function formatAddressDetails(data) {
+viewAdmin.formatAddressDetails = function (data) {
 
     if (!data.billingOrg) data.billingOrg = {};
     $("#invOrgId").val(data._id || '');
@@ -284,9 +286,9 @@ function formatAddressDetails(data) {
     $("#billContactPhone").val(data.billingContact.phone || '');
     $("#billContactEmail").val(data.billingContact.email || '');
 
-}
+};
 
-function loadUsers(){
+viewAdmin.loadUsers = function (){
     const sel = $('#allUsers');
     console.log('Loading users');
     $.get( "/profile?cmd=getList", function(res) {
@@ -299,22 +301,16 @@ function loadUsers(){
 
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
-                //style="padding:3pt;width:100%;margin:2pt"
+
                 res.list.forEach(function(item) {
                     let c = $('<div class="well well-sm container-fluid">')
                         .append($('<a href="/profile/'+item._id+'" >')
                             .append(item.username+", "+item.fullName+", "+item.email))
-                        .append($('<button id="MKA'+item._id+'" class="btn btn-default btnMakeAdmin" style="float:right">')
-                            .append("Urob admin"))
-                        .append($('<button id="SSU'+item._id+'" class="btn btn-default btnSuspend" style="float:right">')
-                            .append("Zakáž"));
 
                     sel.append(c);
 
                 });
-                $(".btnMakeAdmin").on("click",function(event){
-                    makeAdmin(this.id.substr(3));
-                });
+
             } else {
                 sel.text('Žiadne');
             }
@@ -324,25 +320,5 @@ function loadUsers(){
 
     });
 
-}
+};
 
-function makeAdmin(userId){
-    console.log("Making user admin",userId);
-    $.post("/profile/"+userId,
-        {
-            cmd: 'makeAdmin'
-        },
-        function (res) {
-            console.log("makeAdmin: Server returned",res);
-            if (res.result == "ok") {
-                console.log("User made admin");
-                loadUsers();
-            } else {
-                console.log("Error while making user admin");
-            }
-        }
-    )
-        .fail(function (err) {
-            console.log("Making user admin failed",err);
-        });
-}

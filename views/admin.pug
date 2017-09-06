@@ -1,7 +1,6 @@
 extends includes/layout
 
 block content
-    script(src='/javascripts/admin.js')
     h1 Admin
     div(class="panel panel-primary")
         div(class='panel-heading') Programy/Súťaže
@@ -108,8 +107,9 @@ block content
     div(class="panel panel-primary")
         div(class='panel-heading') Používatelia
         div(class='panel-body')
-            div(id="allUsers")
+            div(style="max-height: 400pt; overflow: auto;")
+                div(id="allUsers")
 
 
     script.
-        initAdmin();
+        viewAdmin.init();
