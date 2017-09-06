@@ -8,6 +8,43 @@ viewProfile.init = function(){
     $(".createTeamBtn").on("click",function(ev){ viewProfile.createNewTeam(this.id.substr(3)); });
     $(".changePwdBtn").on("click",function(ev){ viewProfile.changePassword(this.id.substr(3)); } );
 
+    $("#btnMakeAdmin").on("click",function(ev){
+        libProfile.setAdmin(true, profileId, function(res,err){
+            if (err)
+                alert("Nepodarilo sa označiť admina.\n\n"+err.message);
+            else
+                location.reload();
+        });
+    });
+
+    $("#btnSuspAdmin").on("click",function(ev){
+        libProfile.setAdmin(false, profileId, function(res,err){
+            if (err)
+                alert("Nepodarilo sa zrušiť admina.\n\n"+err.message);
+            else
+                location.reload();
+        });
+    });
+
+    $("#btnSuspendProfile").on("click",function(ev){
+        libProfile.setActive(false, profileId, function(res,err){
+            if (err)
+                alert("Nepodarilo sa suspendovať profil.\n\n"+err.message);
+            else
+                location.reload();
+        });
+    });
+
+    $("#btnActivateProfile").on("click",function(ev){
+        libProfile.setActive(true, profileId, function(res,err){
+            if (err)
+                alert("Nepodarilo sa aktivovať profil.\n\n"+err.message);
+            else
+                location.reload();
+        });
+    });
+
+
     $("#btnEditProfile").on("click", function(event){
         const fields = [
             {id:"username", label:"Prihlasovacie meno", type:"text", required:1},

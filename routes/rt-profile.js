@@ -288,6 +288,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     const r = {result:"error", status:200};
     const id = req.params.id;
     const siteUrl = req.protocol + '://' + req.get("host");
+    let perm = false;
 
     switch (req.body.cmd){
         case 'saveFields':
@@ -320,20 +321,43 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
             } catch (err) {
                 log.WARN('Error changing password for user '+id+" err="+err);
-                r.error = err;
+                r.error = {message:err.message};
             }
             break;
-        case 'makeAdmin':
-            console.log("Going to make admin",id);
-            if (!req.user.isAdmin && !req.user.isSuperAdmin)
-                return res.render('message',{title:"Prístup zamietnutý"});
-            try {
-                let user = await User.findByIdAndUpdate(id, {$set: {isAdmin: true}}, {new: true});
-                log.INFO("User " + user.username +" made admin by " + req.user.username);
-                r.result = "ok";
-            } catch(err) {
-                log.WARN('Error making admin user '+id+" err="+err);
-                r.error = err;
+        case 'setAdmin':
+            log.DEBUG("Going to setAdmin user "+id);
+            if (!req.user.isAdmin && !req.user.isSuperAdmin) {
+                r.error = {message: "Permission denied"};
+                log.CRIT("setAdmin denied for user " + req.user.username);
+            } else {
+                try {
+                    let flgAdmin = (req.body.val == 1);
+
+                    let user = await User.findByIdAndUpdate(id, {$set: {isAdmin: flgAdmin}}, {new: true});
+                    log.INFO("User " + user.username + (flgAdmin?" made":" revoked")+ "admin by " + req.user.username);
+                    r.result = "ok";
+                } catch (err) {
+                    log.WARN('Error making admin user ' + id + " err=" + err);
+                    r.error = {message: err.message};
+                }
+            }
+            break;
+        case 'setActive':
+            log.DEBUG("Going to setActive user "+id);
+            if (!req.user.isAdmin && !req.user.isSuperAdmin) {
+                r.error = {message: "Permission denied"};
+
+            } else {
+                try {
+                    let flgActive = (req.body.val == 1);
+
+                    let user = await User.findByIdAndUpdate(id, {$set: {recordStatus: flgActive?'active':'inactive'}}, {new: true});
+                    log.INFO("User " + user.username + (flgActive?" activated":" deactivated")+ " by " + req.user.username);
+                    r.result = "ok";
+                } catch (err) {
+                    log.WARN('Error while setActive user=' + id + " err=" + err);
+                    r.error = {message: err.message};
+                }
             }
             break;
         default:

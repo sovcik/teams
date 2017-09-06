@@ -3,6 +3,10 @@ extends includes/layout
 block content
     include includes/header-sm
     h1 Profil používateľa
+    if (profile.recordStatus !== 'active')
+        div(class="alert alert-warning")
+            strong Pozor!
+                =" Tento profil nie je aktívny. Môže ho aktivovať administrátor."
     div(class="panel panel-primary")
         div(class='panel-heading') Detaily
         div(class='panel-body')
@@ -22,9 +26,21 @@ block content
                 div(class='form-group btn-group')
                     button(id="btnEditProfile" type="button" class="btn btn-default") Edituj
                     button(type="button" class="btn btn-default" data-toggle="modal" data-target="#changePasswordModal") Zmeň heslo
+
         if (user && (user.id == profile.id) || user.isAdmin)
             div(class='panel-footer')
                 button(id='createTeam' type="button" class="btn btn-primary" data-toggle="modal" data-target="#newTeamModal") Vytvor nový tím
+                if (user && user.isAdmin)
+                    div(class="btn-group" style="float:right")
+                        if (!profile.isSuperAdmin)
+                            if (profile.recordStatus == 'active')
+                                button(id="btnSuspendProfile" class="btn btn-default") Zakáž konto
+                            else
+                                button(id="btnActivateProfile" class="btn btn-default") Aktivuj konto
+                        if (profile.isAdmin)
+                            button(id="btnSuspAdmin" class="btn btn-default") Zakáž admin
+                        if (user && user.isSuperAdmin && !profile.isAdmin)
+                            button(id="btnMakeAdmin" class="btn btn-default") Urob admin
 
     if (user && (user.id == profile.id) || user.isAdmin)
         div(id='changePasswordModal' class='modal fade' role='dialog')
