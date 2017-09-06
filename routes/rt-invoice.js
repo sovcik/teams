@@ -220,7 +220,8 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     let dp = req.body.paidOn ? new Date(req.body.paidOn) : Date.now();
                     log.DEBUG('Going to set invoice as paid. no='+req.invoice.number+' id='+req.invoice.id+" date="+dp);
 
-                    const i = await Invoice.findByIdAndUpdate(req.invoice.id, {$set: {paidOn: dp}}, {new:true});
+                    let i = await Invoice.findByIdAndUpdate(req.invoice.id, {$set: {paidOn: dp}}, {new:true});
+                    i = await Team.populate(i,'team');
                     if (i) {
                         log.INFO("INVOICE paid: no=" + i.number + " id=" + i.id + " by user=" + req.user.username);
                         r.result = "ok";
@@ -241,7 +242,8 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     }
 
                     console.log('Going to create new invoice from existing invoice',req.invoice.id);
-                    const invNew = await libInvoice.copyInvoice(req.invoice.id, invType);
+                    let invNew = await libInvoice.copyInvoice(req.invoice.id, invType);
+                    invNew = await Team.populate(invNew,'team');
                     if (invNew) {
                         req.invoice.taxInvoice = invNew.id;
                         try {
