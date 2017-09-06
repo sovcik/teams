@@ -53,7 +53,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    console.log("/admin - put");
+    console.log("/admin - post");
     if (!req.user.isAdmin)
         return res.render('message',{title:"Prístup zamietnutý"});
     
