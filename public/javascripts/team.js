@@ -56,7 +56,7 @@ viewTeam.init = function(){
 
     $("#btnBillingDetails").on("click", function(event){
         let fields = [
-            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zakladateľa", type:"button", onclick:"viewTeam.cpyAdr('F','B','"+teamId+"')"},
+            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zriaďovateľa", type:"button", onclick:"viewTeam.cpyAdr('F','B','"+teamId+"')"},
             {id:"billingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"billingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"billingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
@@ -94,7 +94,7 @@ viewTeam.init = function(){
     $("#btnShippingDetails").on("click", function(event){
 
         let fields = [
-            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zakladateľa", type:"button", onclick:"viewTeam.cpyAdr('F','S','"+teamId+"')"},
+            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zriaďovateľa", type:"button", onclick:"viewTeam.cpyAdr('F','S','"+teamId+"')"},
             {id:"shippingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"shippingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"shippingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
