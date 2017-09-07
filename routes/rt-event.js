@@ -260,6 +260,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 if (!e) throw new Error("Failed to populate event managers for event id="+e._id);
 
                 let te;
+
+                te = await TeamEvent.findOne({teamId:t._id, eventId:e._id});
+                if (te) throw new Error("Team is already registered for specified event id="+e._id);
+
                 try {
                     te = await TeamEvent.create({
                         teamId: t.id,
