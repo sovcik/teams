@@ -9,7 +9,7 @@ const TeamEventSchema = new mongoose.Schema({
     teamNumber: {type:String}
 });
 
-// create TTL index
+// unique index to ensure team can register for specific event only once
 TeamEventSchema.index({ eventId:1, teamId: 1 }, { unique:true });
 
 if (!mongoose.models.TeamEvent) {
