@@ -9,6 +9,9 @@ const TeamEventSchema = new mongoose.Schema({
     teamNumber: {type:String}
 });
 
+// create TTL index
+TeamEventSchema.index({ eventId:1, teamId: 1 }, { unique:true });
+
 if (!mongoose.models.TeamEvent) {
     mongoose.model('TeamEvent', TeamEventSchema);
 }
