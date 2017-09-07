@@ -33,7 +33,7 @@ block content
                     label(class="label-control") Stretnutia/turnaje
                     for e in team.events
                         =" "
-                        a(href="/event/"+e.id) #{e.name}
+                        a(href="/event/"+e._id) #{e.name}
                         span(id="pInvoice")
                         span(id="iInvoice")
                 else
