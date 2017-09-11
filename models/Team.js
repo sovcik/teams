@@ -10,7 +10,13 @@ const OrgSchema = require('./Organization');
 const ContactSchema = require('./Contact');
 
 const TeamSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    name: {
+        type: String,
+        required: true,
+        trim: true,
+        minLength: [5, "Názov tímu je príliš krátky. Názov musí mať aspoň `{MINLENGTH}` znakov."]
+
+    },
 
     // team has been created by founding organization (e.g school)
     foundingOrg: {type: OrgSchema, default: {}},

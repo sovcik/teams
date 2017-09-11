@@ -7,17 +7,32 @@ const Schema = mongoose.Schema;
 mongoose.Promise = require('bluebird');
 const util = require('../lib/util');
 
+const validateEmail = function(email) {
+    const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,20})+$/;
+    return re.test(email)
+};
+
 const UserSchema = new Schema({
-    username: { type: String },
+    username: {
+        type: String,
+        unique: true,
+        trim: true,
+        minLength: [5, "Meno používateľa je príliš krátke. Meno musí mať aspoň `{MINLENGTH}` znakov."]
+    },
     fullName: { type:String, required:true },
-    email: { type: String },
+    email: {
+        type: String,
+        validate: [validateEmail, 'Zadaná email adresa je neplatná.'],
+        trim: true,
+        lowercase: true
+    },
     phone: { type: String },
     dateOfBirth: {type:Date },
     passwordHash: { type: String, default:'' },
     salt: { type: String, default: '' },
     isAdmin: {type: Boolean, default: false},
     isSuperAdmin: {type: Boolean, default: false},
-    locales: {type: String, default: 'en-GB'}
+    locales: {type: String, default: 'sk-SK'}
 });
 
 // helper function handling hash creation
