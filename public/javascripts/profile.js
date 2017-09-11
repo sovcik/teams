@@ -5,8 +5,14 @@ const viewProfile = {};
 viewProfile.init = function(){
     console.log("/profile - Initializing");
     const profileId = getResourceId(location.href);
-    $(".createTeamBtn").on("click",function(ev){ viewProfile.createNewTeam(this.id.substr(3)); });
-    $(".changePwdBtn").on("click",function(ev){ viewProfile.changePassword(this.id.substr(3)); } );
+
+    $(".createTeamBtn").on("click",function(ev){
+        viewProfile.createNewTeam(this.id.substr(3));
+    });
+
+    $(".changePwdBtn").on("click",function(ev){
+        viewProfile.changePassword(this.id.substr(3));
+    });
 
     $("#btnMakeAdmin").on("click",function(ev){
         libProfile.setAdmin(true, profileId, function(res,err){
@@ -238,14 +244,13 @@ viewProfile.createNewTeam = function(coachId){
     const selTeamName = $("#newTeamName > input:first");
     const selProg = $('#newTeamProgram');
     var selStatus = $("#teamCreateStatus");
-    if (selTeamName.val().trim() != '') {
+    if (selTeamName.val().trim() != '' && selTeamName.val().trim().length >= 5) {
         console.log("Posting request to create new team");
         $.post("/team/", {cmd: 'create', name: selTeamName.val(), programId:selProg.val(), coach:coachId}, function (res) {
             console.log("createTeam: Server returned",res);
             if (res.result == "ok") {
                 console.log("Team created");
-                selStatus.text('Tím vytvorený.');
-                selStatus.css("display", "inline").fadeOut(2000);
+                alert('Tím vytvorený.');
                 if (null === document.getElementById('coachTeamsList')) {
                     window.location.reload(true);
                 } else
@@ -253,18 +258,17 @@ viewProfile.createNewTeam = function(coachId){
                 selTeamName.val('');
             } else {
                 console.log("Error while creating team");
-                selStatus.text('Nepodarilo sa vytvoriť tím.');
+                alert('Nepodarilo sa vytvoriť tím.');
                 selTeamNameGrp.addClass("has-error");
                 selTeamNameGrp.find("span").addClass("glyphicon-warning-sign");
             }
         })
             .fail(function () {
-                selStatus.text('Nepodarilo sa vytvoriť tím.');
-                console.log("Creation failed");
+                console.log("Team creation failed");
+                alert('Nepodarilo sa vytvoriť tím.');
             });
     } else {
-        selStatus.text('Tím musí mať meno.');
-        selStatus.css("display", "inline").fadeOut(2000);
+        alert('Tím NEBOL vytvorený.\nTím musí mať meno a meno musí byť dlhé min. 5 znakov.');
     }
 };
 
