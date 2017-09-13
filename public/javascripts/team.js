@@ -642,7 +642,7 @@ viewTeam.loadInvoices = function(teamId){
                 });
 
                 libInvoice.initInvoiceButtons(
-                    function(){ loadInvoices(teamId);}
+                    function(){ viewTeam.loadInvoices(teamId);}
                 );
 
             } else {
