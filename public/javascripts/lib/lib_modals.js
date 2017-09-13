@@ -91,16 +91,17 @@ libModals.editValue = function (title, label, placeholder, valType, oldValue, fn
 
 libModals.mfdUpdateFields = function(fields){
     for (let f of fields){
-        switch (f.type){
-            case 'checkbox':
-                document.getElementById("MFDF" + f.id).checked = f.value;
-                break;
-            case 'button':
-                break;
-            default:
-                document.getElementById("MFDF" + f.id).value = f.value;
+        if (f.value)
+            switch (f.type){
+                case 'checkbox':
+                    document.getElementById("MFDF" + f.id).checked = f.value;
+                    break;
+                case 'button':
+                    break;
+                default:
+                    document.getElementById("MFDF" + f.id).value = f.value;
 
-        }
+            }
     }
 };
 
