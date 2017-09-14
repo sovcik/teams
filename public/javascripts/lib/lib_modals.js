@@ -90,7 +90,8 @@ libModals.editValue = function (title, label, placeholder, valType, oldValue, fn
 };
 
 libModals.mfdUpdateFields = function(fields){
-    for (let f of fields){
+    for (let i = 0; i < fields.length; i++){
+        let f = fields[i];
         if (f.value)
             switch (f.type){
                 case 'checkbox':
@@ -108,8 +109,8 @@ libModals.mfdUpdateFields = function(fields){
 libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
 
     function showErrFields(flds){
-        for (let e of flds)
-            document.getElementById("MFDG" + e.field).classList.add("has-error");
+        for (let i = 0; i < flds.length; i++)
+            document.getElementById("MFDG" + flds[i].field).classList.add("has-error");
     }
 
     if (typeof cb !== "function") cb = libCommon.noop();
@@ -125,7 +126,8 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
 
     let flds = $("<div class='modal-body'>");
 
-    for(let f of fields){
+    for(let i = 0; i < fields.length; i++){
+        let f = fields[i];
         let gr = $("<div id='MFDG"+f.id+"'>");
         switch (f.type){
             case "button":

@@ -470,8 +470,8 @@ viewTeam.saveAddressDetails2 = function (detType, fields, teamId, cb){
     if (typeof cb !== "function") cb = libCommon.noop();
 
     let doc = {};
-    for (let f of fields){
-        doc[f.id] = f.value;
+    for (let i = 0; i<fields.length; i++){
+        doc[fields[i].id] = fields[i].value;
     }
     console.log("Posting request to save address details");
 

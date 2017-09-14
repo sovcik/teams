@@ -5,9 +5,9 @@ const libForms = {};
 libForms.validate = function(fields,cb){
     let ret;
     let err = [];
-    for (let f of fields){
-        if (f.required && !f.value)
-            err.push({field:f.id, message:"required"});
+    for (let i = 0; i < fields.length; i++){
+        if (fields[i].required && !fields[i].value)
+            err.push({field:fields[i].id, message:"required"});
     }
 
     if (err.length > 0)
