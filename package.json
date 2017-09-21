@@ -10,7 +10,7 @@
     "node": "^8.1.4"
   },
   "dependencies": {
-    "bcrypt": "^1.0.2",
+    "bcrypt": "^1.0.3",
     "bluebird": "^3.5.0",
     "body-parser": "~1.17.1",
     "co": "^4.6.0",
