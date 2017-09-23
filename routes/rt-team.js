@@ -226,7 +226,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             console.log('Going to create member: ', memberName);
             try {
 
-                let m = await User.create({fullName:req.body.name, email:req.body.email, dateOfBirth:req.body.dob});
+                let m = await User.create({fullName:req.body.name, email:req.body.email, dateOfBirth:req.body.dob, username:req.body.name+req.team.id});
                 if (!m)
                     throw new Error("Failed creating team member");
                 let mt = await TeamUser.create({userId:m.id, teamId:req.team.id, role:'member'});

@@ -9,7 +9,7 @@ const util = require('../lib/util');
 
 const validateEmail = function(email) {
     const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,20})+$/;
-    return re.test(email)
+    return !email || re.test(email)
 };
 
 const UserSchema = new Schema({
