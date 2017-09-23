@@ -148,6 +148,46 @@ router.get('/:id',cel.ensureLoggedIn('/login'), async function (req, res, next) 
 
 });
 
+router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/team/:ID/fields - post");
+    console.log(req.body);
+    const r = {result:"error", status:200};
+
+    // no modifications allowed unless user is team coach or admin
+    if (!req.user.isAdmin && !req.user.isCoach){
+        r.error = {};
+        r.error.message = "permission denied";
+        res.json(r);
+        res.end();
+        return;
+    }
+
+    try {
+        if (req.body.name) {
+            let t = await Team.findById(req.body.pk);
+            if (t) {
+                t[req.body.name] = req.body.value;
+                let verr = t.validateSync();
+                if (!verr) {
+                    await t.save();
+                    r.result = "ok";
+                } else
+                    r.error = {message:"Chyba: "+verr};
+            } else {
+                r.error = {message:"Tím nenájdený id="+req.body.pk};
+            }
+        }
+
+    } catch (err) {
+        r.error = {message:err.message};
+        log.ERROR(err);
+    }
+
+    res.json(r);
+    res.end();
+
+});
+
 router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log("/team/ID - post");
     console.log(req.body);

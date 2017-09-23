@@ -5,6 +5,13 @@ const viewTeam = {};
 viewTeam.init = function(){
     const teamId = getResourceId(location.href);
     console.log("/team - Initializing");
+
+    $.fn.editable.defaults.mode = 'inline';
+
+    $(document).ready(function() {
+        $('#teamName').editable();
+    });
+
     $("#createTeamMemberBtn").on("click", function(){
         viewTeam.createNewTeamMember(teamId);
     });

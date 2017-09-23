@@ -23,8 +23,8 @@ block content
                     strong Pozor!
                     =" Tento záznam už nie je aktívny a je udržiavaný iba pre archívne účely."
             div(class='form-group')
-                label(for='teamName') Názov
-                input(id='teamName' class='form-control' value=team.name readonly)
+                a(id='teamName' data-name='name' data-title='Názov' data-type='text' data-pk=team._id data-url='/team/'+team._id+'/fields' class='form-control' href='#')
+                    = team.name
             div(class='form-group')
                 label(for='progName') Program/Súťaž
                 input(id='progName' class='form-control' value=team.programName readonly)
