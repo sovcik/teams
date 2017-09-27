@@ -18,4 +18,24 @@ libCommon.getNoCache = function(url){
     var d = new Date();
     return url+"&ts="+d.toISOString();
 };
+
+libCommon.convertLocaleDate2SysDate = function(d,locale){
+    var a = d.split(/[ :\-\/\.]/g);
+    var s = "";
+    switch (locale.substr(3,2)){
+        case 'US':
+            s = a[2]+"-"+a[0]+"-"+a[1];
+            break;
+        case 'SK':
+        case 'DE':
+        case 'GB':
+            s = a[2]+"-"+a[1]+"-"+a[0];
+            break;
+        default:
+            s = "unknown locale";
+
+    }
+
+    return s;
+
 };
