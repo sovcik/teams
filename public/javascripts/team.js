@@ -365,6 +365,7 @@ viewTeam.loadMembers = function(teamId){
                         });
                         btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
 
+                        console.log("DOB",item.dateOfBirth);
                         var c = $('<div class="panel panel-default card">')
                             .append($('<div class="panel-heading">')
                                     .append(btnRemove)
@@ -411,12 +412,14 @@ viewTeam.createNewTeamMember = function (teamId){
 
     if (selName.val().trim() != '') {
         console.log("Posting request to create new member");
+        var dob = new Date(selDOB.val());
+        console.log("CRE-DOB",dob);
         $.post("/team/"+teamId,
             {
                 cmd: 'createTeamMember',
                 name: selName.val(),
                 email: selEmail.val(),
-                dob: selDOB.val()
+                dob: dob.getFullYear()+"-"+(dob.getMonth()+1)+"-"+(dob.getDate()<10?"0":"")+dob.getDate()
             },
             function (res) {
                 console.log("createTeamMember: Server returned",res);
