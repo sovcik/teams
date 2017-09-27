@@ -15,5 +15,7 @@ libCommon.objPathGet = function(obj, path){
 };
 
 libCommon.getNoCache = function(url){
-    return url+"&ts="+Date.UTC();
+    var d = new Date();
+    return url+"&ts="+d.toISOString();
+};
 };
