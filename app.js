@@ -28,8 +28,7 @@ db.init()
     .then(dbSeed.testSeed)
     .then(startAll)
     .catch(function(err){
-        log.FATAL("Application failed to start");
-        log.ERROR(err);
+        log.FATAL("Application failed to start: "+err.message);
     });
 
 
