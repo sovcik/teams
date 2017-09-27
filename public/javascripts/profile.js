@@ -127,7 +127,7 @@ viewProfile.saveProfileFields = function (fields, profileId, cb){
 
 viewProfile.loadProfileFields = function (profileId,fields,cb){
     console.log("Loading profile fields");
-    $.get("/profile/"+profileId+"?cmd=getFields")
+    $.get(libCommon.getNoCache("/profile/"+profileId+"?cmd=getFields"))
         .done(function (res) {
             console.log("loadProfileFields: Server returned",res);
             if (res.result == "ok") {
@@ -154,7 +154,7 @@ viewProfile.loadCoachOfTeams = function(){
     console.log("Loading coach teams. Coach = ",coachId);
     var t = $("#coachTeamsList");
     t.empty();
-    $.get( "/profile/"+coachId+"?cmd=getCoachTeams", function(res) {
+    $.get( libCommon.getNoCache("/profile/"+coachId+"?cmd=getCoachTeams"), function(res) {
         console.log("Server returned teams",res);
         if (res.result === 'ok'){
             t.empty();
@@ -186,7 +186,7 @@ viewProfile.loadMemberOfTeams = function(){
 viewProfile.loadPrograms = function (){
     var selProg = $('#newTeamProgram');
     console.log('Loading programs');
-    $.get( "/program?cmd=getList", function(res) {
+    $.get( libCommon.getNoCache("/program?cmd=getList"), function(res) {
         console.log("Server returned available programs",res);
         if (res.result === 'ok'){
             // sort programs by name
@@ -215,7 +215,7 @@ viewProfile.loadMyPrograms = function (){
     if (null === document.getElementById('myPrograms')) // profile is not of program manager
         return;
     console.log('Loading programs profile manages');
-    $.get( "/program?cmd=getList&pm="+profileId, function(res) {
+    $.get( libCommon.getNoCache("/program?cmd=getList&pm="+profileId), function(res) {
         console.log("Server returned my programs",res);
         if (res.result === 'ok'){
             // sort programs by name

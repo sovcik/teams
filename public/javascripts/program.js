@@ -100,7 +100,7 @@ viewProgram.loadManagers = function (progId){
 viewProgram.loadEvents = function (progId){
     var selEv = $('#eventList');
     console.log('Loading events');
-    $.get( "/event?cmd=getList&program="+progId, function(res) {
+    $.get( libCommon.getNoCache("/event?cmd=getList&program="+progId), function(res) {
         console.log("loadProgEvents: Server returned",res);
         if (res.result === 'ok'){
             // sort events by name
@@ -126,7 +126,7 @@ viewProgram.loadEvents = function (progId){
 viewProgram.loadTeams = function (progId){
     var selEv = $('#teamList');
     console.log('Loading teams');
-    $.get( "/team?cmd=getList&programId="+progId, function(res) {
+    $.get( libCommon.getNoCache("/team?cmd=getList&programId="+progId), function(res) {
         console.log("loadTeams: Server returned",res);
         if (res.result === 'ok'){
             // sort events by name

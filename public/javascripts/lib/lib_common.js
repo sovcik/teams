@@ -13,3 +13,7 @@ libCommon.objPathGet = function(obj, path){
     }
     return ret;
 };
+
+libCommon.getNoCache = function(url){
+    return url+"&ts="+Date.UTC();
+};

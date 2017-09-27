@@ -178,7 +178,7 @@ viewTeam.init = function(){
 
 viewTeam.cpyAdr = function(ff,ft,teamId){
     console.log("Copying team address details #2");
-    $.get("/team/"+teamId+"?cmd=getAdrDetails")
+    $.get(libCommon.getNoCache("/team/"+teamId+"?cmd=getAdrDetails"))
         .done(function (res) {
             console.log("cpyAdr: Server returned",res);
             if (res.result == "ok") {
@@ -296,7 +296,7 @@ viewTeam.loadCoaches = function (teamId){
     console.log("Loading team coaches");
     var t = $("#coachList");
     t.empty();
-    $.get( "/team/"+teamId+"?cmd=getTeamCoaches", function(res) {
+    $.get( libCommon.getNoCache("/team/"+teamId+"?cmd=getTeamCoaches"), function(res) {
         console.log("Server returned coaches",res);
         $('#coachCount').val(' ');
         if (res.result === 'ok'){
@@ -339,7 +339,7 @@ viewTeam.loadMembers = function(teamId){
     console.log("Loading team members");
     var t = $("#memberList");
     t.empty();
-    $.get( "/team/"+teamId+"?cmd=getTeamMembers", function(res) {
+    $.get( libCommon.getNoCache("/team/"+teamId+"?cmd=getTeamMembers"), function(res) {
         console.log("Server returned members",res);
         $('#memberCount').val(' ');
         if (res.result === 'ok'){
@@ -513,7 +513,7 @@ viewTeam.saveAddressDetails2 = function (detType, fields, teamId, cb){
 
 viewTeam.loadAddressDetails2 = function (teamId,fields,cb){
     console.log("Loading team address details #2");
-    $.get("/team/"+teamId+"?cmd=getAdrDetails")
+    $.get(libCommon.getNoCache("/team/"+teamId+"?cmd=getAdrDetails"))
         .done(function (res) {
             console.log("loadAdrDetails: Server returned",res);
             if (res.result == "ok") {
@@ -536,7 +536,7 @@ viewTeam.loadAddressDetails2 = function (teamId,fields,cb){
 viewTeam.loadAvailableEvents = function (teamId){
     var sel = $('#availEvents');
     console.log('Loading events');
-    $.get( "/event?cmd=getAvailTeamEvents&teamId="+teamId, function(res) {
+    $.get( libCommon.getNoCache("/event?cmd=getAvailTeamEvents&teamId="+teamId), function(res) {
         console.log("Server returned events",res);
         if (res.result === 'ok'){
             // sort events by name
@@ -560,7 +560,7 @@ viewTeam.loadAvailableEvents = function (teamId){
 };
 
 viewTeam.loadTeamData = function (teamId){
-    $.get( "/team/"+teamId+"?cmd=getData", function(res) {
+    $.get( libCommon.getNoCache("/team/"+teamId+"?cmd=getData"), function(res) {
         console.log('Server returned team data',res);
         if (res.result === 'ok'){
 
@@ -599,7 +599,7 @@ viewTeam.registerForEvent = function (teamId){
 viewTeam.loadInvoices = function(teamId){
     console.log('Loading invoices');
     var sel = $("#invoices");
-    $.get( "/invoice?cmd=getList&teamId="+teamId, function(res) {
+    $.get( libCommon.getNoCache("/invoice?cmd=getList&teamId="+teamId), function(res) {
         console.log("Server returned invoices",res);
         if (res.result === 'ok'){
             // sort invoices by issuing date

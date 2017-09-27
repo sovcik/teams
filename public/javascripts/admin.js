@@ -97,7 +97,7 @@ viewAdmin.loadPrograms = function (){
     var selProg = $('#allPrograms');
     var selEvProg = $('#eventProgram');
     console.log('Loading programs');
-    $.get( "/program?cmd=getList", function(res) {
+    $.get( libCommon.getNoCache("/program?cmd=getList"), function(res) {
         console.log("loadProgs: Server returned",res);
         if (res.result === 'ok'){
             // sort results by program name
@@ -128,7 +128,7 @@ viewAdmin.loadPrograms = function (){
 viewAdmin.loadEvents = function (){
     var selEv = $('#allEvents');
     console.log('Loading events');
-    $.get( "/event?cmd=getList", function(res) {
+    $.get( libCommon.getNoCache("/event?cmd=getList"), function(res) {
         console.log("loadEvents: Server returned",res);
         if (res.result === 'ok'){
             // sort events by name
@@ -155,7 +155,7 @@ viewAdmin.loadInvoicingOrgs = function (){
     var selIO = $('#allInvoicingOrgs');
     var selEvIO = $('#eventInvOrg');
     console.log('Loading invoicing orgs');
-    $.get( "/invorg?cmd=getList", function(res) {
+    $.get( libCommon.getNoCache("/invorg?cmd=getList"), function(res) {
         console.log("loadInvOrgs: Server returned",res);
         if (res.result === 'ok'){
             // sort results by program name
@@ -251,7 +251,7 @@ viewAdmin.saveIODetails = function (orgId){
 
 viewAdmin.loadAddressDetails = function (orgId, callback){
     console.log("Loading invoicing org address details");
-    $.get("/invorg/"+orgId+"&cmd=getAdrDetails")
+    $.get(libCommon.getNoCache("/invorg/"+orgId+"&cmd=getAdrDetails"))
         .done(function (res) {
             console.log("loadAdrDetails: Server returned",res);
             if (res.result == "ok") {
@@ -291,7 +291,7 @@ viewAdmin.formatAddressDetails = function (data) {
 viewAdmin.loadUsers = function (){
     var sel = $('#allUsers');
     console.log('Loading users');
-    $.get( "/profile?cmd=getList", function(res) {
+    $.get( libCommon.getNoCache("/profile?cmd=getList"), function(res) {
         console.log("loadUsers: Server returned",res);
         if (res.result === 'ok'){
             // sort results by username

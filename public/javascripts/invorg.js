@@ -38,7 +38,7 @@ viewInvOrg.loadInvoices = function(invOrgId){
     if (viewInvOrg.filterInvType != "A")
         q += "&type="+viewInvOrg.filterInvType;
 
-    $.get( "/invoice?cmd=getList"+q, function(res) {
+    $.get( libCommon.getNoCache("/invoice?cmd=getList"+q), function(res) {
         console.log("Server returned invoices",res);
         if (res.result === 'ok'){
             console.log("List of",res.list.length,"records");

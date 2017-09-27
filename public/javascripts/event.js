@@ -99,7 +99,7 @@ viewEvent.init = function (){
 viewEvent.loadRegisteredTeams = function(eventId){
     var sel = $('#allTeams');
     console.log('Loading registered teams');
-    $.get( "/event/"+eventId+"?cmd=getTeams", function(res) {
+    $.get( libCommon.getNoCache("/event/"+eventId+"?cmd=getTeams"), function(res) {
         console.log("loadTeams: Server returned",res);
         if (res.result === 'ok'){
             // sort results
@@ -190,7 +190,7 @@ viewEvent.loadOrganizers = function (resId){
     console.log("Loading event organizers");
     var t = $("#eorgsList");
     t.empty();
-    $.get( "/event/"+resId+"?cmd=getOrganizers", function(res) {
+    $.get( libCommon.getNoCache("/event/"+resId+"?cmd=getOrganizers"), function(res) {
         console.log("Server returned organizers",res);
         if (res.result === 'ok'){
             console.log("List of",res.list.length,"records");
