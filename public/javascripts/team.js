@@ -1,9 +1,9 @@
 'use strict';
 
-const viewTeam = {};
+var viewTeam = {};
 
 viewTeam.init = function(){
-    const teamId = getResourceId(location.href);
+    var teamId = getResourceId(location.href);
     console.log("/team - Initializing");
 
     $.fn.editable.defaults.mode = 'inline';
@@ -25,7 +25,7 @@ viewTeam.init = function(){
     });
 
     $("#btnFounderDetails").on("click", function(event){
-        let fields = [
+        var fields = [
             {id:"btnCpyFromBill", label:"Kopíruj údaje z fakturačných", type:"button", onclick:"viewTeam.cpyAdr('B','F','"+teamId+"')"},
             {id:"foundingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"foundingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
@@ -62,7 +62,7 @@ viewTeam.init = function(){
     });
 
     $("#btnBillingDetails").on("click", function(event){
-        let fields = [
+        var fields = [
             {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zriaďovateľa", type:"button", onclick:"viewTeam.cpyAdr('F','B','"+teamId+"')"},
             {id:"billingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"billingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
@@ -100,7 +100,7 @@ viewTeam.init = function(){
 
     $("#btnShippingDetails").on("click", function(event){
 
-        let fields = [
+        var fields = [
             {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zriaďovateľa", type:"button", onclick:"viewTeam.cpyAdr('F','S','"+teamId+"')"},
             {id:"shippingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"shippingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
@@ -182,7 +182,7 @@ viewTeam.cpyAdr = function(ff,ft,teamId){
         .done(function (res) {
             console.log("cpyAdr: Server returned",res);
             if (res.result == "ok") {
-                let fo, fa, fc;
+                var fo, fa, fc;
                 switch (ff){
                     case 'F':
                         fo = res.details.foundingOrg;
@@ -219,9 +219,9 @@ viewTeam.cpyAdr = function(ff,ft,teamId){
 
                 }
 
-                let fields = libModals.fields;
-                for (let i=0; i<fields.length; i++){
-                    let v = libCommon.objPathGet(res.details,fields[i].id);
+                var fields = libModals.fields;
+                for (var i=0; i<fields.length; i++){
+                    var v = libCommon.objPathGet(res.details,fields[i].id);
                     if (v)
                         fields[i].value = v;
                 }
@@ -238,7 +238,7 @@ viewTeam.cpyAdr = function(ff,ft,teamId){
 };
 
 viewTeam.removeTeam = function (teamId) {
-    let cfm = window.confirm("Kliknite OK ak naozaj chcete zrušiť tento tím.");
+    var cfm = window.confirm("Kliknite OK ak naozaj chcete zrušiť tento tím.");
     if (cfm) {
         console.log("Posting request to remove team=",teamId);
         $.post("/team/",
@@ -265,7 +265,7 @@ viewTeam.removeTeam = function (teamId) {
 };
 
 viewTeam.removeCoach = function (teamId, userId) {
-    let cfm = window.confirm("Kliknite OK ak naozaj chcete odstrániť tohto trénera z tímu.");
+    var cfm = window.confirm("Kliknite OK ak naozaj chcete odstrániť tohto trénera z tímu.");
     if (cfm) {
         console.log("Posting request to remove coach team=",teamId,"caoch=",userId);
         $.post("/team/"+teamId,
@@ -292,9 +292,9 @@ viewTeam.removeCoach = function (teamId, userId) {
 };
 
 viewTeam.loadCoaches = function (teamId){
-    const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading team coaches");
-    const t = $("#coachList");
+    var t = $("#coachList");
     t.empty();
     $.get( "/team/"+teamId+"?cmd=getTeamCoaches", function(res) {
         console.log("Server returned coaches",res);
@@ -307,8 +307,8 @@ viewTeam.loadCoaches = function (teamId){
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     if (item.fullName) {
-                        let g = $('<div class="btn-group coach">');
-                        let c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
+                        var g = $('<div class="btn-group coach">');
+                        var c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
                             .append(item.fullName);
                         g.append(c);
                         c = $('<button id="RMC' + item._id + '" class="btn btn-success coach-remove">')
@@ -335,9 +335,9 @@ viewTeam.loadCoaches = function (teamId){
 };
 
 viewTeam.loadMembers = function(teamId){
-    const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading team members");
-    const t = $("#memberList");
+    var t = $("#memberList");
     t.empty();
     $.get( "/team/"+teamId+"?cmd=getTeamMembers", function(res) {
         console.log("Server returned members",res);
@@ -351,21 +351,21 @@ viewTeam.loadMembers = function(teamId){
 
                     // display member only if full name is defined
                     if (item.fullName) {
-                        let btnRemove = $('<button type="button" class="btn btn-link btn-xs">');
+                        var btnRemove = $('<button type="button" class="btn btn-link btn-xs">');
                         btnRemove.memberId = item._id;
                         btnRemove.on("click", function () {
                             viewTeam.removeMember(item._id, teamId);
                         });
                         btnRemove.append($('<span class="glyphicon glyphicon-remove">'));
 
-                        let btnEdit = $('<button type="button" class="btn btn-link btn-xs">');
+                        var btnEdit = $('<button type="button" class="btn btn-link btn-xs">');
                         btnEdit.memberId = item._id;
                         btnEdit.on("click", function () {
                             viewTeam.editMember(item._id);
                         });
                         btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
 
-                        let c = $('<div class="panel panel-default card">')
+                        var c = $('<div class="panel panel-default card">')
                             .append($('<div class="panel-heading">')
                                     .append(btnRemove)
                                     .append(item.fullName)
@@ -397,15 +397,15 @@ viewTeam.loadMembers = function(teamId){
 
 viewTeam.createNewTeamMember = function (teamId){
 
-    const selDialog = $("#newMemberModal");
-    const selNameGrp = $("#newMemberName");
-    const selName = $("#newMemberName > input:first");
+    var selDialog = $("#newMemberModal");
+    var selNameGrp = $("#newMemberName");
+    var selName = $("#newMemberName > input:first");
 
-    const selEmailGrp = $("#newMemberEmail");
-    const selEmail = $("#newMemberEmail > input:first");
+    var selEmailGrp = $("#newMemberEmail");
+    var selEmail = $("#newMemberEmail > input:first");
 
-    const selDOBGrp = $("#newMemberDOB");
-    const selDOB = $("#newMemberDOB > input:first");
+    var selDOBGrp = $("#newMemberDOB");
+    var selDOB = $("#newMemberDOB > input:first");
 
     var selStatus = $("#createStatus");
 
@@ -476,8 +476,8 @@ viewTeam.saveAddressDetails2 = function (detType, fields, teamId, cb){
     console.log("Saving address details #2", detType);
     if (typeof cb !== "function") cb = libCommon.noop();
 
-    let doc = {};
-    for (let i = 0; i<fields.length; i++){
+    var doc = {};
+    for (var i = 0; i<fields.length; i++){
         doc[fields[i].id] = fields[i].value;
     }
     console.log("Posting request to save address details");
@@ -517,8 +517,8 @@ viewTeam.loadAddressDetails2 = function (teamId,fields,cb){
         .done(function (res) {
             console.log("loadAdrDetails: Server returned",res);
             if (res.result == "ok") {
-                for (let i=0; i<fields.length; i++){
-                    let v = libCommon.objPathGet(res.details,fields[i].id);
+                for (var i=0; i<fields.length; i++){
+                    var v = libCommon.objPathGet(res.details,fields[i].id);
                     if (v)
                         fields[i].value = v;
                 }
@@ -534,7 +534,7 @@ viewTeam.loadAddressDetails2 = function (teamId,fields,cb){
 };
 
 viewTeam.loadAvailableEvents = function (teamId){
-    const sel = $('#availEvents');
+    var sel = $('#availEvents');
     console.log('Loading events');
     $.get( "/event?cmd=getAvailTeamEvents&teamId="+teamId, function(res) {
         console.log("Server returned events",res);
@@ -572,7 +572,7 @@ viewTeam.loadTeamData = function (teamId){
 
 viewTeam.registerForEvent = function (teamId){
     console.log('Registering for event');
-    const eventId = $('#availEvents').val();
+    var eventId = $('#availEvents').val();
     $.post("/event/"+eventId,
         {
             cmd: 'registerTeam',
@@ -598,7 +598,7 @@ viewTeam.registerForEvent = function (teamId){
 
 viewTeam.loadInvoices = function(teamId){
     console.log('Loading invoices');
-    const sel = $("#invoices");
+    var sel = $("#invoices");
     $.get( "/invoice?cmd=getList&teamId="+teamId, function(res) {
         console.log("Server returned invoices",res);
         if (res.result === 'ok'){
@@ -610,7 +610,7 @@ viewTeam.loadInvoices = function(teamId){
 
                 sel.append($('<label class="form-label" >').append('Faktúry'));
                 res.list.forEach(function (item) {
-                    let iOn, dOn, pOn;
+                    var iOn, dOn, pOn;
                     if (item.issuedOn)
                         try { iOn = new Date(item.issuedOn); } catch (err) { iOn = null; }
                     if (item.dueOn)
@@ -618,7 +618,7 @@ viewTeam.loadInvoices = function(teamId){
                     if (item.paidOn)
                         try { pOn = new Date(item.paidOn); } catch (err) { pOn = null; }
 
-                    let c = $('<li class="list-group-item">')
+                    var c = $('<li class="list-group-item">')
                         .append($('<h5 class="list-group-item-heading">')
                             .append($('<a  href="/invoice/' + item._id + '">')
                                 .append((item.type == "P" ? "Zálohová " : "") + item.number)

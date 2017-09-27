@@ -1,16 +1,16 @@
 "use strict";
 
-const viewEvent = {};
+var viewEvent = {};
 
 viewEvent.init = function (){
-    const evId = getResourceId(location.href);
+    var evId = getResourceId(location.href);
 
     viewEvent.loadRegisteredTeams(evId);
     viewEvent.loadOrganizers(evId);
 
     $("#btnSaveTeamNumber").on("click", function(ev){
-        const teamEventId = $("#teamEventId").val();
-        const teamNum = $("#teamNumber").val();
+        var teamEventId = $("#teamEventId").val();
+        var teamNum = $("#teamNumber").val();
         viewEvent.assignTeamNumber(teamEventId, teamNum,
             function (res,err){
                 if (err) {
@@ -97,7 +97,7 @@ viewEvent.init = function (){
 };
 
 viewEvent.loadRegisteredTeams = function(eventId){
-    const sel = $('#allTeams');
+    var sel = $('#allTeams');
     console.log('Loading registered teams');
     $.get( "/event/"+eventId+"?cmd=getTeams", function(res) {
         console.log("loadTeams: Server returned",res);
@@ -186,9 +186,9 @@ viewEvent.assignTeamNumber = function(teamEventId, teamNum, cb){
 
 viewEvent.loadOrganizers = function (resId){
 
-    const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading event organizers");
-    const t = $("#eorgsList");
+    var t = $("#eorgsList");
     t.empty();
     $.get( "/event/"+resId+"?cmd=getOrganizers", function(res) {
         console.log("Server returned organizers",res);

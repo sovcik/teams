@@ -1,6 +1,6 @@
 "use strict";
 
-const libProfile = {};
+var libProfile = {};
 
 libProfile.setAdmin = function (flag, userId, cb){
     console.log("setAdmin",userId);

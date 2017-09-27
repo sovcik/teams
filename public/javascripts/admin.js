@@ -1,6 +1,6 @@
 'use strict';
 
-const viewAdmin = {};
+var viewAdmin = {};
 
 viewAdmin.init = function(){
     console.log("/admin - Initializing");
@@ -24,7 +24,7 @@ viewAdmin.init = function(){
 
 viewAdmin.editInvoicingOrg = function(invOrgId){
     console.log(invOrgId);
-    const dlgEdit = $('#invOrgDetails');
+    var dlgEdit = $('#invOrgDetails');
     // clear fields
     try {
         $('#frmIODetails')[0].reset();
@@ -42,7 +42,7 @@ viewAdmin.editInvoicingOrg = function(invOrgId){
 };
 
 viewAdmin.createNewProgram = function (){
-    const selProgName = $('#newProgramName');
+    var selProgName = $('#newProgramName');
     var selStatus = $("#teamCreateStatus");
     if (selProgName.val().trim() != '') {
         console.log("Posting request to create new program");
@@ -67,10 +67,10 @@ viewAdmin.createNewProgram = function (){
 };
 
 viewAdmin.createNewEvent = function (){
-    const selEvName = $('#newEventName');
-    const selStatus = $("#teamCreateStatus");
-    const selEvProg = $('#eventProgram');
-    const selEvIO = $('#eventInvOrg');
+    var selEvName = $('#newEventName');
+    var selStatus = $("#teamCreateStatus");
+    var selEvProg = $('#eventProgram');
+    var selEvIO = $('#eventInvOrg');
     if (selEvName.val().trim() != '') {
         console.log("Posting request to create new event");
         $.post("/event", {cmd: 'createEvent', name: selEvName.val(), programId:selEvProg.val(), invOrgId:selEvIO.val()}, function (res) {
@@ -94,8 +94,8 @@ viewAdmin.createNewEvent = function (){
 };
 
 viewAdmin.loadPrograms = function (){
-    const selProg = $('#allPrograms');
-    const selEvProg = $('#eventProgram');
+    var selProg = $('#allPrograms');
+    var selEvProg = $('#eventProgram');
     console.log('Loading programs');
     $.get( "/program?cmd=getList", function(res) {
         console.log("loadProgs: Server returned",res);
@@ -108,8 +108,8 @@ viewAdmin.loadPrograms = function (){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a href="/program/'+item._id+'" class="list-group-item" >').append(item.name);
-                    //let c = $('<li class="list-group-item" value="'+item._id+'"">').append(item.name);
+                    var c = $('<a href="/program/'+item._id+'" class="list-group-item" >').append(item.name);
+                    //var c = $('<li class="list-group-item" value="'+item._id+'"">').append(item.name);
                     selProg.append(c);
                     c = $('<option value="'+item._id+'"">').append(item.name);
                     selEvProg.append(c);
@@ -126,7 +126,7 @@ viewAdmin.loadPrograms = function (){
 };
 
 viewAdmin.loadEvents = function (){
-    const selEv = $('#allEvents');
+    var selEv = $('#allEvents');
     console.log('Loading events');
     $.get( "/event?cmd=getList", function(res) {
         console.log("loadEvents: Server returned",res);
@@ -137,7 +137,7 @@ viewAdmin.loadEvents = function (){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name);
+                    var c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name);
                     selEv.append(c);
                 });
             } else {
@@ -152,8 +152,8 @@ viewAdmin.loadEvents = function (){
 };
 
 viewAdmin.loadInvoicingOrgs = function (){
-    const selIO = $('#allInvoicingOrgs');
-    const selEvIO = $('#eventInvOrg');
+    var selIO = $('#allInvoicingOrgs');
+    var selEvIO = $('#eventInvOrg');
     console.log('Loading invoicing orgs');
     $.get( "/invorg?cmd=getList", function(res) {
         console.log("loadInvOrgs: Server returned",res);
@@ -166,7 +166,7 @@ viewAdmin.loadInvoicingOrgs = function (){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a href="/invorg/'+item._id+'" class="list-group-item" >').append(item.org.name+", "+item.adr.city);
+                    var c = $('<a href="/invorg/'+item._id+'" class="list-group-item" >').append(item.org.name+", "+item.adr.city);
                     selIO.append(c);
                     c = $('<option value="'+item._id+'"">').append(item.org.name+", "+item.adr.city);
                     selEvIO.append(c);
@@ -189,7 +189,7 @@ viewAdmin.saveIODetails = function (orgId){
     var selDialog;
     console.log("Saving invoicing org details");
 
-    const details = {};
+    var details = {};
 
     selStatus = $("#saveInvOrgStatus");
     selDialog = $("#invOrgDetails");
@@ -289,7 +289,7 @@ viewAdmin.formatAddressDetails = function (data) {
 };
 
 viewAdmin.loadUsers = function (){
-    const sel = $('#allUsers');
+    var sel = $('#allUsers');
     console.log('Loading users');
     $.get( "/profile?cmd=getList", function(res) {
         console.log("loadUsers: Server returned",res);
@@ -303,7 +303,7 @@ viewAdmin.loadUsers = function (){
                 console.log("Found ",res.list.length,"records");
 
                 res.list.forEach(function(item) {
-                    let c = $('<div class="well well-sm container-fluid">')
+                    var c = $('<div class="well well-sm container-fluid">')
                         .append($('<a href="/profile/'+item._id+'" >')
                             .append(item.username+", "+item.fullName+", "+item.email))
 

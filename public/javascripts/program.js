@@ -1,9 +1,9 @@
 "use strict";
 
-const viewProgram = {};
+var viewProgram = {};
 
 viewProgram.init = function (){
-    const resId = getResourceId(location.href);
+    var resId = getResourceId(location.href);
     viewProgram.loadManagers(resId);
     viewProgram.loadEvents(resId);
     viewProgram.loadTeams(resId);
@@ -13,10 +13,10 @@ viewProgram.init = function (){
             // get JSON data
             libProgram.exportData(resId, function(d){
                 // convert to CSV
-                let data = libProgram.JSON2CSV(d.data,'\t');
+                var data = libProgram.JSON2CSV(d.data,'\t');
                 // save to file
-                let encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
-                let link = document.createElement("a");
+                var encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
+                var link = document.createElement("a");
                 link.setAttribute("href", encodedUri);
                 link.setAttribute("download", "program_export.csv");
                 document.body.appendChild(link);
@@ -67,9 +67,9 @@ viewProgram.init = function (){
 };
 
 viewProgram.loadManagers = function (progId){
-    const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading program managers");
-    const t = $("#pmsList");
+    var t = $("#pmsList");
     t.empty();
     $.get( "/program/"+progId+"?cmd=getManagers", function(res) {
         console.log("Server returned managers",res);
@@ -98,7 +98,7 @@ viewProgram.loadManagers = function (progId){
 };
 
 viewProgram.loadEvents = function (progId){
-    const selEv = $('#eventList');
+    var selEv = $('#eventList');
     console.log('Loading events');
     $.get( "/event?cmd=getList&program="+progId, function(res) {
         console.log("loadProgEvents: Server returned",res);
@@ -109,7 +109,7 @@ viewProgram.loadEvents = function (progId){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name);
+                    var c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name);
                     selEv.append(c);
                 });
             } else {
@@ -124,7 +124,7 @@ viewProgram.loadEvents = function (progId){
 };
 
 viewProgram.loadTeams = function (progId){
-    const selEv = $('#teamList');
+    var selEv = $('#teamList');
     console.log('Loading teams');
     $.get( "/team?cmd=getList&programId="+progId, function(res) {
         console.log("loadTeams: Server returned",res);
@@ -134,9 +134,9 @@ viewProgram.loadTeams = function (progId){
             selEv.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
-                let i=1;
+                var i=1;
                 res.list.forEach(function(item) {
-                    let c = $('<a class="list-group-item" href="/team/'+item._id+'"">').append((i++)+'. '+item.name+', '+item.foundingOrg.name+', '+item.foundingAdr.city);
+                    var c = $('<a class="list-group-item" href="/team/'+item._id+'"">').append((i++)+'. '+item.name+', '+item.foundingOrg.name+', '+item.foundingAdr.city);
                     selEv.append(c);
                 });
             } else {

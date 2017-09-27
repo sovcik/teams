@@ -1,6 +1,6 @@
 "use strict";
 
-const viewInvoice = {};
+var viewInvoice = {};
 
 viewInvoice.init = function() {
     console.log("Invoice initialized");

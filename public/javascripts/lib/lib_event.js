@@ -1,6 +1,6 @@
 "use strict";
 
-const libEvent = {};
+var libEvent = {};
 
 libEvent.addOrganizer = function(eventId, username, callback){
 

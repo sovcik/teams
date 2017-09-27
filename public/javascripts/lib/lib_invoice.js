@@ -1,6 +1,6 @@
 "use strict";
 
-const libInvoice = {};
+var libInvoice = {};
 
 libInvoice.createTaxInvoice = function(invId, cb){
     console.log('Creating tax invoice for '+invId);
@@ -88,7 +88,7 @@ libInvoice.initInvoiceButtons = function(cb){
     (typeof cb === 'function') || (cb = libCommon.noop);
     $('.createTaxInvoice').on('click',
         function(evt) {
-            const invId = evt.target.id.substr(3);
+            var invId = evt.target.id.substr(3);
             console.log("click create tax invoice",invId);
             libInvoice.createTaxInvoice(
                 invId,
@@ -103,7 +103,7 @@ libInvoice.initInvoiceButtons = function(cb){
     );
     $('.markAsPaid').on('click',
         function(evt){
-            const invId = evt.target.id.substr(3);
+            var invId = evt.target.id.substr(3);
             console.log("click invoice paid",invId);
             libInvoice.markAsPaid(
                 invId,

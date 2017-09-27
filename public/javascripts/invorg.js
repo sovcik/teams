@@ -1,13 +1,13 @@
 "use strict";
 
-const viewInvOrg = {};
+var viewInvOrg = {};
 
 viewInvOrg.filterPaidStatus = 'A';
 viewInvOrg.filterInvType = 'A';
 
 viewInvOrg.init = function(){
     console.log("Initializing Invoicing Org");
-    const invOrgId = getResourceId(location.href);
+    var invOrgId = getResourceId(location.href);
     $("#filterPaidStatus").val(viewInvOrg.filterPaidStatus);
     $("#filterInvType").val(viewInvOrg.filterInvType);
     viewInvOrg.loadInvoices(invOrgId);
@@ -26,10 +26,10 @@ viewInvOrg.init = function(){
 };
 
 viewInvOrg.loadInvoices = function(invOrgId){
-    const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading invoices");
-    const t = $("#allInvoices");
-    const ti = $("#allInvoices>*");  // all children of specified element
+    var t = $("#allInvoices");
+    var ti = $("#allInvoices>*");  // all children of specified element
     var q = "&invOrg="+invOrgId;
 
     if (viewInvOrg.filterPaidStatus != "A")
@@ -45,7 +45,7 @@ viewInvOrg.loadInvoices = function(invOrgId){
             ti.remove();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
-                let c =
+                var c =
                     $('<tr>')
                         .append($('<th>').append("#"))
                         .append($('<th>').append("Organizácia"))

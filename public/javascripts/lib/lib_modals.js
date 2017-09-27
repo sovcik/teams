@@ -1,6 +1,6 @@
 "use strict";
 
-const libModals = {};
+var libModals = {};
 
 libModals.fields = [];
 
@@ -90,8 +90,8 @@ libModals.editValue = function (title, label, placeholder, valType, oldValue, fn
 };
 
 libModals.mfdUpdateFields = function(fields){
-    for (let i = 0; i < fields.length; i++){
-        let f = fields[i];
+    for (var i = 0; i < fields.length; i++){
+        var f = fields[i];
         if (f.value)
             switch (f.type){
                 case 'checkbox':
@@ -109,7 +109,7 @@ libModals.mfdUpdateFields = function(fields){
 libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
 
     function showErrFields(flds){
-        for (let i = 0; i < flds.length; i++)
+        for (var i = 0; i < flds.length; i++)
             document.getElementById("MFDG" + flds[i].field).classList.add("has-error");
     }
 
@@ -124,11 +124,11 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
 
     $("#multiFieldDlg").remove();
 
-    let flds = $("<div class='modal-body'>");
+    var flds = $("<div class='modal-body'>");
 
-    for(let i = 0; i < fields.length; i++){
-        let f = fields[i];
-        let gr = $("<div id='MFDG"+f.id+"'>");
+    for(var i = 0; i < fields.length; i++){
+        var f = fields[i];
+        var gr = $("<div id='MFDG"+f.id+"'>");
         switch (f.type){
             case "button":
                 gr
@@ -185,7 +185,7 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
     $("#MFDbtnOK").on("click",function(ev){
         console.log("MFD OK clicked");
 
-        for(let i = 0;i<fields.length;i++) {
+        for(var i = 0;i<fields.length;i++) {
             switch (fields[i].type) {
                 case "button":
                     break;
@@ -197,7 +197,7 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
             }
         }
 
-        for (let i = 0;i<fields.length;i++)
+        for (var i = 0;i<fields.length;i++)
             document.getElementById("MFDG" + fields[i].id).classList.remove("has-error");
 
         console.log(fields);

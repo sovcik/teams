@@ -1,11 +1,11 @@
 "use strict";
 
-const libForms = {};
+var libForms = {};
 
 libForms.validate = function(fields,cb){
-    let ret;
-    let err = [];
-    for (let i = 0; i < fields.length; i++){
+    var ret;
+    var err = [];
+    for (var i = 0; i < fields.length; i++){
         if (fields[i].required && !fields[i].value)
             err.push({field:fields[i].id, message:"required"});
     }

@@ -21,14 +21,14 @@ function date2ISOString(datetime){
 
 function validateEmail(email){
     console.log("Validating email");
-    const re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     return re.test(email);
 }
 
 function validatePassword(pwd){
     // at has to contain number and small letter and has to be at least 6 chars long
     console.log("Validating password");
-    const re = /(?=.*[0-9])(?=.*[a-z]).{6,}/;
+    var re = /(?=.*[0-9])(?=.*[a-z]).{6,}/;
     return re.test(pwd);
 }
 

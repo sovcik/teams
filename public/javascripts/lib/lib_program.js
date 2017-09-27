@@ -1,6 +1,6 @@
 "use strict";
 
-const libProgram = {};
+var libProgram = {};
 
 libProgram.exportData = function (progId,cb){
     console.log('Exporting program data');
@@ -58,9 +58,9 @@ libProgram.JSON2CSV = function(data,sep,locales) {
     str += header + '\r\n';
 
     // data
-    for (let i = 0; i < data.program.teams.length; i++) {
+    for (var i = 0; i < data.program.teams.length; i++) {
         var line = '';
-        let t = data.program.teams[i];
+        var t = data.program.teams[i];
 
         line += data.program.name;
         line += sep + t.event.eventId.name;
@@ -87,7 +87,7 @@ libProgram.JSON2CSV = function(data,sep,locales) {
             line += sep + sep + sep;
         }
 
-        for (let j = 0; j < 10; j++) {
+        for (var j = 0; j < 10; j++) {
             if (j < t.members.length)
                 line += sep + t.members[j].fullName + sep + t.members[j].dateOfBirth;
             else

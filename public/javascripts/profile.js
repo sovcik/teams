@@ -1,10 +1,10 @@
 "use strict";
 
-const viewProfile = {};
+var viewProfile = {};
 
 viewProfile.init = function(){
     console.log("/profile - Initializing");
-    const profileId = getResourceId(location.href);
+    var profileId = getResourceId(location.href);
 
     $(".createTeamBtn").on("click",function(ev){
         viewProfile.createNewTeam(this.id.substr(3));
@@ -52,7 +52,7 @@ viewProfile.init = function(){
 
 
     $("#btnEditProfile").on("click", function(event){
-        const fields = [
+        var fields = [
             {id:"username", label:"Prihlasovacie meno", type:"text", required:1},
             {id:"fullName", label:"Celé meno", type:"text", required:1},
             {id:"email", label:"e-mail", type:"email", required:1},
@@ -91,8 +91,8 @@ viewProfile.saveProfileFields = function (fields, profileId, cb){
     console.log("Saving profile fields");
     if (typeof cb !== "function") cb = libCommon.noop();
 
-    let doc = {};
-    for (let i = 0; i < fields.length; i++){
+    var doc = {};
+    for (var i = 0; i < fields.length; i++){
         doc[fields[i].id] = fields[i].value;
     }
     console.log("Posting request to save profile fields");
@@ -131,8 +131,8 @@ viewProfile.loadProfileFields = function (profileId,fields,cb){
         .done(function (res) {
             console.log("loadProfileFields: Server returned",res);
             if (res.result == "ok") {
-                for (let i=0; i<fields.length; i++){
-                    let v = libCommon.objPathGet(res.fields,fields[i].id);
+                for (var i=0; i<fields.length; i++){
+                    var v = libCommon.objPathGet(res.fields,fields[i].id);
                     if (v)
                         fields[i].value = v;
                 }
@@ -149,10 +149,10 @@ viewProfile.loadProfileFields = function (profileId,fields,cb){
 
 
 viewProfile.loadCoachOfTeams = function(){
-    const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    const coachId = getResourceId(location.href);
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    var coachId = getResourceId(location.href);
     console.log("Loading coach teams. Coach = ",coachId);
-    const t = $("#coachTeamsList");
+    var t = $("#coachTeamsList");
     t.empty();
     $.get( "/profile/"+coachId+"?cmd=getCoachTeams", function(res) {
         console.log("Server returned teams",res);
@@ -179,12 +179,12 @@ viewProfile.loadCoachOfTeams = function(){
 };
 
 viewProfile.loadMemberOfTeams = function(){
-    const site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
     console.log("Loading user's teams is not implemented yet");
 };
 
 viewProfile.loadPrograms = function (){
-    const selProg = $('#newTeamProgram');
+    var selProg = $('#newTeamProgram');
     console.log('Loading programs');
     $.get( "/program?cmd=getList", function(res) {
         console.log("Server returned available programs",res);
@@ -210,8 +210,8 @@ viewProfile.loadPrograms = function (){
 };
 
 viewProfile.loadMyPrograms = function (){
-    const profileId = getResourceId(location.href);
-    const selProg = $("#myPrograms");
+    var profileId = getResourceId(location.href);
+    var selProg = $("#myPrograms");
     if (null === document.getElementById('myPrograms')) // profile is not of program manager
         return;
     console.log('Loading programs profile manages');
@@ -224,7 +224,7 @@ viewProfile.loadMyPrograms = function (){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    let c = $('<a href="/program/'+item._id+'" class="list-group-item" >').append(item.name);
+                    var c = $('<a href="/program/'+item._id+'" class="list-group-item" >').append(item.name);
                     selProg.append(c);
                 });
             } else {
@@ -239,10 +239,10 @@ viewProfile.loadMyPrograms = function (){
 };
 
 viewProfile.createNewTeam = function(coachId){
-    //const coachId = getResourceId(location.href);
-    const selTeamNameGrp = $("#newTeamName");
-    const selTeamName = $("#newTeamName > input:first");
-    const selProg = $('#newTeamProgram');
+    //var coachId = getResourceId(location.href);
+    var selTeamNameGrp = $("#newTeamName");
+    var selTeamName = $("#newTeamName > input:first");
+    var selProg = $('#newTeamProgram');
     var selStatus = $("#teamCreateStatus");
     if (selTeamName.val().trim() != '' && selTeamName.val().trim().length >= 5) {
         console.log("Posting request to create new team");
@@ -273,10 +273,10 @@ viewProfile.createNewTeam = function(coachId){
 };
 
 viewProfile.changePassword = function (userId){
-    const selDialog = $('#changePasswordModal');
-    const selOldPwd = $('#oldPwd');
-    const selNewPwd = $('#newPwd');
-    const selNewPwdConf = $('#newPwdConf');
+    var selDialog = $('#changePasswordModal');
+    var selOldPwd = $('#oldPwd');
+    var selNewPwd = $('#newPwd');
+    var selNewPwdConf = $('#newPwdConf');
     var selStatus = $("#pwdChangeStatus");
     if (!validatePassword(selNewPwd.val())) {
         alert("Nové heslo musí obsahovať aspoň jedno číslo, malé písmeno a musí mať aspoň 6 znakov.");

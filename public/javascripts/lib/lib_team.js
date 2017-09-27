@@ -1,6 +1,6 @@
 "use strict";
 
-const libTeam = {};
+var libTeam = {};
 
 libTeam.addCoach = function(teamId, username, callback){
 
