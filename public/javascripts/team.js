@@ -2,18 +2,45 @@
 
 var viewTeam = {};
 
-viewTeam.init = function(){
+viewTeam.init = function(userLocales){
     var teamId = getResourceId(location.href);
     console.log("/team - Initializing");
+    console.log("locales=",userLocales);
 
     $.fn.editable.defaults.mode = 'inline';
+
+    viewTeam.user = {locales:userLocales};
 
     $(document).ready(function() {
         $('#teamName').editable();
     });
 
-    $("#createTeamMemberBtn").on("click", function(){
-        viewTeam.createNewTeamMember(teamId);
+    $("#createMember").on("click", function(){
+        var fields = [
+            {id:"fullName", label:"Meno a priezvisko", type:"text", required:1},
+            {id:"dateOfBirth", label:"Dátum narodenia", type:"date", locales:viewTeam.user.locales},
+            {id:"email", label:"e-mail", type:"email"}
+        ];
+        libModals.multiFieldDialog(
+            "Člen tímu",
+            "Zadajte údaje člena tímu",
+            fields,
+            function (flds, cb) {
+                viewTeam.createNewTeamMember(teamId,fields,cb);
+            },
+            function cb(res, err) {
+                if (err) {
+                    console.log("CB-ERROR", err);
+                    alert("Nepodarilo sa pridať člena tímu.\n\n"+err.message);
+                } else {
+                    console.log("CB-OK Member created");
+                    alert("Člen tímu bol vytvorený.");
+                    viewTeam.loadMembers(teamId);
+                }
+                console.log("CB-DONE");
+            }
+        );
+
     });
 
     $("#btnRegister").on("click", function(){
@@ -365,7 +392,6 @@ viewTeam.loadMembers = function(teamId){
                         });
                         btnEdit.append($('<span class="glyphicon glyphicon-pencil">'));
 
-                        console.log("DOB",item.dateOfBirth);
                         var c = $('<div class="panel panel-default card">')
                             .append($('<div class="panel-heading">')
                                     .append(btnRemove)
@@ -373,8 +399,12 @@ viewTeam.loadMembers = function(teamId){
                                 //.append(btnEdit)
                             )
                             .append($('<div class="panel-body form-inline">')
-                                .append($('<input class="form-control" type="date" readonly '+ (item.dateOfBirth ? 'value="'+item.dateOfBirth.substr(0, 10)+'"' : "")+ '>'))
-                                .append($('<input class="form-control" type="string" readonly value="' + (item.email ? item.email : '') + '">'))
+                                .append($('<input class="form-control" type="string" readonly value="'
+                                    + (item.dateOfBirth?libCommon.convertSys2LocaleDate(item.dateOfBirth.substr(0,10), viewTeam.user.locales):"xxx")
+                                    + '">'))
+                                .append($('<input class="form-control" type="string" readonly value="'
+                                    + (item.email ? item.email : '')
+                                    + '">'))
                             );
 
                         t.append(c);
@@ -396,57 +426,35 @@ viewTeam.loadMembers = function(teamId){
 
 };
 
-viewTeam.createNewTeamMember = function (teamId){
+viewTeam.createNewTeamMember = function (teamId, fields, cb){
 
-    var selDialog = $("#newMemberModal");
-    var selNameGrp = $("#newMemberName");
-    var selName = $("#newMemberName > input:first");
+    console.log("Creating new team member");
+    if (typeof cb !== "function") cb = libCommon.noop();
 
-    var selEmailGrp = $("#newMemberEmail");
-    var selEmail = $("#newMemberEmail > input:first");
-
-    var selDOBGrp = $("#newMemberDOB");
-    var selDOB = $("#newMemberDOB > input:first");
-
-    var selStatus = $("#createStatus");
-
-    if (selName.val().trim() != '') {
-        console.log("Posting request to create new member");
-        var dob = new Date(selDOB.val());
-        console.log("CRE-DOB",dob);
-        $.post("/team/"+teamId,
-            {
-                cmd: 'createTeamMember',
-                name: selName.val(),
-                email: selEmail.val(),
-                dob: dob.getFullYear()+"-"+(dob.getMonth()+1)+"-"+(dob.getDate()<10?"0":"")+dob.getDate()
-            },
-            function (res) {
-                console.log("createTeamMember: Server returned",res);
-                if (res.result == "ok") {
-                    console.log("Member created");
-                    selStatus.text('Člen tímu vytvorený.');
-                    selStatus.css("display", "inline").fadeOut(2000);
-                    selName.val('');
-                    selEmail.val('');
-                    selDOB.val('');
-                    selDialog.modal("hide");
-                    viewTeam.loadMembers(teamId);
-                } else {
-                    console.log("Error while creating team-member");
-                    selStatus.text('Nepodarilo sa vytvoriť člena tímu.');
-                    selStatus.css("display", "inline").fadeOut(5000);
-                }
+    console.log("Posting request to create new member");
+    var dob = fields[1].dateValue;
+    $.post("/team/"+teamId,
+        {
+            cmd: 'createTeamMember',
+            name: fields[0].value,
+            email: fields[2].value,
+            dob: dob.getFullYear()+"-"+(dob.getMonth()+1)+"-"+(dob.getDate()<10?"0":"")+dob.getDate()
+        },
+        function (res) {
+            console.log("createTeamMember: Server returned",res);
+            if (res.result == "ok") {
+                cb(res);
+            } else {
+                console.log("Error while creating team-member");
+                cb(res,res.error);
             }
-        )
-        .fail(function (err) {
-            selStatus.text('Nepodarilo sa vytvoriť nového člena.');
-            console.log("Creation failed",err);
-        });
-    } else {
-        selStatus.text('Člen tímu musí mať meno.');
-        selStatus.css("display", "inline").fadeOut(5000);
-    }
+        }
+    )
+    .fail(function (err) {
+        console.log("Creation failed",err);
+        cb(res,err);
+
+    });
 };
 
 viewTeam.removeMember = function (id, teamId){

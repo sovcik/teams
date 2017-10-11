@@ -225,8 +225,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             let memberName = req.body.name;
             console.log('Going to create member: ', memberName);
             try {
+                let dob = new Date(req.body.dob);
+                dob.setHours(dob.getHours()+12); // Todo: adjust for user's timezone - right now noon should do for Europe/US
 
-                let m = await User.create({fullName:req.body.name, email:req.body.email, dateOfBirth:req.body.dob, username:req.body.name+req.team.id});
+                let m = await User.create({fullName:req.body.name, email:req.body.email, dateOfBirth:dob, username:req.body.name+req.team.id});
                 if (!m)
                     throw new Error("Failed creating team member");
                 let mt = await TeamUser.create({userId:m.id, teamId:req.team.id, role:'member'});

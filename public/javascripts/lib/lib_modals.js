@@ -109,6 +109,8 @@ libModals.mfdUpdateFields = function(fields){
 libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
 
     function showErrFields(flds){
+        if (!flds)
+            return;
         for (var i = 0; i < flds.length; i++)
             document.getElementById("MFDG" + flds[i].field).classList.add("has-error");
     }
@@ -146,6 +148,17 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
                                 +(f.value?("value='"+f.value+"'"):" ")
                                 +" name='"+f.name+"'>"))
                             .append(f.label)
+                        )
+                    );
+                break;
+            case "date":
+                gr
+                    .append($("<div class='form-group'>")
+                        .append($("<label for='MFDF"+f.id+"'>").append(f.label))
+                        .append($("<input id='MFDF"+f.id
+                            +"' type='text' "
+                            +(f.value?("value='"+f.value+"'"):" ")
+                            +" class='form-control' name='"+f.name+"'>")
                         )
                     );
                 break;
@@ -216,6 +229,7 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
                     });
 
                 else {
+
                     showErrFields(err.errors);
                     cb(result, err);
                 }

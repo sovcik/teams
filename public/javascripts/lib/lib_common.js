@@ -20,6 +20,8 @@ libCommon.getNoCache = function(url){
 };
 
 libCommon.convertLocaleDate2SysDate = function(d,locale){
+    if (!d)
+        d = "x/x/x";
     var a = d.split(/[ :\-\/\.]/g);
     var s = "";
     switch (locale.substr(3,2)){
@@ -30,6 +32,31 @@ libCommon.convertLocaleDate2SysDate = function(d,locale){
         case 'DE':
         case 'GB':
             s = a[2]+"-"+a[1]+"-"+a[0];
+            break;
+        default:
+            s = "unknown locale";
+
+    }
+
+    return s;
+
+};
+
+libCommon.convertSys2LocaleDate = function(d,locale){
+    if (!d)
+        d = "x/x/x";
+    var a = d.split(/[ :\-\/\.]/g);
+    var s = "";
+    switch (locale.substr(3,2)){
+        case 'US':
+            s = a[1]+"/"+a[2]+"/"+a[0];
+            break;
+        case 'SK':
+        case 'DE':
+            s = a[2]+"."+a[1]+"."+a[0];
+            break;
+        case 'GB':
+            s = a[2]+"/"+a[1]+"/"+a[0];
             break;
         default:
             s = "unknown locale";
