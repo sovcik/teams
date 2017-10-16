@@ -263,6 +263,61 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 }
 
                 break;
+            case 'remove':
+                try {
+                    if (!req.user.permissions.isInvoicingOrgManager
+                        && !req.user.permissions.isAdmin) {
+                        log.WARN("Invoice remove - permission denied. user="+req.user.username+" invoice="+req.invoice._id);
+                        throw new Error("permission denied");
+                    }
+
+                    let invId = req.invoice._id;
+                    let d = await libInvoice.removeInvoice(invId);
+                    if (d._id) {
+                        log.INFO("Invoice removed: #" + d.number + " id=" + invId + " by user=" + req.user.username);
+
+                        r.result = "ok";
+                        r.invoice = d;
+                    }
+
+                } catch (err) {
+                    throw new Error("Removing invoice "+req.invoice.id+" err="+err.message);
+                }
+
+                break;
+            case 'notifyOverdue':
+                try {
+                    if (!req.user.permissions.isInvoicingOrgManager
+                        && !req.user.permissions.isAdmin) {
+                        log.WARN("Invoice notify overdue - permission denied. user="+req.user.username+" invoice="+req.invoice._id);
+                        throw new Error("permission denied");
+                    }
+
+                    let cSubj = "Faktúra po dátume splatnosti";
+                    let cTitle = "Faktúra po dátume splatnosti";
+                    let toEml = new Set();
+                    toEml.add(req.invoice.billContact.email);
+                    toEml.add(req.invoice.issuingContact.email);
+                    toEml.add(req.user.email);
+                    toEml.add(process.env.EMAIL_BCC_INVOICE);
+
+                    let cMsg =
+                        "Dobrý deň,<br><br>chceli by sme vás poprosiť o pomoc pri spracovaní faktúry č."+req.invoice.number+".<br>"
+                        + "Faktúru evidujeme ako neuhradenú.<br>"
+                        + "Pokiaľ ste úhradu vykonali, prosíme vás aby ste nás kontaktovali a pomohli nám identifikovať chýbajúcu platbu.<br>"
+                        + "V prípade, ak ste faktúru ešte neuhrádzali, prosíme vás kontakt a o pomoc pri riešení tejto situácie.<br><br>"
+                        + "Ďakujeme za pochopenie.<br><br>"
+                        + "Tím FLL Slovensko";
+
+                    email.sendMessage(req.user, toEml, cSubj, cTitle, cMsg, siteUrl);
+
+                    r.result = "ok"
+
+                } catch (err) {
+                    throw new Error("Notify overdue invoice "+req.invoice.id+" err="+err.message);
+                }
+                break;
+
             default:
                 console.log('cmd=unknown');
                 break;
