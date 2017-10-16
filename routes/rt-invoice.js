@@ -296,20 +296,23 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     let cSubj = "Faktúra po dátume splatnosti";
                     let cTitle = "Faktúra po dátume splatnosti";
                     let toEml = new Set();
+                    let cReplyTo = process.env.EMAIL_REPLYTO_BILLING;
                     toEml.add(req.invoice.billContact.email);
                     toEml.add(req.invoice.issuingContact.email);
                     toEml.add(req.user.email);
                     toEml.add(process.env.EMAIL_BCC_INVOICE);
 
                     let cMsg =
-                        "Dobrý deň,<br><br>chceli by sme vás poprosiť o pomoc pri spracovaní faktúry č."+req.invoice.number+".<br>"
-                        + "Faktúru evidujeme ako neuhradenú.<br>"
-                        + "Pokiaľ ste úhradu vykonali, prosíme vás aby ste nás kontaktovali a pomohli nám identifikovať chýbajúcu platbu.<br>"
+                        "Dobrý deň,<br><br>chceli by sme vás poprosiť o pomoc pri spracovaní faktúry č.<a href='"+siteUrl+"/invoice/"+req.invoice._id+"'>"+req.invoice.number+"</a>.<br>"
+                        + "Evidujeme ju ako neuhradenú. Faktúru si môžete pozrieť/vytlačiť kliknutím na nasledujúcu linku <br>"
+                        + "<a href='"+siteUrl+"/invoice/"+req.invoice._id+"'>"+siteUrl+"/invoice/"+req.invoice._id+"</a><br>"
+                        + "Pokiaľ ste úhradu vykonali, prosíme vás, aby ste nás kontaktovali a pomohli nám identifikovať chýbajúcu platbu.<br>"
                         + "V prípade, ak ste faktúru ešte neuhrádzali, prosíme vás kontakt a o pomoc pri riešení tejto situácie.<br><br>"
                         + "Ďakujeme za pochopenie.<br><br>"
-                        + "Tím FLL Slovensko";
+                        + "Tím FLL Slovensko<br>"
+                        + "faktury@fll.sk";
 
-                    email.sendMessage(req.user, toEml, cSubj, cTitle, cMsg, siteUrl);
+                    email.sendMessage(req.user, cReplyTo, toEml, cSubj, cTitle, cMsg, siteUrl);
 
                     r.result = "ok"
 

@@ -24,5 +24,6 @@ SMTP_PWD=
 EMAIL_FROM=noreply@fll.sk
 EMAIL_BCC_INVOICE=faktury@fll.sk
 EMAIL_BCC_REGISTER=registracia@fll.sk
+EMAIL_REPLYTO_BILLING=faktury@fll.sk
 
 TZ=Europe/Bratislava
