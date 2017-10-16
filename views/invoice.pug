@@ -36,6 +36,29 @@ block content
             font-weight:bold;
         }
 
+    div(class="dropdown")
+        button(class="btn btn-default btn-xs dropdown-toggle" type="button" id="invActions" data-toggle="dropdown")
+            span(class="glyphicon glyphicon-menu-hamburger")
+        ul(class="dropdown-menu" id="invMenu")
+            li
+                a(href="#" id="invPrint") Tlačiť
+
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invPay") Zaplatiť
+
+            - var now3 = new Date();
+            - now3.setDate(now3.getDate()-3);
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin) && (inv.dueOn < now3)
+                li
+                    a(href="#" id="invNotifyOverdue") Upozorniť na nezaplatenie
+
+
+            if !inv.paidOn &&  inv.type == "P" && (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invRemove") Vymazať
+
+
     div(style="max-width:600pt")
         div(class="onerow")
             table
@@ -204,4 +227,13 @@ block content
         p=" "
 
     script.
-        viewInvoice.init();
+
+        var u = '{ "locales": "#{user.locales}" ,'
+            + '"username": "#{user.username}", '
+            + '"permissions": { '
+            + '   "isAdmin": #{user.permissions.isAdmin?true:false}, '
+            + '   "isCoach": #{user.permissions.isCoach?true:false}, '
+            + '   "isInvoicingOrgManager":#{user.permissions.isInvoicingOrgManager?true:false}'
+            + '}}'
+
+        viewInvoice.init("#{inv._id}",u);

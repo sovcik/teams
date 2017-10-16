@@ -83,6 +83,54 @@ libInvoice.create = function(teamId, eventId, invType, cb){
 
 };
 
+libInvoice.remove = function(invId, cb){
+    console.log('Removing invoice '+invId);
+    (typeof cb === 'function') || (cb = libCommon.noop);
+    $.post("/invoice/"+invId,
+        {
+            cmd: 'remove'
+        },
+        function (res) {
+            console.log("remove: Server returned",res);
+            if (res.result == "ok") {
+                console.log("invoice removed", res.invoice._id);
+                cb(res);
+            } else {
+                console.log("Error removing invoice",res);
+                cb(res,{message:"Nepodarilo sa vymazať faktúru."});
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error marking invoice as paid",err);
+            cb(null, err);
+        });
+};
+
+libInvoice.notifyOverdue = function(invId, cb){
+    console.log('Notify Overdue '+invId);
+    (typeof cb === 'function') || (cb = libCommon.noop);
+    $.post("/invoice/"+invId,
+        {
+            cmd: 'notifyOverdue'
+        },
+        function (res) {
+            console.log("notifyOverdue: Server returned",res);
+            if (res.result == "ok") {
+                console.log("notification sent");
+                cb(res);
+            } else {
+                console.log("Error sending notification",res);
+                cb(res,{message:"Nepodarilo poslať notifikáciu."});
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error sending notification",err);
+            cb(null, err);
+        });
+};
+
 libInvoice.initInvoiceButtons = function(cb){
     console.log("Init Invoice Buttons");
     (typeof cb === 'function') || (cb = libCommon.noop);
