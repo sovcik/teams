@@ -1,0 +1,204 @@
+extends ../includes/layout
+
+block content
+    style.
+        .adr {
+            vertical-align: top;
+            padding: 10pt;
+            margin-top: 15pt;
+            margin-bottom: 15pt;
+            width: 150pt;
+        }
+        .itm {
+            vertical-align: top;
+            padding: 5pt;
+            margin-top: 3pt;
+            margin-bottom: 3pt;
+        }
+        .lbl {
+            width: 50pt;
+            float: left;
+            font-weight:bold;
+        }
+        .lbl2 {
+            font-weight:bold;
+        }
+
+        th {
+            text-align: center;
+        }
+        .onerow::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        .bold {
+            font-weight:bold;
+        }
+
+    div(style="max-width:600pt")
+        div(class="onerow")
+            table
+                tr
+                    td(style="width:85pt")
+                        img(src=siteUrl + "/images/FLL_Logo_web_white.jpg" alt="FLL Logo" width="80pt")
+                    td(style="width:300pt;padding-left:5pt")
+                        h4 #{inv.issuingOrg.name}
+                            br
+                            small= inv.issuingAdr.addrLine1 + (inv.issuingAdr.addrLine2?', '+inv.issuingAdr.addrLine2:'') + (inv.issuingAdr.addrLine3?', '+inv.issuingAdr.addrLine3:'')
+                            br
+                            small #{inv.issuingAdr.postCode} #{inv.issuingAdr.city}
+                            br
+                            small
+                                if inv.issuingOrg.companyNo
+                                    span(class="lbl2") IČO:
+                                    =" "
+                                    span #{inv.issuingOrg.companyNo}
+                                if inv.issuingOrg.taxNo
+                                    span(class="lbl2") , DIČ:
+                                    =" "
+                                    span #{inv.issuingOrg.taxNo}
+                                if inv.issuingOrg.VATNo
+                                    br
+                                    span(class="lbl2") IČ DPH:
+                                    =" "
+                                    span #{inv.issuingOrg.VATNo}
+
+                    td(style="width:200pt;text-align:right")
+                        h3= inv.type=="I"?"Faktúra":"Zálohová faktúra"
+                            br
+                            ="č. "+inv.number
+                        p Dátum vystavenia:
+                            =" " + fmt.fmtDate(inv.issuedOn, user.locales)
+                            br
+                            span Dátum dodania:
+                                =" " + fmt.fmtDate(inv.issuedOn, user.locales)
+                            br
+                            span(class="bold") Dátum splatnosti:
+                                =" " + fmt.fmtDate(inv.dueOn, user.locales)
+        p(style="font-size:80%") FIRST® LEGO® League is jointly held trademark of FIRST® (www.firstinspires.org) and the LEGO Group, neither of which is overseeing, involved with, or responsible for this activity, product, or service.
+
+        table
+            tr
+                td(style="border: thin solid black;width:300pt;padding:5pt")
+
+                    h5 Odberateľ
+                    h4 #{inv.billOrg.name}
+                    p #{inv.billAdr.addrLine1}
+                        if inv.billAdr.addrLine2
+                            =", "+inv.billAdr.addrLine2
+                        if inv.billAdr.addrLine3
+                            =", "+inv.billAdr.addrLine3
+                        br
+                        span #{inv.billAdr.postCode} #{inv.billAdr.city}
+
+                    if inv.billOrg.companyNo
+                        p
+                            span(class="lbl2") IČO:
+                            =" "
+                            span #{inv.billOrg.companyNo}
+                            if inv.billOrg.taxNo
+                                span(class="lbl2") , DIČ:
+                                =" "
+                                span #{inv.billOrg.taxNo}
+                    if inv.billOrg.VATNo
+                        p
+                            span(class="lbl2") IČ DPH:
+                            =" "
+                            span #{inv.billOrg.VATNo}
+                    if inv.billOrg.bankAccount
+                        p
+                            span(class="lbl2") IBAN:
+                            =" "
+                            span #{inv.billOrg.bankAccount}
+                    if inv.billOrg.bankSWIFT
+                        p
+                            span(class="lbl2") SWIFT:
+                            =" "
+                            span #{inv.billOrg.bankSWIFT}
+
+
+        p(style="margin-top:10pt") Fakturujeme vám za tím '#{inv.team.name}':
+
+        table(style="border-top:2pt;border-bottom:2pt")
+            tr
+                th(class="itm" style="width:20pt")
+                    ="#"
+                th(class="itm" style="width:380pt;text-align:left")
+                    ="Položka"
+                th(class="itm" style="width:70pt;text-align:right")
+                    ="J.Cena"
+                th(class="itm" style="width:50pt")
+                    ="Množstvo"
+                th(class="itm" style="width:80pt;text-align:right")
+                    ="Cena"
+            each itm in inv.items
+                tr
+                    td(class="itm")
+                        p #{itm.itemNo}
+                    td(class="itm")
+                        p #{itm.text}
+                            if itm.note
+                                br
+                                small #{itm.note}
+                    td(class="itm" style="text-align:right")
+                        if itm.unitPrice
+                            p
+                                =itm.unitPrice.toFixed(2) + " " + inv.currency
+                    td(class="itm" style="text-align:center")
+                        if itm.qty
+                            p #{itm.qty} #{itm.unit}
+                    td(class="itm" style="text-align:right")
+                        if itm.total
+                            p
+                                =itm.total.toFixed(2) + " " + inv.currency
+            tr
+                td(class="itm")
+                td(class="itm")
+                    h4 Celkom
+                td(class="itm")
+                td(class="itm")
+                td(class="itm")
+                    h4(style="text-align:right")
+                        =inv.total.toFixed(2) +" " + inv.currency
+
+        if inv.paidOn
+            h4(style="border: thin solid black;padding:5pt") Nič netreba platiť. Úhrada bola prijatá dňa
+                =" "+ fmt.fmtDate(inv.paidOn, user.locales)
+
+        if !inv.paidOn
+            table(style="border: thin solid black; width=100%")
+                tr
+                    td(class="itm")
+                        h5
+                            span(class="bold") Uhradiť do:
+                            br
+                            =" " + fmt.fmtDate(inv.dueOn, user.locales)
+                    td(class="itm")
+                        h5
+                            span(class="bold") IBAN:
+                            br
+                            =" " + inv.issuingOrg.bankAccount
+                    td(class="itm")
+                        h5
+                            span(class="bold") SWIFT:
+                            br
+                            =" " + inv.issuingOrg.bankSWIFT
+
+                    td(class="itm")
+                        h5
+                            span(class="bold") VS:
+                            br
+                            =" " + inv.number
+
+        if inv.type == "P"
+            p(style="margin-top:10pt") Ak si želáte zmeniť vaše fakturačné údaje na dokumente, tak ich môžete zmeniť na stránke tímu.
+                br
+                span Ak potrebujete finálnu faktúru, tak po skontrolovaní fakturačných údajov kliknite na stránke tímu na tlačidlo "Vytvor faktúru"
+                br
+                span V prípade, že uhradíte túto zálohovú faktúru, bude vám finálna faktúra vystavená automaticky.
+                br
+                span Stránku tímu môžete otvoriť aj klinknutím na tento link
+                    =" "
+                    a(href=(siteUrl||'')+"/team/"+inv.team._id) Otvoriť stránku tímu
+        p=" "
