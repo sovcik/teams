@@ -335,6 +335,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     r.result = "ok";
                     r.invoice = inv;
                     log.INFO("INVOICE confirmed. id="+inv._id+" no="+inv.number+" by user="+req.user.username);
+                    email.sendInvoice(req.user,inv,siteUrl);
                 } catch (err) {
                     r.error = err;
                     log.WARN("Failed confirming invoice. err="+err.message);
