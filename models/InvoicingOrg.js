@@ -15,8 +15,10 @@ const InvoicingOrgSchema = new mongoose.Schema({
     contact: ContactSchema,
     nextInvNumber: {type:Number, required:true, default:1},  // next tax invoice number
     nextNTInvNumber: {type:Number, required:true, default:1}, // next non-tax invoice number
+    nextCRInvNumber: {type:Number, required:true, default:1}, // next credit invoice number
     invNumPrefix: {type:String, required:true, default:''},
     ntInvNumPrefix: {type:String, required:true, default:''},
+    crInvNumPrefix: {type:String, required:true, default:''},
     dueDays:{type:Number, required:true, default:14},
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
