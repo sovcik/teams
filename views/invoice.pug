@@ -93,7 +93,7 @@ block content
 
                     td(style="width:200pt;text-align:right")
                         h3= inv.isDraft?"NÁVRH ":" "
-                            =inv.type=="I"?"Faktúra":"Zálohová faktúra"
+                            =inv.type=="I"?"Faktúra":("C"?"Dobropis":"Zálohová faktúra")
                             br
                             ="č. "+inv.number
                         p Dátum vystavenia:
