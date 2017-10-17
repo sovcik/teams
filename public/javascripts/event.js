@@ -134,9 +134,9 @@ viewEvent.loadRegisteredTeams = function(eventId){
                 $(".btnCreateTaxInvoice").on("click",function(event){
                     libInvoice.create(this.id.substr(3),eventId,"I",function(res,err){
                         if (err)
-                            alert("Chyba pri vytváraní zálohovej faktúry.",err);
+                            alert("Chyba pri vytváraní daňovej faktúry.",err);
                         else
-                            alert("Zálohová Faktúra bola vytvorená. Nájdete ju na stránke tímu.");
+                            alert("Daňová faktúra bola vytvorená. Nájdete ju na stránke tímu.");
                     });
                 });
                 $(".btnEditTeamNumber").on("click",function(evt){
