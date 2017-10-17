@@ -279,9 +279,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
                 let inv;
                 try {
-                    console.log('Going to create invoice');
+                    log.DEBUG('Going to create invoice team='+t.id+' event='+e.id);
                     inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
+                    inv = await libInvoice.confirmInvoice(inv._id);
                     inv = await Team.populate(inv,'team');
+                    log.INFO("Invoice created #"+inv.number);
                 } catch (er) {
                     log.ERROR("Failed creating invoice for teamId="+te.teamId+" eventId="+te.eventId+" err="+er.message);
                 }

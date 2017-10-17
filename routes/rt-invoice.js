@@ -174,7 +174,8 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 }
 
                 try {
-                    const inv = await libInvoice.createInvoice(teamId, eventId, invType);
+                    let inv = await libInvoice.createInvoice(teamId, eventId, invType);
+                    inv = await libInvoice.confirmInvoice(inv._id);
                     r.result = "ok";
                     r.invoice = inv;
                     log.INFO("INVOICE created: id=" + inv.id + " no=" + inv.number + " by user=" + req.user.username);

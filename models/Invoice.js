@@ -9,8 +9,9 @@ const ContactSchema = require('./Contact');
 const InvoiceItemSchema = require('./InvoiceItem');
 
 const InvoiceSchema = new mongoose.Schema({
-    number: { type: String, required: true },  // normally created as prefix+number
-    type: {type: String, required: true},
+    number: { type: String },  // normally created as prefix+number
+    type: {type: String, required: true}, // I/C/P
+    isDraft: {type: Boolean, default: true},
     invoicingOrg: { type: mongoose.Schema.Types.ObjectId, ref: 'invoicingOrg', required:true },
     issuingOrg: OrgSchema,
     issuingAdr: AddressSchema,
