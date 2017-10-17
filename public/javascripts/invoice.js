@@ -17,37 +17,61 @@ viewInvoice.init = function(invId, u) {
 
     $("#invPay").on("click", function(e){
         console.log("click invoice paid",invId);
-        $("#invActions").dropdown("toggle");
-        libInvoice.markAsPaid(
-            invId,
-            function(res, err){
-                if (err)
-                    alert("Nepodarilo sa označiť faktúru ako zaplatenú");
-                else {
-                    alert("Faktúru označená ako zaplatená");
-                    location.reload();
+        if (confirm("Naozaj chcete faktúru označiť ako zaplatenú?")) {
+            $("#invActions").dropdown("toggle");
+            libInvoice.markAsPaid(
+                invId,
+                function (res, err) {
+                    if (err)
+                        alert("Nepodarilo sa označiť faktúru ako zaplatenú");
+                    else {
+                        alert("Faktúru označená ako zaplatená");
+                        location.reload();
+                    }
                 }
-            }
-        );
-
+            );
+        }
         e.stopPropagation();
         e.preventDefault();
     } );
 
     $("#invRemove").on("click", function(e){
         console.log("click invoice remove",invId);
-        $("#invActions").dropdown("toggle");
-        libInvoice.remove(
-            invId,
-            function (res,err) {
-                if (err)
-                    alert("Nepodarilo sa vymazať faktúru.");
-                else {
-                    alert("Faktúra vymazaná.");
-                    window.history.back();
+        if (confirm('Naozaj chcete vymazať túto faktúru?')) {
+            $("#invActions").dropdown("toggle");
+            libInvoice.remove(
+                invId,
+                function (res, err) {
+                    if (err)
+                        alert("Nepodarilo sa vymazať faktúru.");
+                    else {
+                        alert("Faktúra vymazaná.");
+                        window.history.back();
+                    }
                 }
-            }
-        );
+            );
+        }
+        e.stopPropagation();
+        e.preventDefault();
+
+    });
+
+    $("#invConfirm").on("click", function(e){
+        console.log("click invoice confirm",invId);
+        if (confirm('Naozaj chcete potvrdiť tento návrh faktúry?')) {
+            $("#invActions").dropdown("toggle");
+            libInvoice.confirm(
+                invId,
+                function (res, err) {
+                    if (err)
+                        alert("Nepodarilo sa potvrdiť faktúru.");
+                    else {
+                        alert("Faktúra potvrdená.");
+                        location.reload();
+                    }
+                }
+            );
+        }
         e.stopPropagation();
         e.preventDefault();
 
@@ -55,17 +79,19 @@ viewInvoice.init = function(invId, u) {
 
     $("#invNotifyOverdue").on("click", function(e){
         console.log("click invoice notify overdue",invId);
-        $("#invActions").dropdown("toggle");
-        libInvoice.notifyOverdue(
-            invId,
-            function (res,err) {
-                if (err)
-                    alert("Nepodarilo sa poslať upozornenie.");
-                else {
-                    alert("Upozornenie poslané.");
+        if (confirm('Naozaj chcete poslať upomienku?')) {
+            $("#invActions").dropdown("toggle");
+            libInvoice.notifyOverdue(
+                invId,
+                function (res, err) {
+                    if (err)
+                        alert("Nepodarilo sa poslať upozornenie.");
+                    else {
+                        alert("Upozornenie poslané.");
+                    }
                 }
-            }
-        );
+            );
+        }
         e.stopPropagation();
         e.preventDefault();
 

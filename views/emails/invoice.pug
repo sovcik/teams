@@ -65,7 +65,8 @@ block content
                                     span #{inv.issuingOrg.VATNo}
 
                     td(style="width:200pt;text-align:right")
-                        h3= inv.type=="I"?"Faktúra":"Zálohová faktúra"
+                        h3= inv.isDraft?"Návrh ":" "
+                            =inv.type=="I"?"Faktúra":"Zálohová faktúra"
                             br
                             ="č. "+inv.number
                         p Dátum vystavenia:

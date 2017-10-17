@@ -67,7 +67,7 @@ viewInvOrg.loadInvoices = function(invOrgId){
                         if (item.paidOn)
                             c.append($('<td>').append((new Date(item.paidOn)).toLocaleDateString(res.user.locales)));
                         else
-                            if (res.user.isInvoicingOrgManager || res.user.isAdmin)
+                            if ((res.user.isInvoicingOrgManager || res.user.isAdmin) && !item.isDraft)
                                 c.append($('<td>').append($('<button id="PAY'+item._id+'" class="btn btn-default markAsPaid">').append("Zaplať")));
                             else
                                 c.append('');

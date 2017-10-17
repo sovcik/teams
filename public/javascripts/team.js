@@ -632,6 +632,7 @@ viewTeam.loadInvoices = function(teamId){
                     var c = $('<li class="list-group-item">')
                         .append($('<h5 class="list-group-item-heading">')
                             .append($('<a  href="/invoice/' + item._id + '">')
+                                .append((item.isDraft?"Návrh ":""))
                                 .append((item.type == "P" ? "Zálohová " : "") + item.number)
                             )
                         )
@@ -641,7 +642,7 @@ viewTeam.loadInvoices = function(teamId){
                             .append((item.paidOn ? "  Zaplatená "+pOn.toLocaleDateString() : ''))
                         );
 
-                    if (item.type == "P" && !item.taxInvoice)
+                    if (item.type == "P" && !item.taxInvoice && !item.isDraft)
                         c
                             .append($('<a href="/invoice/' + item._id + '?cmd=reloadInvoiceData" class="btn btn-default">')
                                 .append('Nahraj nové údaje')

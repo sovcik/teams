@@ -43,15 +43,19 @@ block content
             li
                 a(href="#" id="invPrint") Tlačiť
 
-            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
+            if !inv.isDraft && !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
                 li
                     a(href="#" id="invPay") Zaplatiť
 
             - var now3 = new Date();
             - now3.setDate(now3.getDate()-3);
-            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin) && (inv.dueOn < now3)
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin) && (inv.dueOn < now3) && !inv.isDraft
                 li
                     a(href="#" id="invNotifyOverdue") Upozorniť na nezaplatenie
+
+            if inv.isDraft
+                li
+                    a(href="#" id="invConfirm") Potvrď návrh
 
 
             if !inv.paidOn &&  inv.type == "P" && (user.isInvoicingOrgManager || user.isAdmin)
@@ -88,7 +92,8 @@ block content
                                     span #{inv.issuingOrg.VATNo}
 
                     td(style="width:200pt;text-align:right")
-                        h3= inv.type=="I"?"Faktúra":"Zálohová faktúra"
+                        h3= inv.isDraft?"NÁVRH ":" "
+                            =inv.type=="I"?"Faktúra":"Zálohová faktúra"
                             br
                             ="č. "+inv.number
                         p Dátum vystavenia:

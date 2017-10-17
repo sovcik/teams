@@ -37,6 +37,7 @@ router.param('id', async function (req, res, next){
 
             const p = await libPerm.getUserInvoicePermissions(req.user.id, inv.id);
             req.user.permissions = p;
+
         } catch (err) {
             log.WARN("Failed fetching user permissions. err="+err.message);
         }
@@ -96,7 +97,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     billOrg: true,
                     billAdr: true,
                     total:true,
-                    currency:true
+                    currency:true,
+                    isDraft:true
                 });
                 r.result = "ok";
                 r.list = l;
@@ -159,23 +161,24 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const teamId = req.body.teamId;
     const invType = req.body.type;
     const eventId = req.body.eventId;
-    console.log("/invoice - put");
+    console.log("/invoice - post");
     console.log(req.body);
     const r = {result:"error", status:200};
+
     try {
         switch (cmd) {
             case 'create':
                 console.log('Going to create invoice');
-                if (!req.user.permissions.isCoach
-                    && !req.user.permissions.isInvoicingOrgManager
-                    && !req.user.permissions.isAdmin) {
-                    console.log("Invoice create - permission denied");
-                    throw new Error("Permission denied");
+                let p = await libPerm.getUserTeamPermissions(req.user.id, teamId);
+                if (!p.isCoach
+                    && !p.isInvoicingOrgManager
+                    && !p.isAdmin) {
+                    throw new Error("Invoice create - Permission denied");
                 }
 
                 try {
                     let inv = await libInvoice.createInvoice(teamId, eventId, invType);
-                    inv = await libInvoice.confirmInvoice(inv._id);
+                    //inv = await libInvoice.confirmInvoice(inv._id);
                     r.result = "ok";
                     r.invoice = inv;
                     log.INFO("INVOICE created: id=" + inv.id + " no=" + inv.number + " by user=" + req.user.username);
@@ -192,7 +195,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         }
     } catch (err) {
         r.error = err;
-
+        log.ERROR("INVOICE POST failed. "+err.message);
     }
     res.json(r);
     res.end();
@@ -321,7 +324,22 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     throw new Error("Notify overdue invoice "+req.invoice.id+" err="+err.message);
                 }
                 break;
-
+            case 'confirm':
+                if (!req.user.permissions.isInvoicingOrgManager
+                    && !req.user.permissions.isAdmin) {
+                    throw new Error("Invoice confirm - Permission denied");
+                }
+                try {
+                    log.DEBUG("RT:Confirming invoice inv=" + req.invoice.id);
+                    let inv = await libInvoice.confirmInvoice(req.invoice.id);
+                    r.result = "ok";
+                    r.invoice = inv;
+                    log.INFO("INVOICE confirmed. id="+inv._id+" no="+inv.number+" by user="+req.user.username);
+                } catch (err) {
+                    r.error = err;
+                    log.WARN("Failed confirming invoice. err="+err.message);
+                }
+                break;
             default:
                 console.log('cmd=unknown');
                 break;

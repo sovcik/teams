@@ -53,7 +53,7 @@ libInvoice.markAsPaid = function(invId, cb){
 };
 
 libInvoice.create = function(teamId, eventId, invType, cb){
-    console.log("Creating invoice for team",teamId);
+    console.log("Creating invoice draft for team",teamId);
     (typeof cb === 'function') || (cb = libCommon.noop);
     $.post("/invoice",
         {
@@ -102,10 +102,35 @@ libInvoice.remove = function(invId, cb){
         }
     )
         .fail(function (err) {
-            console.log("Error marking invoice as paid",err);
+            console.log("Error removing invoice",err);
             cb(null, err);
         });
 };
+
+libInvoice.confirm = function(invId, cb){
+    console.log('Confirming invoice '+invId);
+    (typeof cb === 'function') || (cb = libCommon.noop);
+    $.post("/invoice/"+invId,
+        {
+            cmd: 'confirm'
+        },
+        function (res) {
+            console.log("confirm: Server returned",res);
+            if (res.result == "ok") {
+                console.log("invoice confirmed", res.invoice._id);
+                cb(res);
+            } else {
+                console.log("Error confirming invoice",res);
+                cb(res,{message:"Nepodarilo sa potvrdiť faktúru."});
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error confirming invoice",err);
+            cb(null, err);
+        });
+};
+
 
 libInvoice.notifyOverdue = function(invId, cb){
     console.log('Notify Overdue '+invId);
@@ -152,16 +177,18 @@ libInvoice.initInvoiceButtons = function(cb){
     $('.markAsPaid').on('click',
         function(evt){
             var invId = evt.target.id.substr(3);
-            console.log("click invoice paid",invId);
-            libInvoice.markAsPaid(
-                invId,
-                function(res, err){
-                    if (err)
-                        alert("Nepodarilo sa označiť faktúru ako zaplatenú");
-                    else
-                        cb(res);
-                }
-            );
+            if (confirm("Naozaj si želáte túto faktúru označiť ako zaplatenú?")) {
+                console.log("click invoice paid", invId);
+                libInvoice.markAsPaid(
+                    invId,
+                    function (res, err) {
+                        if (err)
+                            alert("Nepodarilo sa označiť faktúru ako zaplatenú");
+                        else
+                            cb(res);
+                    }
+                );
+            }
         }
     );
 };

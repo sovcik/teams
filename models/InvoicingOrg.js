@@ -13,12 +13,14 @@ const InvoicingOrgSchema = new mongoose.Schema({
     org: OrgSchema,
     adr: AddressSchema,
     contact: ContactSchema,
+    nextDraftInvNumber: {type:Number, required:true, default:1},  // next draft invoice number
+    draftInvNumPrefix: {type:String, required:true, default:'DR'},
     nextInvNumber: {type:Number, required:true, default:1},  // next tax invoice number
     nextNTInvNumber: {type:Number, required:true, default:1}, // next non-tax invoice number
     nextCRInvNumber: {type:Number, required:true, default:1}, // next credit invoice number
-    invNumPrefix: {type:String, required:true, default:''},
-    ntInvNumPrefix: {type:String, required:true, default:''},
-    crInvNumPrefix: {type:String, required:true, default:''},
+    invNumPrefix: {type:String, required:true, default:'IN'},
+    ntInvNumPrefix: {type:String, required:true, default:'NT'},
+    crInvNumPrefix: {type:String, required:true, default:'CR'},
     dueDays:{type:Number, required:true, default:14},
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
