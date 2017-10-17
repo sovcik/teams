@@ -190,11 +190,11 @@ block content
                     h4(style="text-align:right")
                         =inv.total.toFixed(2) +" " + inv.currency
 
-        if inv.paidOn
+        if inv.paidOn && inv.type !== "C"
             h4(style="border: thin solid black;padding:5pt") Nič netreba platiť. Úhrada bola prijatá dňa
                 =" "+ fmt.fmtDate(inv.paidOn, user.locales)
 
-        if !inv.paidOn
+        if !inv.paidOn && inv.type !== "C"
             table(style="border: thin solid black; width=100%")
                 tr
                     td(class="itm")
