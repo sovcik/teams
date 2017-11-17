@@ -7,6 +7,7 @@ const cel = require('connect-ensure-login');
 const mongoose = require('mongoose');
 
 const dbTeam = require('../lib/db/Team');
+const libPerm = require('../lib/permissions');
 
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
@@ -27,18 +28,31 @@ router.param('id', async function (req, res, next){
         if (r) {
             console.log("Team id=", r.id, " name=", r.name);
 
+            if (!req.user)
+                req.user = {};
+
+            req.user.permissions = await libPerm.getUserTeamPermissions(req.user.id, r.id);
+
+            console.log("PPPP",req.user.permissions);
+
+            /*
             if (req.user) {
+
                 let q = {teamId: id, userId: req.user.id, role: 'coach'};
                 let tu = await TeamUser.findOne(q);
                 if (tu) {
                     console.log('User is team coach');
                     req.user.isCoach = true;
                 }
+
             } else {
                 req.user = {isCoach:false};
             }
+            */
 
-            r = await dbTeam.getTeamDetails(req.user, id);
+            r = await dbTeam.getTeamDetails(req.user.id, id);
+            console.log("EEEEE",r);
+
             req.team = r;
 
         } else {
@@ -48,6 +62,7 @@ router.param('id', async function (req, res, next){
         next();
     } catch (err) {
         log.ERROR(err);
+        console.log(err.stack);
         res.render('message',{title:"Tím nenájdený",error:{status:err.message}});
     }
 
@@ -141,7 +156,7 @@ router.get('/:id',cel.ensureLoggedIn('/login'), async function (req, res, next) 
         }
     } catch(err) {
         r.error = {message:err.message};
-        log.ERROR(err);
+        log.ERROR("Error rt-team get/:id err="+err.message);
     }
     res.json(r);
     res.end();
@@ -154,7 +169,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, re
     const r = {result:"error", status:200};
 
     // no modifications allowed unless user is team coach or admin
-    if (!req.user.isAdmin && !req.user.isCoach){
+    if (!req.user.permissions.isAdmin && !req.user.permissions.isCoach){
         r.error = {};
         r.error.message = "permission denied";
         res.json(r);
@@ -180,7 +195,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, re
 
     } catch (err) {
         r.error = {message:err.message};
-        log.ERROR(err);
+        log.ERROR("Error rt-team post. err="+err.message);
     }
 
     res.json(r);
@@ -194,14 +209,14 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
     const r = {result:"error", status:200};
 
     // no modifications allowed unless user is team coach or admin
-    if (!req.user.isAdmin && !req.user.isCoach){
+    if (!req.user.permissions.isAdmin && !req.user.permissions.isCoach){
         r.error = {message:"permission denied"};
         res.json(r);
         res.end();
         return;
     }
 
-    if (!req.user.isAdmin && req.team.recordStatus !== 'active'){
+    if (!req.user.permissions.isAdmin && req.team.recordStatus !== 'active'){
         r.error = {message:"inactive record"};
         res.json(r);
         res.end();

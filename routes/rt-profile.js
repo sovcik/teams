@@ -87,7 +87,6 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 router.get('/:id', async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get("host");
-    console.log("SITE URL",siteUrl);
     const cmd = req.query.cmd;
     console.log("/profile/:id - PUBLIC get");
     var nextRouter = true;
@@ -116,7 +115,6 @@ router.get('/:id', async function (req, res, next) {
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get("host");
-    console.log("SITE URL",siteUrl);
     const cmd = req.query.cmd;
     console.log("/profile/:id - get");
 

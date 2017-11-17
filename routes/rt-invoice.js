@@ -38,6 +38,9 @@ router.param('id', async function (req, res, next){
             const p = await libPerm.getUserInvoicePermissions(req.user.id, inv.id);
             req.user.permissions = p;
 
+            console.log("PERM=",p);
+            console.log("USER=",req.user);
+
         } catch (err) {
             log.WARN("Failed fetching user permissions. err="+err.message);
         }
@@ -49,10 +52,18 @@ router.param('id', async function (req, res, next){
 
 });
 
+router.get('/', async function (req, res, next) {
+    console.log("/invoice/ - get");
+
+    req.user.permissions = await libPerm.getUserInvoicePermissions(req.user.id, null);
+
+    next();
+
+});
+
 
 router.get('/:id', async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get("host");
-    console.log("SITE URL",siteUrl);
     const cmd = req.query.cmd;
     console.log("/invoice/ID - get");
 
@@ -76,6 +87,15 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const r = {result:"error", status:200, error:{}};
 
     try {
+
+        let p = await libPerm.getUserTeamPermissions(req.user.id, teamId);
+
+        if (!p.isCoach
+            && !p.isInvoicingOrgManager
+            && !p.isAdmin) {
+            throw new Error("Invoices query - Permission denied");
+        }
+
         switch (cmd) {
             case 'getList':
 
@@ -127,6 +147,13 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     const r = {result:"error", status:200, error:{}};
 
     try {
+
+        if (!req.user.permissions.isCoach
+            && !req.user.permissions.isInvoicingOrgManager
+            && !req.user.permissions.isAdmin) {
+            throw new Error("Invoice query - Permission denied");
+        }
+
         switch (cmd) {
             case 'reloadInvoiceData':
                 console.log('Reloading invoice data');
@@ -166,10 +193,13 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const r = {result:"error", status:200};
 
     try {
+
+        let p = await libPerm.getUserTeamPermissions(req.user.id, teamId);
+
         switch (cmd) {
             case 'create':
                 console.log('Going to create invoice');
-                let p = await libPerm.getUserTeamPermissions(req.user.id, teamId);
+
                 if (!p.isCoach
                     && !p.isInvoicingOrgManager
                     && !p.isAdmin) {

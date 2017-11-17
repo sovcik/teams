@@ -37,13 +37,13 @@ block content
                         span(id="pInvoice")
                         span(id="iInvoice")
                 else
-                    if user && (user.isAdmin || user.isCoach) && team.recordStatus == 'active'
+                    if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
                         button(class="btn btn-success" data-toggle="modal" data-target="#registerEvent") Registruj na turnaj
             div(class='form-group')
                 ul(class='list-group' id="invoices")
         div(class='panel-footer')
             div(class='form-group')
-                if user && (user.isAdmin || user.isCoach) && team.recordStatus == 'active'
+                if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
                     div(class='btn-group')
                         button(id="btnFounderDetails" class="btn btn-default") Zriaďovateľ
                         button(id="btnBillingDetails" class="btn btn-default") Fakturačné údaje
@@ -75,7 +75,7 @@ block content
         div(id='coachList' class='panel-body container-fluid')
             div(class='panel col-sm-6')
                 p Žiadny
-        if user && (user.isAdmin || user.isCoach) && team.recordStatus == 'active'
+        if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
             div(class='panel-footer')
                 button(id='btnAddCoach' type="button" class="btn btn-default")
                     span(class="glyphicon glyphicon-user") +
@@ -89,7 +89,7 @@ block content
             div(id='memberList' class='container-fluid')
                 div(class='panel')
                     p Žiadny
-        if user && (user.isAdmin || user.isCoach) && team.recordStatus == 'active'
+        if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
             div(class='panel-footer')
                 button(id='createMember' type="button" class="btn btn-default")
                     span(class="glyphicon glyphicon-user") +

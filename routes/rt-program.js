@@ -44,7 +44,7 @@ router.get('/:id', async function (req, res, next) {
         case 'exportPublic':
             try {
                 log.WARN('Program PUBLIC data export requested for program='+req.program._id);
-                r.data = await dbExport.exportProgramData(req.program._id, false);
+                r.data = await dbExport.exportProgramData(req.program._id, null, false);
                 r.user = req.user;
                 r.result = 'ok';
             } catch (err) {
@@ -159,7 +159,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 
             try {
                 log.WARN('Program data export requested by user='+req.user.username+' for program='+req.program._id);
-                r.data = await dbExport.exportProgramData(req.program._id, true);
+                r.data = await dbExport.exportProgramData(req.program._id, null, true);
                 r.user = req.user;
                 r.result = 'ok';
             } catch (err) {
