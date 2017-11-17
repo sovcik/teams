@@ -69,6 +69,14 @@ block content
             div(id="allTeams")
 
     script.
-        viewEvent.init();
+        var u = '{ "locales": "#{user.locales}" ,'
+            + '"username": "#{user.username}", '
+            + '"permissions": { '
+            + '   "isAdmin": #{user.isAdmin ? true : false}, '
+            + '   "isEventOrganizer": #{user.isEventOrganizer ? true : false}, '
+            + '   "isProgramManager": #{user.isProgramManager ? true : false}, '
+            + '   "isInvoicingOrgManager":#{user.isInvoicingOrgManager ? true : false}'
+            + '}}'
+        viewEvent.init("#{event._id}",u);
 
 

@@ -2,8 +2,8 @@
 
 var viewEvent = {};
 
-viewEvent.init = function (){
-    var evId = getResourceId(location.href);
+viewEvent.init = function (evId,u){
+    viewEvent.user = JSON.parse(u);
 
     viewEvent.loadRegisteredTeams(evId);
     viewEvent.loadOrganizers(evId);
@@ -107,17 +107,18 @@ viewEvent.loadRegisteredTeams = function(eventId){
 
             sel.empty();
 
+            let perms = viewEvent.user.permissions;
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     let c = $('<div class="well well-sm container-fluid">')
                         .append($('<a href="/team/'+item._id+'" >')
                             .append(item.name+(item.teamEvent.teamNumber?"  [#"+item.teamEvent.teamNumber+"]":"")+", "+(item.billingAdr?item.billingAdr.city:"xxx")+", "+(item.billingOrg?item.billingOrg.name:"xxx")))
-                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="ETN'+item.teamEvent._id+'" class="btn btn-default btnEditTeamNumber" style="float:right">')
+                        .append(perms.isAdmin||perms.isProgramManager?$('<button id="ETN'+item.teamEvent._id+'" class="btn btn-default btnEditTeamNumber" style="float:right">')
                             .append("Číslo tímu"):'')
-                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="CNI'+item._id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
+                        .append(perms.isAdmin||perms.isInvoicingOrgManager?$('<button id="CNI'+item._id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
                             .append("Vytvor proformu"):'')
-                        .append(res.isAdmin||res.isEventOrganizer?$('<button id="CTI'+item._id+'" class="btn btn-default btnCreateTaxInvoice" style="float:right">')
+                        .append(perms.isAdmin||perms.isInvoicingOrgManager?$('<button id="CTI'+item._id+'" class="btn btn-default btnCreateTaxInvoice" style="float:right">')
                             .append("Vytvor faktúru"):'');
 
                     sel.append(c);
