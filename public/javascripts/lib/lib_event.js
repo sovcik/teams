@@ -2,6 +2,21 @@
 
 var libEvent = {};
 
+libEvent.exportData = function (eventId,cb){
+    console.log('Exporting event data');
+    $.get( "/event/"+eventId+"?cmd=export", function(res) {
+        console.log("exportEvent: Server returned",res);
+        if (res.result === 'ok'){
+            return cb(res);
+        } else {
+            console.log("exportEvent: Server returned ERROR");
+            return cb(null);
+        }
+
+    });
+
+};
+
 libEvent.addOrganizer = function(eventId, username, callback){
 
     if (typeof callback !== "function")

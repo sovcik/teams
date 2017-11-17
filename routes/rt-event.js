@@ -8,6 +8,7 @@ const email = require('../lib/email');
 const log = require('../lib/logger');
 const libInvoice = require('../lib/invoice');
 const libFmt = require('../lib/fmt');
+const dbExport = require('../lib/db/export');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
@@ -75,8 +76,9 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     console.log(req.query);
 
     const r = {result:"error", status:200};
-    r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
-    r.isEventOrganizer = req.user.isEventOrganizer;
+
+    //r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
+    //r.isEventOrganizer = req.user.isEventOrganizer;
 
     try {
         switch (cmd) {
@@ -110,6 +112,22 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 r.result = "ok";
 
                 break;
+            case 'export':
+                if (!req.user.isAdmin && !req.user.isEventOrganizer) {
+                    r.error = {message:"permission denied"};
+                    break;
+                }
+
+                try {
+                    log.WARN('Event data export requested by user='+req.user.username+' for event='+req.event._id);
+                    r.data = await dbExport.exportProgramData(req.event.programId, req.event._id, true);
+                    r.user = req.user;
+                    r.result = 'ok';
+                } catch (err) {
+                    r.error = {message:"Failed to export event data. err="+err};
+                }
+
+                break;
 
             default:
                 console.log('cmd=unknown');
@@ -127,6 +145,8 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     const progId = req.query.program;
+    const evtOrgId = req.query.eo;
+
     console.log("/event - get (CMD)");
     console.log(req.query);
 
@@ -141,6 +161,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 let q = {recordStatus: 'active'};
                 if (progId)
                     q.programId = progId;
+                if (evtOrgId)
+                    q.managers = evtOrgId;
                 const p = await Event.find(q, {id: 1, name: 1, startDate:1, endDate:1});
                 r.result = "ok";
                 r.list = p;

@@ -13,7 +13,7 @@ viewProgram.init = function (){
             // get JSON data
             libProgram.exportData(resId, function(d){
                 // convert to CSV
-                var data = libProgram.JSON2CSV(d.data,'\t');
+                var data = libCommon.Prog2CSV(d.data,'\t');
                 // save to file
                 var encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
                 var link = document.createElement("a");

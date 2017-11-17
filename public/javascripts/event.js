@@ -8,6 +8,26 @@ viewEvent.init = function (evId,u){
     viewEvent.loadRegisteredTeams(evId);
     viewEvent.loadOrganizers(evId);
 
+    $("#exportData").on(
+        "click",
+        function(){
+            // get JSON data
+            libEvent.exportData(evId, function(d){
+                // convert to CSV
+                var data = libCommon.Prog2CSV(d.data,'\t');
+                // save to file
+                var encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "program_export.csv");
+                document.body.appendChild(link);
+
+                link.click();
+
+            });
+        }
+    );
+
     $("#btnSaveTeamNumber").on("click", function(ev){
         var teamEventId = $("#teamEventId").val();
         var teamNum = $("#teamNumber").val();

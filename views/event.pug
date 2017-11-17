@@ -29,6 +29,7 @@ block content
             if user && (user.isAdmin || user.isEventOrganizer || user.isProgramManager)
                 button(id='addOrganizer' type='button' class='btn btn-default') Pridaj organizátora
                 button(id='setDate' type='button' class='btn btn-default') Nastav dátum
+                button(id='exportData' type="button" class="btn btn-default") Export dát
 
     div(id='modalDlgs')
         if (user && (user.isAdmin || user.isProgramManager))
