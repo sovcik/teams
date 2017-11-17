@@ -18,7 +18,7 @@ viewProgram.init = function (){
                 var encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
                 var link = document.createElement("a");
                 link.setAttribute("href", encodedUri);
-                link.setAttribute("download", "program_export.csv");
+                link.setAttribute("download", "program_export_utf8.csv");
                 document.body.appendChild(link);
 
                 link.click();
