@@ -12,6 +12,7 @@ const Team = mongoose.models.Team;
 const User = mongoose.models.User;
 const TeamUser = mongoose.models.TeamUser;
 const Program = mongoose.models.Program;
+const Event = mongoose.models.Event;
 const OneTime = mongoose.models.OneTime;
 
 const dbUser = require('../lib/db/User');
@@ -23,10 +24,12 @@ router.param('id', async function (req, res, next){
     const id = req.params.id;
     let u;
     try {
-        u = await User.findById(id,{salt:0, passwordHash:0});
-        req.profile = u;
+        u = await User.findById(id,{salt:0, passwordHash:0},{lean:true});
         if (!u)
             throw new Error("profile not found");
+
+        req.profile = u;
+        req.profile.id = req.profile._id;
 
         log.DEBUG("Profile id="+req.profile.id+" username="+req.profile.username);
 
@@ -121,25 +124,31 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     if (cmd)
         next();
     else {
-        let isProgramManager = false;
-        let isCoach = false;
         try {
             let pm = await Program.findOne({managers:req.profile.id });
             if (pm) {
-                isProgramManager = true;
+                req.profile.isProgramManager = true;
                 console.log("Profile is program manager");
             } else
                 console.log("Profile is NOT program manager");
+
+            let em = await Event.findOne({managers:req.profile.id, recordStatus:'active' });
+            if (em) {
+                req.profile.isEventOrganizer = true;
+                console.log("Profile is event manager");
+            } else
+                console.log("Profile is NOT event manager");
+
             let tm = await TeamUser.findOne({userId:req.profile.id, role:'coach'});
             if (tm) {
-                isCoach = true;
+                req.profile.isCoach = true;
                 console.log("Profile is coach");
             } else
                 console.log("Profile is NOT coach");
         } catch (err) {
             log.WARN("Failed fetching program data for user profile. "+err);
         }
-        res.render('profile', {profile: req.profile, coach: isCoach, user: req.user, isProgramManager:isProgramManager});
+        res.render('profile', {profile: req.profile, user: req.user});
     }
 
 });

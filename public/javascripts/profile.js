@@ -2,8 +2,9 @@
 
 var viewProfile = {};
 
-viewProfile.init = function(){
+viewProfile.init = function(profId, u){
     console.log("/profile - Initializing");
+    viewProfile.user = JSON.parse(u);
     var profileId = getResourceId(location.href);
 
     $(".createTeamBtn").on("click",function(ev){
@@ -79,10 +80,11 @@ viewProfile.init = function(){
         });
     });
 
-    viewProfile.loadCoachOfTeams();
-    viewProfile.loadMemberOfTeams();
-    viewProfile.loadPrograms();
-    viewProfile.loadMyPrograms();
+    viewProfile.loadCoachOfTeams(profileId);
+    viewProfile.loadMemberOfTeams(profileId);
+    viewProfile.loadPrograms(profileId);
+    viewProfile.loadMyPrograms(profileId);
+    viewProfile.loadMyEvents(profileId);
 
     console.log("/profile - Initializing completed");
 };
@@ -229,6 +231,35 @@ viewProfile.loadMyPrograms = function (){
                 });
             } else {
                 t.text('Žiadne programy');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
+
+};
+
+viewProfile.loadMyEvents = function (){
+    var profileId = getResourceId(location.href);
+    var selProg = $("#myEvents");
+    if (null === document.getElementById('myEvents')) // profile is not of program manager
+        return;
+    console.log('Loading events profile manages');
+    $.get( libCommon.getNoCache("/event?cmd=getList&eo="+profileId), function(res) {
+        console.log("Server returned my events",res);
+        if (res.result === 'ok'){
+            // sort programs by name
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+            selProg.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    var c = $('<a href="/event/'+item._id+'" class="list-group-item" >').append(item.name);
+                    selProg.append(c);
+                });
+            } else {
+                t.text('Žiadne stretnutia/turnaje');
             }
         } else {
             console.log("Server returned ERROR");

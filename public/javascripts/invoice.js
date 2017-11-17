@@ -5,7 +5,6 @@ var viewInvoice = {};
 viewInvoice.init = function(invId, u) {
     console.log("Invoice initialized");
     var user = JSON.parse(u);
-    console.log("json-user=",user );
 
     $("#invPrint").on("click", function(e){
         console.log("click invoice print",invId);
