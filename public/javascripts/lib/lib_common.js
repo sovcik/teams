@@ -67,7 +67,7 @@ libCommon.convertSys2LocaleDate = function(d,locale){
 
 };
 
-libCommon.Prog2CSV = function(data,sep,locales) {
+libCommon.Prog2CSV = function(data,sep,locales,incEml) {
     var str = '';
 
     // header
@@ -104,6 +104,18 @@ libCommon.Prog2CSV = function(data,sep,locales) {
         'member.09.dob'+sep+
         'member.10.fullName'+sep+
         'member.10.dob';
+    if (incEml)
+        header += sep+
+            'member.01.email'+sep+
+            'member.02.email'+sep+
+            'member.03.email'+sep+
+            'member.04.email'+sep+
+            'member.05.email'+sep+
+            'member.06.email'+sep+
+            'member.07.email'+sep+
+            'member.08.email'+sep+
+            'member.09.email'+sep+
+            'member.10.email';
 
     str += header + '\r\n';
 
@@ -143,6 +155,15 @@ libCommon.Prog2CSV = function(data,sep,locales) {
             else
                 line += sep + ' ' + sep + ' ';
         }
+
+        if (incEml)
+            for (j = 0; j < 10; j++) {
+                if (j < t.members.length)
+                    line += sep + t.members[j].email;
+                else
+                    line += sep + ' ';
+            }
+
 
         str += line + '\r\n';
     }

@@ -2,8 +2,10 @@
 
 var viewProgram = {};
 
-viewProgram.init = function (){
-    var resId = getResourceId(location.href);
+viewProgram.init = function (rId, u){
+    viewProgram.user = JSON.parse(u);
+    var resId = rId; //getResourceId(location.href);
+    console.log(viewProgram.user,rId);
     viewProgram.loadManagers(resId);
     viewProgram.loadEvents(resId);
     viewProgram.loadTeams(resId);
@@ -13,7 +15,7 @@ viewProgram.init = function (){
             // get JSON data
             libProgram.exportData(resId, function(d){
                 // convert to CSV
-                var data = libCommon.Prog2CSV(d.data,'\t');
+                var data = libCommon.Prog2CSV(d.data,'\t',viewProgram.user.locales, viewProgram.user.permissions.isAdmin?1:0);
                 // save to file
                 var encodedUri = encodeURI("data:text/csv;charset=utf-8,"+data);
                 var link = document.createElement("a");
