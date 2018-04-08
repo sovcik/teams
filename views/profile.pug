@@ -100,10 +100,6 @@ block content
                             label Meno tímu
                             input(type='text', placeholder='meno timu' name='newTeamName' class="form-control")
                             span(class="glyphicon form-control-feedback")
-                        div(class='form-group')
-                            label Program/súťaž
-                            select(id='newTeamProgram' class="form-control")
-                                option -none-
                     div(class='modal-footer')
                         div(class='row')
                             div(class='col-sm-12')
@@ -127,10 +123,10 @@ block content
     div(id="modalDlgs")
 
     script.
-        var u = '{ "locales": "#{user.locales}" ,'
-            + '"username": "#{user.username}", '
+        var u = '{ "locales": "#{user?user.locales:"en-US"}" ,'
+            + '"username": "#{user?user.username:"not-logged-in"}", '
             + '"permissions": { '
-            + '   "isAdmin": #{user.isAdmin ? true : false} '
+            + '   "isAdmin": #{user?(user.isAdmin ? true : false):false} '
             + '}}';
 
         viewProfile.init("#{profile._id}",u);

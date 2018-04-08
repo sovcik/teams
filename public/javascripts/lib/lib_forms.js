@@ -8,10 +8,11 @@ libForms.validate = function(fields,cb){
     for (var i = 0; i < fields.length; i++){
         if (fields[i].required && !fields[i].value)
             errors.push({field:fields[i].id, message:"required"});
-        if (fields[i].type == 'date'){
-            try {
-                fields[i].dateValue = new Date(libCommon.convertLocaleDate2SysDate(fields[i].value, fields[i].locales));
-            } catch (err) {
+        if (fields[i].type === 'date'){
+            var m = moment(fields[i].value, fields[i].dateFormat?fields[i].dateFormat.toUpperCase():"MM/DD/YYYY");
+            if (m.isValid()) {
+                fields[i].dateValue = m.toDate();
+            } else {
                 errors.push({field:fields[i].id, message:"nesprávny formát dátumu"});
             }
         }

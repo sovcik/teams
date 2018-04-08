@@ -5,9 +5,14 @@ var viewInvOrg = {};
 viewInvOrg.filterPaidStatus = 'A';
 viewInvOrg.filterInvType = 'A';
 
-viewInvOrg.init = function(){
+viewInvOrg.init = function(invOrgId, u){
     console.log("Initializing Invoicing Org");
-    var invOrgId = getResourceId(location.href);
+    viewInvOrg.user = JSON.parse(u);
+    moment.locale(viewInvOrg.user.locales.substr(0,2));
+
+    $('.editable').editable();
+
+    //var invOrgId = getResourceId(location.href);
     $("#filterPaidStatus").val(viewInvOrg.filterPaidStatus);
     $("#filterInvType").val(viewInvOrg.filterInvType);
     viewInvOrg.loadInvoices(invOrgId);

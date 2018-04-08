@@ -82,7 +82,9 @@ viewProfile.init = function(profId, u){
 
     viewProfile.loadCoachOfTeams(profileId);
     viewProfile.loadMemberOfTeams(profileId);
-    viewProfile.loadPrograms(profileId);
+    //viewProfile.loadPrograms(profileId);
+    // load list of programs available for newly created team
+    //libCommon.loadList($('#newTeamProgram'),"/program?cmd=getList");
     viewProfile.loadMyPrograms(profileId);
     viewProfile.loadMyEvents(profileId);
 
@@ -185,31 +187,7 @@ viewProfile.loadMemberOfTeams = function(){
     console.log("Loading user's teams is not implemented yet");
 };
 
-viewProfile.loadPrograms = function (){
-    var selProg = $('#newTeamProgram');
-    console.log('Loading programs');
-    $.get( libCommon.getNoCache("/program?cmd=getList"), function(res) {
-        console.log("Server returned available programs",res);
-        if (res.result === 'ok'){
-            // sort programs by name
-            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
-            selProg.empty();
-            if (res.list.length > 0) {
-                console.log("Found ",res.list.length,"records");
-                res.list.forEach(function(item) {
-                    var c = $('<option value="'+item._id+'"">').append(item.name);
-                    selProg.append(c);
-                });
-            } else {
-                t.text('Žiadne programy');
-            }
-        } else {
-            console.log("Server returned ERROR");
-        }
 
-    });
-
-};
 
 viewProfile.loadMyPrograms = function (){
     var profileId = getResourceId(location.href);
@@ -277,7 +255,7 @@ viewProfile.createNewTeam = function(coachId){
     var selStatus = $("#teamCreateStatus");
     if (selTeamName.val().trim() != '' && selTeamName.val().trim().length >= 5) {
         console.log("Posting request to create new team");
-        $.post("/team/", {cmd: 'create', name: selTeamName.val(), programId:selProg.val(), coach:coachId}, function (res) {
+        $.post("/team/", {cmd: 'create', name: selTeamName.val(), coach:coachId}, function (res) {
             console.log("createTeam: Server returned",res);
             if (res.result == "ok") {
                 console.log("Team created");

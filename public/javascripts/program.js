@@ -4,11 +4,16 @@ var viewProgram = {};
 
 viewProgram.init = function (rId, u){
     viewProgram.user = JSON.parse(u);
+    moment.locale(viewProgram.user.locales.substr(0,2));
     var resId = rId; //getResourceId(location.href);
     console.log(viewProgram.user,rId);
     viewProgram.loadManagers(resId);
     viewProgram.loadEvents(resId);
     viewProgram.loadTeams(resId);
+
+    $('.editable').editable();
+    //$('#endDate').editable();
+
     $("#exportData").on(
         "click",
         function(){
@@ -128,7 +133,8 @@ viewProgram.loadEvents = function (progId){
 viewProgram.loadTeams = function (progId){
     var selEv = $('#teamList');
     console.log('Loading teams');
-    $.get( libCommon.getNoCache("/team?cmd=getList&programId="+progId), function(res) {
+    //TODO: read list of teams from events
+    $.get( libCommon.getNoCache("/teamevent?cmd=getTeams&programId="+progId), function(res) {
         console.log("loadTeams: Server returned",res);
         if (res.result === 'ok'){
             // sort events by name
@@ -142,7 +148,7 @@ viewProgram.loadTeams = function (progId){
                     selEv.append(c);
                 });
             } else {
-                t.text('Žiadne tímy');
+                selEv.text('Žiadne tímy');
             }
         } else {
             console.log("loadTeams: Server returned ERROR");

@@ -13,6 +13,7 @@ const EventSchema = new mongoose.Schema({
     invoicingOrg: { type: mongoose.Schema.Types.ObjectId, ref: 'InvoicingOrg' },
     startDate: {type: Date, required: false},
     endDate: {type: Date, required: false},
+    regEndDate: {type: Date, required: false},
     address: AddressSchema,
     instructions: { type: String, required: false },
     organizerOrg: OrgSchema,

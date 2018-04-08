@@ -4,6 +4,7 @@ const cel = require('connect-ensure-login');
 const router = express.Router();
 const log = require('../lib/logger');
 const dbExport = require('../lib/db/export');
+const libFmt = require('../lib/fmt');
 
 const Program = mongoose.models.Program;
 const User = mongoose.models.User;
@@ -75,7 +76,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     if (cmd)
         next();
     else {
-        res.render('program', {user: req.user, program:req.program});
+        res.render('program', {user: req.user, program:req.program, fmt:libFmt});
     }
 
 });
@@ -93,7 +94,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         } catch (err) {
             log.WARN("Failed to fetch list of programs. err="+err);
         }
-        res.render('programs', {user: req.user, programs:list});
+        res.render('programs', {user: req.user, programs:list, fmt:libFmt});
     }
 
 });
@@ -209,6 +210,46 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     res.json(r);
     res.end();
 
+
+});
+
+router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/program/:ID/fields - post");
+    console.log(req.body);
+    const r = {result:"error", status:200};
+
+    // no modifications allowed unless user is program manager or admin
+    if (!req.user.isAdmin && !req.user.isProgramManager){
+        r.error = {};
+        r.error.message = "permission denied";
+        res.json(r);
+        res.end();
+        return;
+    }
+
+    try {
+        if (req.body.name) {
+            let p = await Program.findById(req.body.pk);
+            if (p) {
+                p[req.body.name] = req.body.value;
+                let verr = p.validateSync();
+                if (!verr) {
+                    await p.save();
+                    r.result = "ok";
+                } else
+                    r.error = {message:"Chyba: "+verr};
+            } else {
+                r.error = {message:"Program nenájdený id="+req.body.pk};
+            }
+        }
+
+    } catch (err) {
+        r.error = {message:err.message};
+        log.ERROR("Error rt-team post. err="+err.message);
+    }
+
+    res.json(r);
+    res.end();
 
 });
 

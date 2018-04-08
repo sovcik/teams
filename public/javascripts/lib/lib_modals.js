@@ -115,6 +115,7 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
             document.getElementById("MFDG" + flds[i].field).classList.add("has-error");
     }
 
+    // if no callback has been specified, then define empty one
     if (typeof cb !== "function") cb = libCommon.noop();
 
     // if no second-level validation provided
@@ -124,17 +125,19 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
             cb2(flds);
         };
 
+    // remove any previously created dialog
     $("#multiFieldDlg").remove();
 
     var flds = $("<div class='modal-body'>");
 
+    // construct HTML representation for each field
     for(var i = 0; i < fields.length; i++){
         var f = fields[i];
         var gr = $("<div id='MFDG"+f.id+"'>");
         switch (f.type){
             case "button":
                 gr
-                    .append($('<button id="MFDF'+f.id+'" class="btn btn-info" type="button" onclick="'+f.onclick+'">')
+                    .append($('<button id="MFDF'+f.id+'" class="btn btn-info" type="button">')
                         .append(f.label)
                     );
                 break;
@@ -143,24 +146,35 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
                 gr
                     .append($("<div class='"+f.type+"'>")
                         .append($("<label>")
-                            .append($("<input id='MFDF"+f.id
-                                +"' type='"+f.type+"' "
-                                +(f.value?("value='"+f.value+"'"):" ")
+                            .append($("<select id='MFDF"+f.id+"'"
+                                +(f.value?(" value='"+f.value+"'"):"")
                                 +" name='"+f.name+"'>"))
                             .append(f.label)
+                        )
+                    );
+                break;
+            case "select":
+                gr
+                    .append($("<div class='form-group'>")
+                        .append($("<label for='MFDF"+f.id+"'>").append(f.label))
+                        .append($("<select id='MFDF"+f.id+"'"
+                            +" class='form-control' name='"+f.name+"'>")
                         )
                     );
                 break;
             case "date":
                 gr
                     .append($("<div class='form-group'>")
-                        .append($("<label for='MFDF"+f.id+"'>").append(f.label))
-                        .append($("<input id='MFDF"+f.id
-                            +"' type='text' "
-                            +(f.value?("value='"+f.value+"'"):" ")
-                            +" class='form-control' name='"+f.name+"'>")
-                        )
+                            .append($("<label for='MFDF"+f.id+"'>").append(f.label))
+                            .append($("<input id='MFDF"+f.id+"'"
+                                +" type='text' "
+                                +(f.value?("value='"+f.value+"'"):" ")
+                                +(f.dateFormat?("placeholder='"+f.dateFormat+"'"):" ")
+                                +" class='form-control MFDFdatepckr' name='"+f.name+"'>")
+                            )
+
                     );
+
                 break;
             default:
                 gr
@@ -178,6 +192,7 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
         flds.append(gr);
     }
 
+    // add form to DOM - document is expected to have modalDlgs element
     $("#modalDlgs").append(
         $("<div id='multiFieldDlg' class='modal fade' role='dialog' >")
             .append($("<div class='modal-dialog'>")
@@ -195,10 +210,72 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
             )
     );
 
+    // initialize field values - if initialization function was provided
+    for (var i = 0;i<fields.length;i++) {
+        if (fields[i].onchange)  {
+            // set onChange if provided
+            document.getElementById("MFDF" + fields[i].id).addEventListener("change", fields[i].onchange);
+
+            // this is special handling for select which have less than 2 options
+            // in such case onChange will be never triggered and so it is necessary to trigger it manually
+            // via onClick - this is done in order to support chained dopdown boxes
+            if (fields[i].type === 'select'){
+                (function(idx) {
+                    document.getElementById("MFDF" + fields[idx].id).addEventListener("click", function () {
+                        var s = document.getElementById("MFDF" + fields[idx].id);
+                        if (s.length < 2) {
+                            if ("createEvent" in document) {
+                                var evt = document.createEvent("HTMLEvents");
+                                evt.initEvent("change", false, true);
+                                s.dispatchEvent(evt);
+                            }
+                            else
+                                s.fireEvent("onchange");
+                            //alert("short");
+                        }
+                    });
+                })(i);
+            }
+        }
+        if (fields[i].onclick)  {
+            // set onClick if provided
+            document.getElementById("MFDF" + fields[i].id).addEventListener("click", fields[i].onclick);
+        }
+
+        //$('.MFDFdatepckr').datetimepicker({format:"L"});
+
+        // if initialization method has been provided, then initialized field now
+        if (fields[i].init)
+            fields[i].init("MFDF"+fields[i].id);
+
+    }
+
+    // set default values
+    for(var i = 0;i<fields.length;i++) {
+        if (fields[i].value)
+            switch (fields[i].type) {
+                case "button":
+                    break;
+                case "checkbox":
+                    document.getElementById("MFDF" + fields[i].id).checked = fields[i].value;
+                    break;
+                default:
+                    document.getElementById("MFDF" + fields[i].id).value = fields[i].value;
+        }
+    }
+
+    // set submit handling
     $("#MFDbtnOK").on("click",function(ev){
         console.log("MFD OK clicked");
+        console.log("Fields=",fields);
 
+        // clear valiedation error flag - just in case
+        for (var i = 0;i<fields.length;i++)
+            document.getElementById("MFDG" + fields[i].id).classList.remove("has-error");
+
+        // read values into the fields array
         for(var i = 0;i<fields.length;i++) {
+
             switch (fields[i].type) {
                 case "button":
                     break;
@@ -210,11 +287,7 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
             }
         }
 
-        for (var i = 0;i<fields.length;i++)
-            document.getElementById("MFDG" + fields[i].id).classList.remove("has-error");
-
-        console.log(fields);
-
+        // run validation
         libForms.validate(
             fields,
             function(result, err){

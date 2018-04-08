@@ -13,10 +13,22 @@ head
         gtag('js', new Date());
         gtag('config', GAUA);
 
+    script(src='/javascripts/lib-pub/moment-with-locales.js')
+
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
-    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js")
-    link(href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet")
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js")
+
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous")
+    script(src=src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous")
+
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css")
+    //script(src="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js")
+    script(src='/javascripts/lib-pub/bootstrap-editable.min.js')
+
+    script(src="/javascripts/lib-pub/bootstrap-datetimepicker.min.js")
+    link(rel="stylesheet" href="/stylesheets/bootstrap-datetimepicker.min.css")
+
+    link(rel="stylesheet" href="/stylesheets/style.css" type="text/css" )
+
     script(src='/javascripts/lib/lib_common.js')
     script(src='/javascripts/lib/lib_forms.js')
     script(src='/javascripts/lib/lib_event.js')
@@ -33,6 +45,5 @@ head
     script(src='/javascripts/event.js')
     script(src='/javascripts/program.js')
     script(src='/javascripts/admin.js')
-    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css")
-    link(rel="stylesheet" type="text/css" href="/stylesheets/style.css")
+
     script(src='https://www.google.com/recaptcha/api.js')

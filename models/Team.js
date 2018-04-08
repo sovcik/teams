@@ -31,9 +31,15 @@ const TeamSchema = new mongoose.Schema({
     // this address is used for sending paper-mail
     shippingOrg: {type: OrgSchema, default:{}},
     shippingAdr: {type: AddressSchema, default:{}},
-    shippingContact: {type: ContactSchema, default:{}},
+    shippingContact: {type: ContactSchema, default:{}}
 
-    programId: { type: String, required: true }
+});
+
+// virtual set of teams
+TeamSchema.virtual('programs', {
+    ref: 'TeamEvent',
+    localField: '_id',
+    foreignField: 'teamId'
 });
 
 TeamSchema.plugin(statusPlugin);
