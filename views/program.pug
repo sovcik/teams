@@ -20,11 +20,11 @@ block content
             div(class='form-group')
                 label  Začiatok Programu
                 a(id='startDate' data-name='startDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=program._id data-url='/program/' + program._id + '/fields' class='editable form-control' href='#')
-                    = fmt.fmtDate(program.startDate, user.locales)
+                    = program.startDate?fmt.fmtDate(program.startDate, user.locales):"nezadaný"
             div(class='form-group')
                 label Koniec Programu
                 a(id='endDate' data-name='endDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=program._id data-url='/program/' + program._id + '/fields' class='editable form-control' href='#')
-                    = fmt.fmtDate(program.endDate, user.locales)
+                    = program.endDate?fmt.fmtDate(program.endDate, user.locales):"nezadaný"
 
 
         if user && (user.isAdmin || user.isProgramManager)
