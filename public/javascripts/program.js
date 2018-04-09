@@ -120,7 +120,7 @@ viewProgram.loadEvents = function (progId){
                     selEv.append(c);
                 });
             } else {
-                t.text('Žiadne turnaje');
+                selEv.text('Žiadne turnaje');
             }
         } else {
             console.log("loadEvents: Server returned ERROR");
