@@ -103,13 +103,33 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     const pm = req.query.pm;
+    const active = req.query.active;
+
     console.log("/program - get (CMD)");
     console.log(req.query);
     const r = {result:"error", status:200};
+
+    let today = new Date();
+    today.setHours(0,0,0,0);
+
     switch (cmd){
         case 'getList':
             console.log('Going to get list of programs');
             let q = { recordStatus: 'active' };
+
+            if (active && !req.user.isAdmin) {
+                q.$or =
+                    [
+                        {startDate: null},
+                        {
+                            $and: [
+                                {endDate: {$gte: today}},
+                                {startDate: {$lte: today}}
+                            ]
+                        }
+                    ];
+            }
+
             try {
                 if (pm)
                     q.managers = new mongoose.Types.ObjectId(pm);
