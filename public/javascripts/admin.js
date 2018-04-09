@@ -298,7 +298,7 @@ viewAdmin.loadUsers = function (){
         console.log("loadUsers: Server returned",res);
         if (res.result === 'ok'){
             // sort results by username
-            res.list.sort(function(a,b) {return (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0);} );
+            res.list.sort(function(a,b) {return (a.fullName > b.fullName) ? 1 : ((b.fullName > a.fullName) ? -1 : 0);} );
             // clear page elements containing programs
             sel.empty();
 
@@ -307,12 +307,7 @@ viewAdmin.loadUsers = function (){
 
                 res.list.forEach(function(item) {
                     if (item.passwordHash.length > 0) {
-                        var c = $('<a class="list-group-item" href="/team/' + item._id + '"">').append(item.username + ', ' + item.fullName + ', ' + item.email);
-                        /*
-                         var c = $('<div class="well well-sm container-fluid">')
-                         .append($('<a href="/profile/'+item._id+'" >')
-                         .append(item.username+", "+item.fullName+", "+item.email));
-                         */
+                        var c = $('<a class="list-group-item" href="/team/' + item._id + '"">').append(item.fullName + ', ['+item.username + '], ' + item.email);
 
                         sel.append(c);
                     }
