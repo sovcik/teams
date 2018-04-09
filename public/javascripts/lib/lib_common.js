@@ -171,8 +171,9 @@ libCommon.Prog2CSV = function(data,sep,locales,incEml) {
     return str;
 };
 
-libCommon.loadList = function (id, url){
+libCommon.loadList = function (id, url, cb){
     var domSel = $("#"+id);
+    if (!cb) cb = libCommon.noop;
     console.log('Loading list from'+url, "into=",domSel);
     $.get( libCommon.getNoCache(url), function(res) {
         console.log("Server returned list",res);
@@ -188,9 +189,11 @@ libCommon.loadList = function (id, url){
             } else {
                 domSel.text('Žiadne záznamy');
             }
+
         } else {
             console.log("Server returned ERROR");
         }
+        cb();
 
     });
 
