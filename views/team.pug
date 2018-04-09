@@ -33,7 +33,7 @@ block content
                         label(class="label-control") Aktívne registrácie
                         for e in team.events
                             if (e.eventDate >= new Date() || !e.eventDate)
-                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locale):"neurčený dátum"})  #{e.name}
+                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
                         br
 
                 div(class='btn-group')
@@ -46,7 +46,7 @@ block content
                         label(class="label-control") Predchádzajúce registrácie
                         for e in team.events
                             if (e.eventDate < new Date())
-                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locale):"neurčený dátum"})  #{e.name}
+                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
 
             div(class='form-group' id='panel-invoices')
                 div(id="unpaidInvoices")
@@ -125,4 +125,4 @@ block content
                 + '   "isAdmin": #{user?(user.permissions.isAdmin ? true : false):false}, '
                 + '   "isCoach": #{user?(user.permissions.isCoach ? true : false):false} '
                 + '}}';
-        viewTeam.init("#{team._id}", u);
+        window.onload = function(){viewTeam.init("#{team._id}", u)};
