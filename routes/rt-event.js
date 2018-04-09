@@ -145,7 +145,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
-    const progId = req.query.programId;
+    const progId = req.query.program;
     const evtOrgId = req.query.eo;
     const onlyActive = req.query.active;
 

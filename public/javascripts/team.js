@@ -201,11 +201,11 @@ viewTeam.init = function(teamId, u){
         var fields = [
             {id:"availProgs", label:"Programy", type:"select",
                 init:function(domid,cb){libCommon.loadList(domid,"/program?cmd=getList&active=1&teamId="+teamId, cb)},
-                onchange:function(){libCommon.loadList("MFDFavailEvents","/event?cmd=getList&active=1&programId="+$('#MFDFavailProgs').val())}
+                onchange:function(){libCommon.loadList("MFDFavailEvents","/event?cmd=getList&active=1&program="+$('#MFDFavailProgs').val())}
             },
             {id:"availEvents", label:"Turnaje", type:"select",
                 init:function(domid,cb){
-                    libCommon.loadList(domid,"/event?cmd=getList&active=1&programId="+$('#MFDFavailProgs').val(), cb);
+                    libCommon.loadList(domid,"/event?cmd=getList&active=1&program="+$('#MFDFavailProgs').val(), cb);
                 }
             }
         ];
