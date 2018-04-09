@@ -307,7 +307,7 @@ viewAdmin.loadUsers = function (){
 
                 res.list.forEach(function(item) {
                     if (item.passwordHash.length > 0) {
-                        var c = $('<a class="list-group-item" href="/team/' + item._id + '"">').append(item.fullName + ', ['+item.username + '], ' + item.email);
+                        var c = $('<a class="list-group-item" href="/profile/' + item._id + '"">').append(item.fullName + ', ['+item.username + '], ' + item.email);
 
                         sel.append(c);
                     }
