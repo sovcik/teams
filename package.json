@@ -24,6 +24,7 @@
     "express": "~4.15.2",
     "express-session": "^1.15.3",
     "le_node": "^1.7.0",
+    "moment": "^2.22.0",
     "mongoose": "^4.10.2",
     "morgan": "~1.8.1",
     "nodemailer": "^4.0.1",

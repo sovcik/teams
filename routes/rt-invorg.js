@@ -5,6 +5,7 @@ const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
 const log = require('../lib/logger');
+const libFmt = require('../lib/fmt');
 
 const InvoicingOrg = mongoose.models.InvoicingOrg;
 const Invoice = mongoose.models.Invoice;
@@ -51,7 +52,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
         }
         if (inv)
             req.iorg.invoices = inv;
-        res.render('invoicingOrg', {io: req.iorg, user: req.user});
+        res.render('invoicingOrg', {io: req.iorg, user: req.user, fmt:libFmt});
     }
 
 });
@@ -78,6 +79,46 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             console.log("cmd=unknown");
 
     }
+    res.json(r);
+    res.end();
+
+});
+
+router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/invorg/:ID/fields - post");
+    console.log(req.body);
+    const r = {result:"error", status:200};
+
+    // no modifications allowed unless user is team coach or admin
+    if (!req.user.isAdmin){
+        r.error = {};
+        r.error.message = "permission denied";
+        res.json(r);
+        res.end();
+        return;
+    }
+
+    try {
+        if (req.body.name) {
+            let t = await InvoicingOrg.findById(req.body.pk);
+            if (t) {
+                t[req.body.name] = req.body.value;
+                let verr = t.validateSync();
+                if (!verr) {
+                    await t.save();
+                    r.result = "ok";
+                } else
+                    r.error = {message:"Chyba: "+verr};
+            } else {
+                r.error = {message:"InvOrg nenájdená id="+req.body.pk};
+            }
+        }
+
+    } catch (err) {
+        r.error = {message:err.message};
+        log.ERROR("Error rt-team post. err="+err.message);
+    }
+
     res.json(r);
     res.end();
 

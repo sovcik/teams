@@ -2,14 +2,15 @@
 
 var viewTeam = {};
 
-viewTeam.init = function(userLocales){
-    var teamId = getResourceId(location.href);
+viewTeam.init = function(teamId, u){
     console.log("/team - Initializing");
-    console.log("locales=",userLocales);
+    var user = JSON.parse(u);
+    moment.locale(user.locales.substr(0,2));
+    console.log("locales=",user.locales);
 
     $.fn.editable.defaults.mode = 'inline';
 
-    viewTeam.user = {locales:userLocales};
+    viewTeam.user = user;
 
     $(document).ready(function() {
         $('#teamName').editable();
@@ -18,7 +19,7 @@ viewTeam.init = function(userLocales){
     $("#createMember").on("click", function(){
         var fields = [
             {id:"fullName", label:"Meno a priezvisko", type:"text", required:1},
-            {id:"dateOfBirth", label:"Dátum narodenia", type:"date", locales:viewTeam.user.locales},
+            {id:"dateOfBirth", label:"Dátum narodenia", type:"date", locales:viewTeam.user.locales, dateFormat:viewTeam.user.dateFormat},
             {id:"email", label:"e-mail", type:"email"}
         ];
         libModals.multiFieldDialog(
@@ -53,7 +54,7 @@ viewTeam.init = function(userLocales){
 
     $("#btnFounderDetails").on("click", function(event){
         var fields = [
-            {id:"btnCpyFromBill", label:"Kopíruj údaje z fakturačných", type:"button", onclick:"viewTeam.cpyAdr('B','F','"+teamId+"')"},
+            {id:"btnCpyFromBill", label:"Kopíruj údaje z fakturačných", type:"button", onclick:function(){viewTeam.cpyAdr('B','F',teamId)}},
             {id:"foundingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"foundingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"foundingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
@@ -90,7 +91,7 @@ viewTeam.init = function(userLocales){
 
     $("#btnBillingDetails").on("click", function(event){
         var fields = [
-            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zriaďovateľa", type:"button", onclick:"viewTeam.cpyAdr('F','B','"+teamId+"')"},
+            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zriaďovateľa", type:"button", onclick:function(){viewTeam.cpyAdr('F','B',teamId)}},
             {id:"billingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"billingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"billingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
@@ -128,7 +129,7 @@ viewTeam.init = function(userLocales){
     $("#btnShippingDetails").on("click", function(event){
 
         var fields = [
-            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zriaďovateľa", type:"button", onclick:"viewTeam.cpyAdr('F','S','"+teamId+"')"},
+            {id:"btnCpyFromFnd", label:"Kopíruj údaje zo zriaďovateľa", type:"button", onclick:function(){viewTeam.cpyAdr('F','S',teamId)}},
             {id:"shippingOrg.name", label:"Názov", type:"text", placeholder:"názov organizácie", required:1},
             {id:"shippingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"shippingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
@@ -195,9 +196,42 @@ viewTeam.init = function(userLocales){
 
     );
 
+    $("#btnRegister2").on("click", function(event){
+
+        var fields = [
+            {id:"availProgs", label:"Programy", type:"select",
+                init:function(domid,cb){libCommon.loadList(domid,"/program?cmd=getList&active=1&teamId="+teamId, cb)},
+                onchange:function(){libCommon.loadList("MFDFavailEvents","/event?cmd=getList&active=1&programId="+$('#MFDFavailProgs').val())}
+            },
+            {id:"availEvents", label:"Turnaje", type:"select",
+                init:function(domid,cb){
+                    libCommon.loadList(domid,"/event?cmd=getList&active=1&programId="+$('#MFDFavailProgs').val(), cb);
+                }
+            }
+        ];
+
+        libModals.fields = fields;
+
+        libModals.multiFieldDialog(
+            "Registruj na turnaj",
+            "",
+            fields,
+            function (flds, cb) {
+                viewTeam.registerForEvent(teamId,flds.find(function(f){ return f.id === "availEvents"}).value, cb);
+            },
+            function cb(res, err) {
+                if (err) {
+                    console.log("CB-ERROR", err);
+                    alert(err.message);
+                }
+                console.log("CB-DONE");
+            }
+        );
+    });
+
+
     viewTeam.loadCoaches(teamId);
     viewTeam.loadMembers(teamId);
-    viewTeam.loadAvailableEvents(teamId);
     viewTeam.loadInvoices(teamId);
 
     console.log("/team - Initializing completed");
@@ -400,7 +434,7 @@ viewTeam.loadMembers = function(teamId){
                             )
                             .append($('<div class="panel-body form-inline">')
                                 .append($('<input class="form-control" type="string" readonly value="'
-                                    + (item.dateOfBirth?libCommon.convertSys2LocaleDate(item.dateOfBirth.substr(0,10), viewTeam.user.locales):"xxx")
+                                    + (item.dateOfBirth?moment(item.dateOfBirth).format("L"):"xxx")
                                     + '">'))
                                 .append($('<input class="form-control" type="string" readonly value="'
                                     + (item.email ? item.email : '')
@@ -544,32 +578,6 @@ viewTeam.loadAddressDetails2 = function (teamId,fields,cb){
         });
 };
 
-viewTeam.loadAvailableEvents = function (teamId){
-    var sel = $('#availEvents');
-    console.log('Loading events');
-    $.get( libCommon.getNoCache("/event?cmd=getAvailTeamEvents&teamId="+teamId), function(res) {
-        console.log("Server returned events",res);
-        if (res.result === 'ok'){
-            // sort events by name
-            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
-            sel.empty();
-            if (res.list.length > 0) {
-                console.log("Found ",res.list.length,"records");
-                res.list.forEach(function(item) {
-                    var c = $('<option value="'+item._id+'"">').append(item.name);
-                    sel.append(c);
-                });
-            } else {
-                sel.text('Žiadne');
-            }
-        } else {
-            console.log("Server returned events - error");
-        }
-
-    });
-
-};
-
 viewTeam.loadTeamData = function (teamId){
     $.get( libCommon.getNoCache("/team/"+teamId+"?cmd=getData"), function(res) {
         console.log('Server returned team data',res);
@@ -581,9 +589,8 @@ viewTeam.loadTeamData = function (teamId){
     });
 };
 
-viewTeam.registerForEvent = function (teamId){
-    console.log('Registering for event');
-    var eventId = $('#availEvents').val();
+viewTeam.registerForEvent = function (teamId, eventId, cb){
+    console.log('Registering team=', teamId, "for event=", eventId);
     $.post("/event/"+eventId,
         {
             cmd: 'registerTeam',
@@ -598,10 +605,12 @@ viewTeam.registerForEvent = function (teamId){
                 console.log("Error while registering for event");
                 alert("Registrácia tímu nebola úspešná.\nSkontrolujte, či ste zadali všetky potrebné údaje o zriaďovateľovi\n a vyplnili fakturačnú a korešpondenčnú adresu.\n\n"+res.error.message);
             }
+            cb(res);
         }
     )
         .fail(function (err) {
             console.log("Registration for event failed",err);
+            cb(null, err);
         });
 
 };
@@ -610,24 +619,20 @@ viewTeam.registerForEvent = function (teamId){
 viewTeam.loadInvoices = function(teamId){
     console.log('Loading invoices');
     var sel = $("#invoices");
+    var selu = $("#invoices-unpaid");
     $.get( libCommon.getNoCache("/invoice?cmd=getList&teamId="+teamId), function(res) {
         console.log("Server returned invoices",res);
         if (res.result === 'ok'){
-            // sort invoices by issuing date
+            // sort invoices by date
             res.list.sort(function(a,b) {return (a.issuedOn > b.issuedOn) ? 1 : ((b.issuedOn > a.issuedOn) ? -1 : 0);} );
             sel.empty();
+            selu.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
+                sel.append($('<label class="form-label" >').append('Ostatné Faktúry'));
+                selu.append($('<label class="form-label" >').append('Nezaplatené Faktúry'));
 
-                sel.append($('<label class="form-label" >').append('Faktúry'));
                 res.list.forEach(function (item) {
-                    var iOn, dOn, pOn;
-                    if (item.issuedOn)
-                        try { iOn = new Date(item.issuedOn); } catch (err) { iOn = null; }
-                    if (item.dueOn)
-                        try { dOn = new Date(item.dueOn); } catch (err) { dOn = null; }
-                    if (item.paidOn)
-                        try { pOn = new Date(item.paidOn); } catch (err) { pOn = null; }
 
                     var c = $('<li class="list-group-item">')
                         .append($('<h5 class="list-group-item-heading">')
@@ -637,9 +642,8 @@ viewTeam.loadInvoices = function(teamId){
                             )
                         )
                         .append($('<p class="list-group-item-text">')
-                            .append("Vystavená " + (item.issuedOn ? iOn.toLocaleDateString() : "-error-"))
-                            .append("  Splatná " + (item.dueOn ? dOn.toLocaleDateString() : "-error-"))
-                            .append((item.paidOn ? "  Zaplatená "+pOn.toLocaleDateString() : ''))
+                            .append("Vystavená " + moment(item.issuedOn).format("L"))
+                            .append(item.paidOn ? ("  Zaplatená "+moment(item.paidOn).format("L")) : ("  Splatná " + (item.dueOn ? moment(item.dueOn).format("L"):'')) )
                         );
 
                     if (item.type == "P" && !item.taxInvoice && !item.isDraft)
@@ -650,14 +654,12 @@ viewTeam.loadInvoices = function(teamId){
                             .append($('<button id="CIN'+item._id+'" class="btn btn-default createTaxInvoice">')
                                 .append('Vytvor faktúru')
                             );
-                    /*
-                    if (!item.paidOn)
-                        c
-                            .append($('<button id="PAY'+item._id+'" class="btn btn-default markAsPaid">')
-                                .append('Zaplať')
-                            );
-                    */
-                    sel.append(c);
+
+                    if (!item.paidOn) {
+                        selu.append(c);
+                    } else {
+                        sel.append(c);
+                    }
                 });
 
                 libInvoice.initInvoiceButtons(

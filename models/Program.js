@@ -4,6 +4,8 @@ const statusPlugin = require('./plugins/status-plugin');
 
 const ProgramSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    startDate: {type: Date, required: false},
+    endDate: {type: Date, required: false},
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 

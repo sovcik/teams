@@ -4,9 +4,12 @@ var viewEvent = {};
 
 viewEvent.init = function (evId,u){
     viewEvent.user = JSON.parse(u);
+    moment.locale(viewEvent.user.locales.substr(0,2));
 
     viewEvent.loadRegisteredTeams(evId);
     viewEvent.loadOrganizers(evId);
+
+    $('.editable').editable();
 
     $("#exportData").on(
         "click",

@@ -170,3 +170,31 @@ libCommon.Prog2CSV = function(data,sep,locales,incEml) {
 
     return str;
 };
+
+libCommon.loadList = function (id, url, cb){
+    var domSel = $("#"+id);
+    if (!cb) cb = libCommon.noop;
+    console.log('Loading list from'+url, "into=",domSel);
+    $.get( libCommon.getNoCache(url), function(res) {
+        console.log("Server returned list",res);
+        if (res.result === 'ok'){
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+            domSel.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    var c = $('<option value="'+item._id+'"">').append(item.name);
+                    domSel.append(c);
+                });
+            } else {
+                domSel.text('Žiadne záznamy');
+            }
+
+        } else {
+            console.log("Server returned ERROR");
+        }
+        cb();
+
+    });
+
+};

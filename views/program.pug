@@ -17,6 +17,16 @@ block content
             div(class='form-group')
                 label(for='progName') Názov
                 input(id='progName' class='form-control' value=program.name readonly)
+            div(class='form-group')
+                label  Začiatok Programu
+                a(id='startDate' data-name='startDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=program._id data-url='/program/' + program._id + '/fields' class='editable form-control' href='#')
+                    = fmt.fmtDate(program.startDate, user.locales)
+            div(class='form-group')
+                label Koniec Programu
+                a(id='endDate' data-name='endDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=program._id data-url='/program/' + program._id + '/fields' class='editable form-control' href='#')
+                    = fmt.fmtDate(program.endDate, user.locales)
+
+
         if user && (user.isAdmin || user.isProgramManager)
             div(class='panel-footer')
                 button(id='exportData' type="button" class="btn btn-default") Export dát
@@ -40,10 +50,10 @@ block content
     div(id='modalDlgs')
 
     script.
-        var u = '{ "locales": "#{user.locales}" ,'
-            + '"username": "#{user.username}", '
+        var u = '{ "locales": "#{user?user.locales:"en-US"}" ,'
+            + '"username": "#{user?user.username:"not-logged-in"}", '
             + '"permissions": { '
-            + '   "isAdmin": #{user.isAdmin ? true : false}, '
-            + '   "isProgramManager": #{user.isProgramManager ? true : false} '
+            + '   "isAdmin": #{user?(user.isAdmin ? true : false):false}, '
+            + '   "isProgramManager": #{user?(user.isProgramManager ? true : false):false} '
             + '}}';
         viewProgram.init("#{program._id}",u);

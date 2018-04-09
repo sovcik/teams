@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 
 const dbTeam = require('../lib/db/Team');
 const libPerm = require('../lib/permissions');
+const fmtLib = require('../lib/fmt');
 
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
@@ -23,17 +24,17 @@ router.param('id', async function (req, res, next){
 
     console.log("Team id=",id);
     try {
+        if (!req.user)
+            req.user = {id:0};
+
         let r = await Team.findById(id);
 
         if (r) {
             console.log("Team id=", r.id, " name=", r.name);
 
-            if (!req.user)
-                req.user = {};
-
             req.user.permissions = await libPerm.getUserTeamPermissions(req.user.id, r.id);
 
-            console.log("PPPP",req.user.permissions);
+            //console.log("PPPP",req.user, id, req.user.permissions);
 
             /*
             if (req.user) {
@@ -50,8 +51,9 @@ router.param('id', async function (req, res, next){
             }
             */
 
+            //console.log("FFFF", req.user, id);
             r = await dbTeam.getTeamDetails(req.user.id, id);
-            console.log("EEEEE",r);
+            //console.log("EEEEE",r);
 
             req.team = r;
 
@@ -70,7 +72,6 @@ router.param('id', async function (req, res, next){
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
-    const progId = req.query.programId;
     console.log("/team - get");
     console.log(req.query);
 
@@ -80,10 +81,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             case 'getList':
                 log.DEBUG('Going to get list of teams');
                 let q = {recordStatus:'active'};
-                if (progId)
-                    q.programId = progId;
 
-                const tc = await Team.find(q,{name:1, programId:1, foundingOrg:1, foundingAdr:1});
+                const tc = await Team.find(q,{name:1, foundingOrg:1, foundingAdr:1});
                 r.result = "ok";
                 r.list = tc;
                 break;
@@ -108,7 +107,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     if (cmd)
         next();
     else
-        return res.render('team', {team: req.team, user: req.user});
+        return res.render('team', {team: req.team, user: req.user, fmt:fmtLib});
 
 });
 
@@ -345,8 +344,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     if (!c) throw new Error("coach not found id="+req.body.coach);
 
                     t = await Team.create({
-                        name:teamName,
-                        programId:req.body.programId
+                        name:teamName
                     });
                     console.log("Team created", t.name, t.id);
                     let ut = await TeamUser.create({userId:c.id, teamId:t.id, role:'coach'});

@@ -25,22 +25,37 @@ block content
             div(class='form-group')
                 a(id='teamName' data-name='name' data-title='Názov' data-type='text' data-pk=team._id data-url='/team/'+team._id+'/fields' class='form-control' href='#')
                     = team.name
-            div(class='form-group')
-                label(for='progName') Program/Súťaž
-                input(id='progName' class='form-control' value=team.programName readonly)
             div(class='form-group' id="eventReg")
-                if team.events && team.events.length > 0
-                    label(class="label-control") Stretnutia/turnaje
-                    for e in team.events
-                        =" "
-                        a(href="/event/"+e._id) #{e.name}
-                        span(id="pInvoice")
-                        span(id="iInvoice")
-                else
+
+
+                div(id="activeEvents")
+                    if team.events && team.events.length > 0
+                        label(class="label-control") Aktívne registrácie
+                        for e in team.events
+                            if (e.eventDate >= new Date() || !e.eventDate)
+                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
+                        br
+
+                div(class='btn-group')
                     if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
-                        button(class="btn btn-success" data-toggle="modal" data-target="#registerEvent") Registruj na turnaj
-            div(class='form-group')
-                ul(class='list-group' id="invoices")
+                        button(class="btn btn-success" id="btnRegister2") Registruj na turnaj
+                    button(class="btn btn-default" type="button" data-parent='#panel-events' data-toggle="collapse" data-target="#allEvents") Predchádzajúce registrácie
+
+                div(class="collapse" id="allEvents" style="max-height: 400pt; overflow: auto;")
+                    if team.events && team.events.length > 0
+                        label(class="label-control") Predchádzajúce registrácie
+                        for e in team.events
+                            if (e.eventDate < new Date())
+                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
+
+            div(class='form-group' id='panel-invoices')
+                div(id="unpaidInvoices")
+                    ul(class='list-group' id="invoices-unpaid")
+                div(class='btn-group')
+                    button(class="btn btn-default" type="button" data-parent='#panel-invoices' data-toggle="collapse" data-target="#allInvoices") Zobraz všetky faktúry
+                div(class="collapse" id="allInvoices")
+                    ul(class='list-group' id="invoices")
+
         div(class='panel-footer')
             div(class='form-group')
                 if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
@@ -58,6 +73,10 @@ block content
                     button(type='button', class='close' data-dismiss='modal') &times;
                     h4 Registrácia
                 div(class='modal-body')
+                    div(class='form-group')
+                        label Dostupné programy
+                        select(id='availProgs' class="form-control")
+                            option -none-
                     div(class='form-group')
                         label Dostupné súťaže
                         select(id='availEvents' class="form-control")
@@ -99,4 +118,11 @@ block content
     div(id="modalDlgs")
 
     script.
-        viewTeam.init("#{user.locales}");
+        var u = '{ "locales": "#{user.locales?user.locales:"en-US"}" ,'
+                + '"dateFormat": "#{user.locales?fmt.fmtDateFormat(user.locales):"mm/dd/yyyy"}", '
+                + '"username": "#{user?user.username:"not-logged-in"}", '
+                + '"permissions": { '
+                + '   "isAdmin": #{user?(user.permissions.isAdmin ? true : false):false}, '
+                + '   "isCoach": #{user?(user.permissions.isCoach ? true : false):false} '
+                + '}}';
+        window.onload = function(){viewTeam.init("#{team._id}", u)};

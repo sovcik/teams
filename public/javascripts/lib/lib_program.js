@@ -45,3 +45,4 @@ libProgram.addManager = function(progId, username, callback){
         });
 
 };
+

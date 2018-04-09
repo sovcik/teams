@@ -104,6 +104,10 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 if (invType) q.type = invType;
                 if (isPaid && isPaid != "A") q.paidOn = (isPaid == "N"?null:{$type:"date"});
                 if (invOrg) q.invoicingOrg = invOrg;
+
+                if (!p.isAdmin && !p.isInvoicingOrgManager) // exclude draft invoices for normal users
+                    q.isDraft = false;
+
                 console.log('Going to get list of invoices',q);
 
                 const l = await Invoice.find(q, {

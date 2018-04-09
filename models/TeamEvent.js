@@ -6,6 +6,7 @@ const TeamEventSchema = new mongoose.Schema({
     teamId: { type: String, required: true },
     programId: { type: String, required: true },
     registeredOn: {type: Date, required: true },
+    eventDate: {type: Date },
     teamNumber: {type:String}
 });
 

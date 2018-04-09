@@ -29,5 +29,37 @@ block content
             div(style="max-height: 400pt; overflow:auto;")
                 table(id="allInvoices")
 
+    div(class="panel panel-primary")
+        div(class='panel-heading') Číselníky
+        div(class='panel-body')
+            div(class="form")
+                h5 Prefix čísla proformy
+                a(id='ntInvNumPrefix' data-name='ntInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.ntInvNumPrefix}
+                h5 Číslo nasledujúcej proformy
+                a(id='nextDraftInvNumber' data-name='nextDraftInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextDraftInvNumber}
+
+                h5 Prefix čísla faktúry
+                a(id='invNumPrefix' data-name='invNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.invNumPrefix}
+                h5 Číslo nasledujúcej faktúry
+                a(id='nextInvNumber' data-name='nextInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextInvNumber}
+
+                h5 Prefix čísla dobropisu
+                a(id='crInvNumPrefix' data-name='crInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.crInvNumPrefix}
+                h5 Číslo nasledujúceho dobropisu
+                a(id='nextCRInvNumber' data-name='nextCRInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextCRInvNumber}
+
+                h5 Počet dní splatnosti
+                a(id='dueDays' data-name='dueDays' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.dueDays}
+
+                h5 Prefix čísla návrhu faktúry
+                a(id='draftInvNumPrefix' data-name='draftInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.draftInvNumPrefix}
+
     script.
-        viewInvOrg.init();
+        var u = '{ "locales": "#{user.locales ? user.locales : "en-US"}" ,'
+            + '"dateFormat": "#{user.locales ? fmt.fmtDateFormat(user.locales) : "mm/dd/yyyy"}", '
+            + '"username": "#{user ? user.username : "not-logged-in"}", '
+            + '"permissions": { '
+            + '   "isAdmin": #{user ? (user.isAdmin ? true : false) : false}, '
+            + '   "isInvOrgManager": #{user ? (user.isInvoicingOrgManager ? true : false) : false} '
+            + '}}';
+        viewInvOrg.init("#{io._id}",u);

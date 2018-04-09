@@ -8,10 +8,20 @@ block content
         div(class="panel-body")
             h3 Dátum konania
                 = " "
-                if event.startDate
-                    span= fmt.fmtDate(event.startDate, user.locales)
+                if user && (user.isAdmin || user.isEventOrganizer)
+                    a(id='startDate' data-name='startDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=event._id data-url='/event/' + event._id + '/fields' class='editable form-control' href='#')
+                        = event.startDate ? fmt.fmtDate(event.startDate, user.locales):""
                 else
-                    span ešte nebol určený
+                    = event.startDate ? fmt.fmtDate(event.startDate, user.locales):"ešte nebol určený"
+
+            h4 Termín registrácie
+                = " "
+                if user && (user.isAdmin || user.isEventOrganizer)
+                    a(id='regEndDate' data-name='regEndDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=event._id data-url='/event/' + event._id + '/fields' class='editable form-control' href='#')
+                        = event.regEndDate ? fmt.fmtDate(event.regEndDate, user.locales) : "nebol určený"
+                else
+                    = event.regEndDate ? fmt.fmtDate(event.regEndDate, user.locales) : "nebol určený"
+
             h4
                 if event.address
                     if event.address.addrLine1
@@ -28,7 +38,6 @@ block content
         div(class="panel-footer")
             if user && (user.isAdmin || user.isEventOrganizer || user.isProgramManager)
                 button(id='addOrganizer' type='button' class='btn btn-default') Pridaj organizátora
-                button(id='setDate' type='button' class='btn btn-default') Nastav dátum
                 button(id='exportData' type="button" class="btn btn-default") Export dát
 
     div(id='modalDlgs')
@@ -70,13 +79,13 @@ block content
             div(id="allTeams")
 
     script.
-        var u = '{ "locales": "#{user.locales}" ,'
-            + '"username": "#{user.username}", '
+        var u = '{ "locales": "#{user?user.locales:"en-US"}" ,'
+            + '"username": "#{user?user.username:"not-logged-in"}", '
             + '"permissions": { '
-            + '   "isAdmin": #{user.isAdmin ? true : false}, '
-            + '   "isEventOrganizer": #{user.isEventOrganizer ? true : false}, '
-            + '   "isProgramManager": #{user.isProgramManager ? true : false}, '
-            + '   "isInvoicingOrgManager":#{user.isInvoicingOrgManager ? true : false}'
+            + '   "isAdmin": #{user?(user.isAdmin? true:false):false}, '
+            + '   "isEventOrganizer": #{user?(user.isEventOrganizer ? true : false):false}, '
+            + '   "isProgramManager": #{user?(user.isProgramManager ? true : false):false}, '
+            + '   "isInvoicingOrgManager":#{user?(user.isInvoicingOrgManager ? true : false):false}'
             + '}}';
         viewEvent.init("#{event._id}",u);
 

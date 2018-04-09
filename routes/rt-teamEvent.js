@@ -7,6 +7,7 @@ const router = express.Router();
 const log = require('../lib/logger');
 
 const TeamEvent = mongoose.model('TeamEvent');
+const Team = mongoose.model('Team');
 
 module.exports = router;
 
@@ -79,3 +80,47 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
 });
 
+router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const cmd = req.query.cmd;
+    console.log("/team-event: get");
+    console.log(req.query);
+
+    var r = {result:"error", status:200};
+    try {
+        switch (cmd) {
+            case 'getTeams':
+                log.DEBUG('Going to get list of teams');
+                let q = {};
+                if (req.query.programId)
+                    q.programId = req.query.programId;
+                if (req.query.eventId)
+                    q.eventId = req.query.eventId;
+
+                log.DEBUG('Query:'+q.toString());
+
+                r.list = [];
+                const tc = await TeamEvent.find(q);
+                if (tc){
+                    let tms = await Team.populate(tc, 'teamId');
+                    tms.forEach(t => r.list.push({_id: t.teamId.id, name: t.teamId.name,
+                        foundingOrg:t.teamId.foundingOrg,
+                        foundingAdr:t.teamId.foundingAdr,
+                        foundingContact:t.teamId.foundingContact,
+                        eventId:t.eventId, programId:t.programId
+                    }));
+                }
+                r.result = "ok";
+                break;
+
+            default:
+                console.log('cmd=unknown');
+
+        }
+    } catch(err) {
+        r.error = {message:err.message};
+        log.ERROR(err);
+    }
+    res.json(r);
+    res.end();
+
+});
