@@ -210,17 +210,31 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
             )
     );
 
-    // initialize field values - if initialization function was provided
+    // set default values
+    for(var i = 0;i<fields.length;i++) {
+        if (fields[i].value)
+            switch (fields[i].type) {
+                case "button":
+                    break;
+                case "checkbox":
+                    document.getElementById("MFDF" + fields[i].id).checked = fields[i].value;
+                    break;
+                default:
+                    document.getElementById("MFDF" + fields[i].id).value = fields[i].value;
+            }
+    }
+
+    // configure onChange/onClick for fields
     for (var i = 0;i<fields.length;i++) {
-        if (fields[i].onchange)  {
+        if (fields[i].onchange) {
             // set onChange if provided
             document.getElementById("MFDF" + fields[i].id).addEventListener("change", fields[i].onchange);
 
             // this is special handling for select which have less than 2 options
             // in such case onChange will be never triggered and so it is necessary to trigger it manually
             // via onClick - this is done in order to support chained dopdown boxes
-            if (fields[i].type === 'select'){
-                (function(idx) {
+            if (fields[i].type === 'select') {
+                (function (idx) {
                     document.getElementById("MFDF" + fields[idx].id).addEventListener("click", function () {
                         var s = document.getElementById("MFDF" + fields[idx].id);
                         if (s.length < 2) {
@@ -237,32 +251,21 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
                 })(i);
             }
         }
-        if (fields[i].onclick)  {
+        if (fields[i].onclick) {
             // set onClick if provided
             document.getElementById("MFDF" + fields[i].id).addEventListener("click", fields[i].onclick);
         }
-
-        //$('.MFDFdatepckr').datetimepicker({format:"L"});
-
-        // if initialization method has been provided, then initialized field now
-        if (fields[i].init)
-            fields[i].init("MFDF"+fields[i].id);
-
     }
 
-    // set default values
-    for(var i = 0;i<fields.length;i++) {
-        if (fields[i].value)
-            switch (fields[i].type) {
-                case "button":
-                    break;
-                case "checkbox":
-                    document.getElementById("MFDF" + fields[i].id).checked = fields[i].value;
-                    break;
-                default:
-                    document.getElementById("MFDF" + fields[i].id).value = fields[i].value;
+    // perform field initialization - if provided
+    // fields will be initialized sequentially so field initialized later can use value of field initialized earlier
+    forEach(fields, function(item, index, arr) {
+        if (item.init) {
+            console.log("Initializing ", "MFDF" + item.id);
+            item.init("MFDF" + item.id, this.async());
         }
-    }
+
+    });
 
     // set submit handling
     $("#MFDbtnOK").on("click",function(ev){
