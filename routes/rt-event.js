@@ -25,10 +25,10 @@ router.param('id', async function (req, res, next){
     console.log("Event id",id);
     try {
         r = await Event.findById(id);
-        r = await Program.populate(r,'programId');
-        r = await InvoicingOrg.populate(r,'invoicingOrg');
         req.event = r;
         if (r) {
+            req.event = await Program.populate(req.event,'programId');
+            req.event = await InvoicingOrg.populate(req.event,'invoicingOrg');
             if (req.user) {
                 req.user.isEventOrganizer = (req.event.managers.indexOf(req.user.id) >= 0);
                 req.user.isProgramManager = (req.event.programId.managers.indexOf(req.user.id) >= 0);
@@ -52,6 +52,7 @@ router.param('id', async function (req, res, next){
             throw new Error("event not found");
         next();
     } catch (err) {
+        log.ERROR(err);
         res.render('message',{title:"Stretnutie/Turnaj nenájdený",error:{status:err.message}});
     }
 
@@ -144,7 +145,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
-    const progId = req.query.program;
+    const progId = req.query.programId;
     const evtOrgId = req.query.eo;
     const onlyActive = req.query.active;
 
@@ -161,7 +162,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     try {
         switch (cmd) {
             case 'getList':
-                console.log('Going to get list of all events');
+                console.log('Going to get list of events');
                 let q = {recordStatus: 'active'};
                 if (progId)
                     q.programId = progId;
