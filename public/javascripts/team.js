@@ -231,7 +231,7 @@ viewTeam.init = function(teamId, u){
 
 
     viewTeam.loadCoaches(teamId);
-    viewTeam.loadMembers(teamId);
+    //viewTeam.loadMembers(teamId);
     viewTeam.loadInvoices(teamId);
 
     console.log("/team - Initializing completed");
