@@ -33,10 +33,10 @@ block content
         div(class='panel-heading') Číselníky
         div(class='panel-body')
             div(class="form")
-                h5 Prefix čísla proformy
+                h5 Prefix čísla zálohovej faktúry
                 a(id='ntInvNumPrefix' data-name='ntInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.ntInvNumPrefix}
-                h5 Číslo nasledujúcej proformy
-                a(id='nextDraftInvNumber' data-name='nextDraftInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextDraftInvNumber}
+                h5 Číslo nasledujúcej zálohovej faktúry
+                a(id='nextNTInvNumber' data-name='nextNTInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextDraftInvNumber}
 
                 h5 Prefix čísla faktúry
                 a(id='invNumPrefix' data-name='invNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.invNumPrefix}
