@@ -25,16 +25,12 @@ router.param('id', async function (req, res, next){
     console.log("Team id=",id);
     try {
         if (!req.user)
-            req.user = {id:0};
+            req.user = {id:'999999999999999999999990'};
 
         let r = await Team.findById(id);
 
         if (r) {
-            console.log("Team id=", r.id, " name=", r.name);
-
             req.user.permissions = await libPerm.getUserTeamPermissions(req.user.id, r.id);
-
-            //console.log("PPPP",req.user, id, req.user.permissions);
 
             /*
             if (req.user) {
@@ -53,7 +49,6 @@ router.param('id', async function (req, res, next){
 
             //console.log("FFFF", req.user, id);
             r = await dbTeam.getTeamDetails(req.user.id, id);
-            //console.log("EEEEE",r);
 
             req.team = r;
 
