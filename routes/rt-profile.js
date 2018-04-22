@@ -7,6 +7,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const log = require('../lib/logger');
 const email = require('../lib/email');
+const libFmt = require('../lib/fmt');
 
 const Team = mongoose.models.Team;
 const User = mongoose.models.User;
@@ -106,7 +107,7 @@ router.get('/:id', async function (req, res, next) {
 
             log.INFO("OneTime used: id="+otc+" type="+ot.type);
 
-            res.render('resetPwd',{otc:otc, ot:ot, profile:req.profile});
+            res.render('resetPwd',{otc:otc, ot:ot, profile:req.profile, fmt:fmtLib});
 
             nextRouter = false;
             break;

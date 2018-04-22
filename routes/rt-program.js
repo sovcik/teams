@@ -23,13 +23,31 @@ router.param('id', async function (req, res, next){
         if (req.user)
             req.user.isProgramManager = (req.program.managers.indexOf(req.user.id) >= 0);
         else
-            req.user = {isProgramManager:false};
+            req.user =
+            {
+                isAdmin:false,
+                isProgramManager:false,
+                locales:libFmt.defaultLocales
+            };
 
         log.DEBUG("Program id="+req.program.id);
 
         next();
     } catch (err) {
         res.render('message',{title:"Program nenájdený",error:err});
+    }
+
+});
+
+router.get('/:id', /*cel.ensureLoggedIn('/login'), */ async function (req, res, next) {
+    const cmd = req.query.cmd;
+    console.log("/program - PUBLIC get (ID)");
+
+    if (cmd)
+        next();
+    else {
+        console.log("USER=",req.user);
+        res.render('program', {user: req.user, program:req.program, fmt:libFmt});
     }
 
 });
@@ -69,19 +87,7 @@ router.get('/:id', async function (req, res, next) {
 });
 
 
-router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
-    const cmd = req.query.cmd;
-    console.log("/program - get (ID)");
-
-    if (cmd)
-        next();
-    else {
-        res.render('program', {user: req.user, program:req.program, fmt:libFmt});
-    }
-
-});
-
-router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+router.get('/', /*cel.ensureLoggedIn('/login'),*/ async function (req, res, next) {
     const cmd = req.query.cmd;
     console.log("/program - get");
 
@@ -90,7 +96,22 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     else {
         let list;
         try {
-            list = await Program.findActive();
+            let today = new Date();
+            today.setHours(0,0,0,0);
+            let q = { recordStatus: 'active' };
+            q.$or =
+                [
+                    {startDate: null},
+                    {
+                        $and: [
+                            {endDate: {$gte: today}},
+                            {startDate: {$lte: today}}
+                        ]
+                    }
+                ];
+            //list = await Program.findActive();
+            list = await Program.find(q, {name:true, id:true});
+
         } catch (err) {
             log.WARN("Failed to fetch list of programs. err="+err);
         }

@@ -80,7 +80,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
 });
 
-router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+router.get('/', /*cel.ensureLoggedIn('/login'), */async function (req, res, next) {
     const cmd = req.query.cmd;
     console.log("/team-event: get");
     console.log(req.query);
@@ -105,7 +105,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     tms.forEach(t => r.list.push({_id: t.teamId.id, name: t.teamId.name,
                         foundingOrg:t.teamId.foundingOrg,
                         foundingAdr:t.teamId.foundingAdr,
-                        foundingContact:t.teamId.foundingContact,
+                        foundingContact:req.user?t.teamId.foundingContact:{},
                         eventId:t.eventId, programId:t.programId
                     }));
                 }
