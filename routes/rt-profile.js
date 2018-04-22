@@ -149,7 +149,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
         } catch (err) {
             log.WARN("Failed fetching program data for user profile. "+err);
         }
-        res.render('profile', {profile: req.profile, user: req.user});
+        res.render('profile', {profile: req.profile, user: req.user, fmt:libFmt});
     }
 
 });

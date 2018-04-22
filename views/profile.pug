@@ -124,7 +124,7 @@ block content
 
     script.
         var u = '{ "locales": "#{user?user.locales:fmt.defaultLocales}" ,'
-            + '"username": "#{user?user.username:"not-logged-in"}", '
+            + '"username": "#{user?user.username:""}", '
             + '"permissions": { '
             + '   "isAdmin": #{user?(user.isAdmin ? true : false):false} '
             + '}}';
