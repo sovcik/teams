@@ -32,10 +32,11 @@ block content
                 button(id='exportData' type="button" class="btn btn-default") Export dát
                 button(id='addManager' type="button" class="btn btn-default") Pridať manažéra
 
-    div(class="panel panel-primary")
-        div(class='panel-heading') Manažéri programu
-        div(class='panel-body')
-            div(id='pmsList' class='container-fluid')
+    if (user.username)
+        div(class="panel panel-primary")
+            div(class='panel-heading') Manažéri programu
+            div(class='panel-body')
+                div(id='pmsList' class='container-fluid')
 
     div(class="panel panel-primary")
         div(class='panel-heading') Stretnutia/Turnaje
@@ -47,13 +48,11 @@ block content
         div(class='panel-body')
             div(id='teamList' class='container-fluid' style="max-height: 400pt; overflow: auto;")
 
-    div(id='modalDlgs')
-
     script.
-        var u = '{ "locales": "#{user?user.locales:"en-US"}" ,'
-            + '"username": "#{user?user.username:"not-logged-in"}", '
+        var u = '{ "locales": "#{user.locales}" ,'
+            + '"username": "#{user.username?user.username:""}", '
             + '"permissions": { '
-            + '   "isAdmin": #{user?(user.isAdmin ? true : false):false}, '
-            + '   "isProgramManager": #{user?(user.isProgramManager ? true : false):false} '
+            + '   "isAdmin": #{user.isAdmin}, '
+            + '   "isProgramManager": #{user.isProgramManager} '
             + '}}';
         viewProgram.init("#{program._id}",u);

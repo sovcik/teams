@@ -55,11 +55,11 @@ block content
                 a(id='draftInvNumPrefix' data-name='draftInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.draftInvNumPrefix}
 
     script.
-        var u = '{ "locales": "#{user.locales ? user.locales : "en-US"}" ,'
-            + '"dateFormat": "#{user.locales ? fmt.fmtDateFormat(user.locales) : "mm/dd/yyyy"}", '
-            + '"username": "#{user ? user.username : "not-logged-in"}", '
+        var u = '{ "locales": "#{user.locales}" ,'
+            + '"dateFormat": "#{fmt.fmtDateFormat(user.locales)}", '
+            + '"username": "#{user.username ? user.username : ""}", '
             + '"permissions": { '
-            + '   "isAdmin": #{user ? (user.isAdmin ? true : false) : false}, '
-            + '   "isInvOrgManager": #{user ? (user.isInvoicingOrgManager ? true : false) : false} '
+            + '   "isAdmin": #{user.isAdmin}, '
+            + '   "isInvOrgManager": #{user.isInvoicingOrgManager} '
             + '}}';
         viewInvOrg.init("#{io._id}",u);

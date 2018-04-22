@@ -8,7 +8,7 @@ block content
         div(class="panel-body")
             h3 Dátum konania
                 = " "
-                if user && (user.isAdmin || user.isEventOrganizer)
+                if user.isAdmin || user.isEventOrganizer
                     a(id='startDate' data-name='startDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=event._id data-url='/event/' + event._id + '/fields' class='editable form-control' href='#')
                         = event.startDate ? fmt.fmtDate(event.startDate, user.locales):""
                 else
@@ -16,7 +16,7 @@ block content
 
             h4 Termín registrácie
                 = " "
-                if user && (user.isAdmin || user.isEventOrganizer)
+                if user.isAdmin || user.isEventOrganizer
                     a(id='regEndDate' data-name='regEndDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=event._id data-url='/event/' + event._id + '/fields' class='editable form-control' href='#')
                         = event.regEndDate ? fmt.fmtDate(event.regEndDate, user.locales) : "nebol určený"
                 else
@@ -31,17 +31,17 @@ block content
                     if event.address.addrLine3
                         =", " + event.address.addrLine3
                     h4 #{event.address.postCode}, #{event.address.city}
-            if user && (user.isAdmin || user.isEventOrganizer)
+            if user.isAdmin || user.isEventOrganizer
                 h5
                 h5 Fakturujúca organizácia
                 h5 #{event.invoicingOrg.org.name}, #{event.invoicingOrg.adr.city}
         div(class="panel-footer")
-            if user && (user.isAdmin || user.isEventOrganizer || user.isProgramManager)
+            if user.isAdmin || user.isEventOrganizer || user.isProgramManager
                 button(id='addOrganizer' type='button' class='btn btn-default') Pridaj organizátora
                 button(id='exportData' type="button" class="btn btn-default") Export dát
 
     div(id='modalDlgs')
-        if (user && (user.isAdmin || user.isProgramManager))
+        if user.isAdmin || user.isProgramManager
             div(id='editTeamNumber' class='modal fade' role='dialog')
                 div(class='modal-dialog')
                     div(class='modal-content')
@@ -79,13 +79,13 @@ block content
             div(id="allTeams")
 
     script.
-        var u = '{ "locales": "#{user?user.locales:"en-US"}" ,'
-            + '"username": "#{user?user.username:"not-logged-in"}", '
+        var u = '{ "locales": "#{user.locales}" ,'
+            + '"username": "#{user.username?user.username:""}", '
             + '"permissions": { '
-            + '   "isAdmin": #{user?(user.isAdmin? true:false):false}, '
-            + '   "isEventOrganizer": #{user?(user.isEventOrganizer ? true : false):false}, '
-            + '   "isProgramManager": #{user?(user.isProgramManager ? true : false):false}, '
-            + '   "isInvoicingOrgManager":#{user?(user.isInvoicingOrgManager ? true : false):false}'
+            + '   "isAdmin": #{user.isAdmin}, '
+            + '   "isEventOrganizer": #{user.isEventOrganizer}, '
+            + '   "isProgramManager": #{user.isProgramManager}, '
+            + '   "isInvoicingOrgManager":#{user.isInvoicingOrgManager}'
             + '}}';
         viewEvent.init("#{event._id}",u);
 

@@ -25,36 +25,38 @@ block content
             div(class='form-group')
                 a(id='teamName' data-name='name' data-title='Názov' data-type='text' data-pk=team._id data-url='/team/'+team._id+'/fields' class='form-control' href='#')
                     = team.name
-            div(class='form-group' id="eventReg")
+
+            if (user && user.username)
+                div(class='form-group' id="eventReg")
 
 
-                div(id="activeEvents")
-                    if team.events && team.events.length > 0
-                        label(class="label-control") Aktívne registrácie
-                        for e in team.events
-                            if (e.eventDate >= new Date() || !e.eventDate)
-                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
-                        br
+                    div(id="activeEvents")
+                        if team.events && team.events.length > 0
+                            label(class="label-control") Aktívne registrácie
+                            for e in team.events
+                                if (e.eventDate >= new Date() || !e.eventDate)
+                                    a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
+                            br
 
-                div(class='btn-group')
-                    if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
-                        button(class="btn btn-success" id="btnRegister2") Registruj na turnaj
-                    button(class="btn btn-default" type="button" data-parent='#panel-events' data-toggle="collapse" data-target="#allEvents") Predchádzajúce registrácie
+                    div(class='btn-group')
+                        if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
+                            button(class="btn btn-success" id="btnRegister2") Registruj na turnaj
+                        button(class="btn btn-default" type="button" data-parent='#panel-events' data-toggle="collapse" data-target="#allEvents") Predchádzajúce registrácie
 
-                div(class="collapse" id="allEvents" style="max-height: 400pt; overflow: auto;")
-                    if team.events && team.events.length > 0
-                        label(class="label-control") Predchádzajúce registrácie
-                        for e in team.events
-                            if (e.eventDate < new Date())
-                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
+                    div(class="collapse" id="allEvents" style="max-height: 400pt; overflow: auto;")
+                        if team.events && team.events.length > 0
+                            label(class="label-control") Predchádzajúce registrácie
+                            for e in team.events
+                                if (e.eventDate < new Date())
+                                    a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
 
-            div(class='form-group' id='panel-invoices')
-                div(id="unpaidInvoices")
-                    ul(class='list-group' id="invoices-unpaid")
-                div(class='btn-group')
-                    button(class="btn btn-default" type="button" data-parent='#panel-invoices' data-toggle="collapse" data-target="#allInvoices") Zobraz všetky faktúry
-                div(class="collapse" id="allInvoices")
-                    ul(class='list-group' id="invoices")
+                div(class='form-group' id='panel-invoices')
+                    div(id="unpaidInvoices")
+                        ul(class='list-group' id="invoices-unpaid")
+                    div(class='btn-group')
+                        button(class="btn btn-default" type="button" data-parent='#panel-invoices' data-toggle="collapse" data-target="#allInvoices") Zobraz všetky faktúry
+                    div(class="collapse" id="allInvoices")
+                        ul(class='list-group' id="invoices")
 
         div(class='panel-footer')
             div(class='form-group')
@@ -118,8 +120,8 @@ block content
     div(id="modalDlgs")
 
     script.
-        var u = '{ "locales": "#{user.locales?user.locales:"en-US"}" ,'
-                + '"dateFormat": "#{user.locales?fmt.fmtDateFormat(user.locales):"mm/dd/yyyy"}", '
+        var u = '{ "locales": "#{user.locales?user.locales:fmt.defaultLocales}" ,'
+                + '"dateFormat": "#{user.locales?fmt.fmtDateFormat(user.locales):fmt.fmtDateFormat()}", '
                 + '"username": "#{user?user.username:"not-logged-in"}", '
                 + '"permissions": { '
                 + '   "isAdmin": #{user?(user.permissions.isAdmin ? true : false):false}, '

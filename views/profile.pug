@@ -123,7 +123,7 @@ block content
     div(id="modalDlgs")
 
     script.
-        var u = '{ "locales": "#{user?user.locales:"en-US"}" ,'
+        var u = '{ "locales": "#{user?user.locales:fmt.defaultLocales}" ,'
             + '"username": "#{user?user.username:"not-logged-in"}", '
             + '"permissions": { '
             + '   "isAdmin": #{user?(user.isAdmin ? true : false):false} '
