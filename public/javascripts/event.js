@@ -5,11 +5,14 @@ var viewEvent = {};
 viewEvent.init = function (evId,u){
     viewEvent.user = JSON.parse(u);
     moment.locale(viewEvent.user.locales.substr(0,2));
+    console.log("locales=",viewEvent.user.locales);
 
     viewEvent.loadRegisteredTeams(evId);
     viewEvent.loadOrganizers(evId);
 
-    $('.editable').editable();
+    if (viewEvent.user.permissions.isAdmin || viewEvent.user.permissions.isEventOrganizer ) {
+        $('.editable').editable();
+    }
 
     $("#exportData").on(
         "click",
