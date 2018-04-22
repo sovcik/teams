@@ -8,12 +8,13 @@ viewTeam.init = function(teamId, u){
     moment.locale(user.locales.substr(0,2));
     console.log("locales=",user.locales);
 
-    $.fn.editable.defaults.mode = 'inline';
-
     viewTeam.user = user;
 
     $(document).ready(function() {
-        $('#teamName').editable();
+        if (viewTeam.user.permissions.isAdmin || viewTeam.user.permissions.isCoach) {
+            $.fn.editable.defaults.mode = 'inline';
+            $('#teamName').editable();
+        }
     });
 
     $("#createMember").on("click", function(){
