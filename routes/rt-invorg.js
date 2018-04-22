@@ -23,7 +23,11 @@ router.param('id', async function (req, res, next){
             if (req.user)
                 req.user.isInvoicingOrgManager = (req.iorg.managers.indexOf(req.user.id) >= 0);
             else
-                req.user = {isInvoicingOrgManager:false};
+                req.user = {
+                    isAdmin:false,
+                    isInvoicingOrgManager:false,
+                    locales:libFmt.defaultLocales
+                };
 
             console.log("Invoicing org id=", r.id, " name=", r.org.name);
 
