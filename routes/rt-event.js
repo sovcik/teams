@@ -35,9 +35,11 @@ router.param('id', async function (req, res, next){
                 req.user.isInvoicingOrgManager = (req.event.invoicingOrg.managers.indexOf(req.user.id) >= 0);
             } else {
                 req.user = {
+                    isAdmin:false,
                     isEventOrganizer:false,
                     isProgramManager:false,
-                    isInvoicingOrgManager:false
+                    isInvoicingOrgManager:false,
+                    locales: libFmt.defaultLocales
                 }
             }
             r.teams = [];
@@ -143,7 +145,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 });
 
 
-router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+router.get('/', /*cel.ensureLoggedIn('/login'), */async function (req, res, next) {
     const cmd = req.query.cmd;
     const progId = req.query.program;
     const evtOrgId = req.query.eo;
@@ -153,8 +155,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     console.log(req.query);
 
     const r = {result:"error", status:200};
-    r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
-    r.isEventOrganizer = req.user.isEventOrganizer;
+    r.isAdmin = req.user && (req.user.isAdmin || req.user.isSuperAdmin);
+    r.isEventOrganizer = req.user && req.user.isEventOrganizer;
 
     const today = new Date();
     today.setHours(0,0,0,0);
