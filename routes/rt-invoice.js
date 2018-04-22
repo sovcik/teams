@@ -22,7 +22,9 @@ router.param('id', async function (req, res, next){
     // if user not logged in
     if (!req.user)
         req.user = {
-            locales:"sk-SK"
+            isAdmin: false,
+            isInvoicingManager: false,
+            locales:libFmt.defaultLocales
         };
 
     try {
