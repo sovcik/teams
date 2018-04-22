@@ -6,13 +6,17 @@ viewProgram.init = function (rId, u){
     viewProgram.user = JSON.parse(u);
     moment.locale(viewProgram.user.locales.substr(0,2));
     var resId = rId; //getResourceId(location.href);
-    console.log(viewProgram.user,rId);
-    viewProgram.loadManagers(resId);
+
+    if (viewProgram.user.username > 0)
+        viewProgram.loadManagers(resId);
+
     viewProgram.loadEvents(resId);
     viewProgram.loadTeams(resId);
 
-    $('.editable').editable();
-    //$('#endDate').editable();
+    if (viewProgram.user.permissions.isAdmin || viewProgram.user.permissions.isProgramManager) {
+        $('.editable').editable();
+        //$('#endDate').editable()
+    }
 
     $("#exportData").on(
         "click",
