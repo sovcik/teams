@@ -111,7 +111,7 @@ viewInvoice.init = function(invId, u) {
                     }
                 },
                 "Príspevok na registráciu",
-                100.0
+                -100.0
             );
         }
         e.stopPropagation();
