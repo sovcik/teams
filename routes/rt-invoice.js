@@ -325,6 +325,52 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 }
 
                 break;
+            case 'addLine':
+                try {
+                    if (!req.user.permissions.isInvoicingOrgManager
+                        && !req.user.permissions.isAdmin) {
+                        log.WARN("Invoice add line - permission denied. user="+req.user.username+" invoice="+req.invoice._id);
+                        throw new Error("permission denied");
+                    }
+
+                    if (!req.body.text || !req.body.value)
+                        throw new Error("wrong post data");
+
+                    let qty = parseInt(req.body.qty ? req.body.qty : 1);
+                    let value = parseInt(req.body.value);
+
+                    let maxLineNo = 0;
+                    req.invoice.items.forEach(i => maxLineNo = maxLineNo < i.itemNo?i.itemNo:maxLineNo);
+                    maxLineNo++;
+                    let itm = {
+                        itemNo:maxLineNo,
+                        text:req.body.text,
+                        unit:req.body.unit ? req.body.unit : "",
+                        qty:qty,
+                        unitPrice:value,
+                    };
+                    console.log("ITEM=",itm);
+
+                    req.invoice.items.push(itm);
+
+                    req.invoice.total = 0;
+                    req.invoice.items.forEach(function(i){
+                        i.total = i.qty * i.unitPrice;
+                        console.log("i.total=",i.total, i.qty, i.unitPrice);
+                        req.invoice.total += i.total;
+                    });
+                    req.invoice.total = req.invoice.total.toFixed(2);
+
+                    await req.invoice.save();
+                    console.log('Invoice', req.invoice._id, "line added total=", req.invoice.total);
+                    r.result = "ok";
+                    r.invoice = req.invoice;
+
+                } catch (err) {
+                    throw new Error("Adding line to invoice "+req.invoice.id+" err="+err.message);
+                }
+
+                break;
             case 'notifyOverdue':
                 try {
                     if (!req.user.permissions.isInvoicingOrgManager

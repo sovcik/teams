@@ -20,10 +20,10 @@ InvoiceItemSchema.testData = function(rec, prefix) {
     rec.code = prefix+'AAA';
     rec.text = "item-name "+prefix;
     rec.note = "item-note "+prefix;
-    rec.amount = 2.5;
+    rec.qty = 2.5;
     rec.unit = "pcs";
     rec.unitPrice = 11.33;
-    rec.total = (rec.amount * rec.unitPrice).toFixed(2);
+    rec.total = (rec.qty * rec.unitPrice).toFixed(2);
 
     return rec;
 };

@@ -156,6 +156,32 @@ libInvoice.notifyOverdue = function(invId, cb){
         });
 };
 
+libInvoice.addLine = function(invId, cb, lineText, lineValue){
+    console.log('Add Line '+invId);
+    (typeof cb === 'function') || (cb = libCommon.noop);
+    $.post("/invoice/"+invId,
+        {
+            cmd: 'addLine',
+            text: lineText,
+            value: lineValue
+        },
+        function (res) {
+            console.log("addLine: Server returned",res);
+            if (res.result == "ok") {
+                console.log("line added");
+                cb(res);
+            } else {
+                console.log("Error adding line",res);
+                cb(res,{message:"Nepodarilo pridať riadok."});
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error sending notification",err);
+            cb(null, err);
+        });
+};
+
 libInvoice.initInvoiceButtons = function(cb){
     console.log("Init Invoice Buttons");
     (typeof cb === 'function') || (cb = libCommon.noop);

@@ -43,6 +43,11 @@ block content
             li
                 a(href="#" id="invPrint") Tlačiť
 
+            if (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invAddLine") Pridať príspevok
+
+
             if !inv.isDraft && !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
                 li
                     a(href="#" id="invPay") Zaplatiť

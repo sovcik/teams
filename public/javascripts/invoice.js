@@ -96,4 +96,27 @@ viewInvoice.init = function(invId, u) {
 
     });
 
+    $("#invAddLine").on("click", function(e){
+        console.log("click invoice add line",invId);
+        if (confirm('Naozaj chcete pridať príspevok?')) {
+            $("#invActions").dropdown("toggle");
+            libInvoice.addLine(
+                invId,
+                function (res, err) {
+                    if (err)
+                        alert("Nepodarilo sa pridať riadok.");
+                    else {
+                        alert("Riadok pridaný.");
+                        location.reload();
+                    }
+                },
+                "Príspevok na registráciu",
+                100.0
+            );
+        }
+        e.stopPropagation();
+        e.preventDefault();
+
+    });
+
 };
