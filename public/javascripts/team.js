@@ -73,8 +73,8 @@ viewTeam.init = function(teamId, u){
         viewTeam.loadAddressDetails2(teamId,fields,function(res,err) {
 
             libModals.multiFieldDialog(
-                "Zriaďovateľ",
-                "Organizácia, ktorá je zriaďovateľom tímu",
+                "Zriaďovateľ tímu",
+                "Organizácia, ktorá je zriaďovateľom tímu (škola, CVČ, ...)",
                 res,
                 function (flds, cb) {
                     viewTeam.saveAddressDetails2("founding", flds, teamId, cb)
