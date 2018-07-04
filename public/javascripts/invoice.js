@@ -4,7 +4,7 @@ var viewInvoice = {};
 
 viewInvoice.init = function(invId, u) {
     console.log("Invoice initialized");
-    var user = JSON.parse(u);
+    viewInvoice.user = JSON.parse(u);
 
     $("#invPrint").on("click", function(e){
         console.log("click invoice print",invId);
@@ -16,28 +16,46 @@ viewInvoice.init = function(invId, u) {
 
     $("#invPay").on("click", function(e){
         console.log("click invoice paid",invId);
-        if (confirm("Naozaj chcete faktúru označiť ako zaplatenú?")) {
-            $("#invActions").dropdown("toggle");
-            libInvoice.markAsPaid(
-                invId,
-                function (res, err) {
-                    if (err)
-                        alert("Nepodarilo sa označiť faktúru ako zaplatenú");
-                    else {
-                        alert("Faktúru označená ako zaplatená");
-                        location.reload();
-                    }
+        $("#invActions").dropdown("toggle");
+        var fields = [
+            {id:"paidOn", label:"Dátum zaplatenia", type:"date", required:1, locales:viewInvoice.user.locales, dateFormat:viewInvoice.user.dateFormat}
+        ];
+
+        libModals.multiFieldDialog(
+            "Zaplatenie faktúry",
+            "",
+            fields,
+            function (flds, cb) {
+                libInvoice.markAsPaid(
+                    invId,
+                    function (res, err) {
+                        if (err)
+                            alert("Nepodarilo označiť faktúru ako zaplatenú.");
+                        else {
+                            alert("Faktúra zaplatená.");
+                            location.reload();
+                        }
+                    },
+                    flds.find(function(f){return f.id == "paidOn"}).dateValue,
+                );
+            },
+            function cb(res, err) {
+                if (err) {
+                    console.log("CB-ERROR", err);
+                    alert(err.message);
                 }
-            );
-        }
+                console.log("CB-DONE");
+            }
+        );
+
         e.stopPropagation();
         e.preventDefault();
-    } );
+    });
 
     $("#invRemove").on("click", function(e){
         console.log("click invoice remove",invId);
         if (confirm('Naozaj chcete vymazať túto faktúru?')) {
-            $("#invActions").dropdown("toggle");
+
             libInvoice.remove(
                 invId,
                 function (res, err) {
@@ -123,12 +141,12 @@ viewInvoice.init = function(invId, u) {
                             location.reload();
                         }
                     },
-                    fields.find(function(f){return f.id == "text"}).value,
-                    fields.find(function(f){return f.id == "price"}).value,
-                    fields.find(function(f){return f.id == "id"}).value,
-                    fields.find(function(f){return f.id == "qty"}).value,
-                    fields.find(function(f){return f.id == "unit"}).value,
-                    fields.find(function(f){return f.id == "note"}).value
+                    flds.find(function(f){return f.id == "text"}).value,
+                    flds.find(function(f){return f.id == "price"}).value,
+                    flds.find(function(f){return f.id == "id"}).value,
+                    flds.find(function(f){return f.id == "qty"}).value,
+                    flds.find(function(f){return f.id == "unit"}).value,
+                    flds.find(function(f){return f.id == "note"}).value
                 );
             },
             function cb(res, err) {

@@ -249,7 +249,8 @@ block content
 
     script.
 
-        var u = '{ "locales": "#{user.locales}" ,'
+        var u = '{ "locales": "#{user.locales?user.locales:fmt.defaultLocales}" ,'
+            + '"dateFormat": "#{user.locales?fmt.fmtDateFormat(user.locales):fmt.fmtDateFormat()}", '
             + '"username": "#{user.username?user.username:""}", '
             + '"permissions": { '
             + '   "isAdmin": #{user.permissions.isAdmin?true:false}, '

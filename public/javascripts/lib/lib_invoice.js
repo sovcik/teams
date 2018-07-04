@@ -28,12 +28,13 @@ libInvoice.createTaxInvoice = function(invId, cb){
 
 };
 
-libInvoice.markAsPaid = function(invId, cb){
+libInvoice.markAsPaid = function(invId, cb, paidOn){
     console.log('Marking invoice as paid '+invId);
     (typeof cb === 'function') || (cb = libCommon.noop);
     $.post("/invoice/"+invId,
         {
-            cmd: 'markAsPaid'
+            cmd : 'markAsPaid',
+            paidOn : paidOn.toISOString()
         },
         function (res) {
             console.log("markAsPaid: Server returned",res);
