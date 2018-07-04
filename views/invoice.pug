@@ -43,11 +43,11 @@ block content
             li
                 a(href="#" id="invPrint") Tlačiť
 
-            if (user.isInvoicingOrgManager || user.isAdmin)
+            if inv.isDraft && (user.isInvoicingOrgManager || user.isAdmin)
                 li
                     a(href="#" id="invAddItem") Pridať riadok
 
-            if (user.isInvoicingOrgManager || user.isAdmin)
+            if inv.isDraft && (user.isInvoicingOrgManager || user.isAdmin)
                 li
                     a(href="#" id="invRenumber") Prečíslovať
 
