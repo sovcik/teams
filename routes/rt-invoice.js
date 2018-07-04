@@ -325,11 +325,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 }
 
                 break;
-            case 'addLine':
+            case 'addItem':
                 try {
                     if (!req.user.permissions.isInvoicingOrgManager
                         && !req.user.permissions.isAdmin) {
-                        log.WARN("Invoice add line - permission denied. user="+req.user.username+" invoice="+req.invoice._id);
+                        log.WARN("Invoice add item - permission denied. user="+req.user.username+" invoice="+req.invoice._id);
                         throw new Error("permission denied");
                     }
 
@@ -339,9 +339,12 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     let qty = parseInt(req.body.qty ? req.body.qty : 1);
                     let value = parseInt(req.body.value);
 
-                    let maxLineNo = 0;
-                    req.invoice.items.forEach(i => maxLineNo = maxLineNo < i.itemNo?i.itemNo:maxLineNo);
-                    maxLineNo++;
+                    let maxLineNo = parseInt(req.body.itemNo ? req.body.itemNo : 0);
+                    if (maxLineNo == 0) {
+                        req.invoice.items.forEach(i => maxLineNo = maxLineNo < i.itemNo ? i.itemNo : maxLineNo);
+                        maxLineNo++;
+                    }
+
                     let itm = {
                         itemNo:maxLineNo,
                         text:req.body.text,
@@ -349,28 +352,55 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                         qty:qty,
                         unitPrice:value,
                     };
+                    if (req.body.note) itm.note = req.body.note;
+
                     console.log("ITEM=",itm);
 
                     req.invoice.items.push(itm);
 
-                    req.invoice.total = 0;
-                    req.invoice.items.forEach(function(i){
-                        i.total = i.qty * i.unitPrice;
-                        console.log("i.total=",i.total, i.qty, i.unitPrice);
-                        req.invoice.total += i.total;
-                    });
-                    req.invoice.total = req.invoice.total.toFixed(2);
+                    req.invoice.updateTotal();
 
                     await req.invoice.save();
-                    console.log('Invoice', req.invoice._id, "line added total=", req.invoice.total);
+                    console.log('Invoice', req.invoice._id, "item added total=", req.invoice.total);
                     r.result = "ok";
                     r.invoice = req.invoice;
 
                 } catch (err) {
-                    throw new Error("Adding line to invoice "+req.invoice.id+" err="+err.message);
+                    log.WARN("Adding item to invoice="+req.invoice._id+" err="+err.message);
+                    throw new Error("Adding item to invoice "+req.invoice.id+" err="+err.message);
                 }
 
                 break;
+            case 'removeItem':
+                try {
+                    if (!req.user.permissions.isInvoicingOrgManager
+                        && !req.user.permissions.isAdmin) {
+                        log.WARN("Invoice remove item - permission denied. user="+req.user.username+" invoice="+req.invoice._id);
+                        throw new Error("permission denied");
+                    }
+
+                    if (!req.body.itemNo)
+                        throw new Error("wrong request");
+
+                    let i = parseInt(req.body.itemNo);
+
+                    let inv = await Invoice.findByIdAndUpdate(req.invoice._id, {$pull:{items:{itemNo:i}}}, { new: true });
+
+                    console.log("HERE",inv);
+                    inv.updateTotal();
+
+                    await inv.save();
+                    console.log('Invoice', inv._id, "item removed total=", inv.total);
+                    r.result = "ok";
+                    r.invoice = inv;
+
+                } catch (err) {
+                    log.WARN("Removing item from invoice="+req.invoice._id+" err="+err.message);
+                    throw new Error("Removing item from invoice "+req.invoice.id+" err="+err.message);
+                }
+
+                break;
+
             case 'notifyOverdue':
                 try {
                     if (!req.user.permissions.isInvoicingOrgManager
@@ -421,6 +451,24 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 } catch (err) {
                     r.error = err;
                     log.WARN("Failed confirming invoice. err="+err.message);
+                }
+                break;
+            case 'renumber':
+                if (!req.user.permissions.isInvoicingOrgManager
+                    && !req.user.permissions.isAdmin) {
+                    throw new Error("Invoice items renumber - Permission denied");
+                }
+                try {
+                    log.DEBUG("Renumbering invoice items inv=" + req.invoice.id);
+                    req.invoice.renumber();
+                    await req.invoice.save();
+                    r.result = "ok";
+                    r.invoice = req.invoice;
+                    log.INFO("INVOICE items renumbered. id="+req.invoice._id+" no="+req.invoice.number+" by user="+req.user.username);
+
+                } catch (err) {
+                    r.error = err;
+                    log.WARN("Failed renumbering invoice items. err="+err.message);
                 }
                 break;
             default:

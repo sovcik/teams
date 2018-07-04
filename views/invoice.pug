@@ -45,7 +45,11 @@ block content
 
             if (user.isInvoicingOrgManager || user.isAdmin)
                 li
-                    a(href="#" id="invAddLine") Pridať príspevok
+                    a(href="#" id="invAddItem") Pridať riadok
+
+            if (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invRenumber") Prečíslovať
 
 
             if !inv.isDraft && !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
@@ -156,6 +160,8 @@ block content
         table(style="border-top:2pt;border-bottom:2pt")
             tr
                 th(class="itm" style="width:20pt")
+                    =""
+                th(class="itm" style="width:20pt")
                     ="#"
                 th(class="itm" style="width:380pt;text-align:left")
                     ="Položka"
@@ -167,6 +173,9 @@ block content
                     ="Cena"
             each itm in inv.items
                 tr
+                    td(class="itm")
+                        a
+                            span(class="glyphicon glyphicon-remove invRemoveItem" id="ITM"+itm.itemNo)
                     td(class="itm")
                         p #{itm.itemNo}
                     td(class="itm")
@@ -191,7 +200,7 @@ block content
                     h4 Celkom
                 td(class="itm")
                 td(class="itm")
-                td(class="itm")
+                td(class="itm" colspan="2")
                     h4(style="text-align:right")
                         =inv.total.toFixed(2) +" " + inv.currency
 
@@ -235,6 +244,8 @@ block content
                     =" "
                     a(href=(siteUrl||'')+"/team/"+inv.team._id) Otvoriť stránku tímu
         p=" "
+
+    div(id="modalDlgs")
 
     script.
 

@@ -32,6 +32,7 @@ const UserSchema = new Schema({
     salt: { type: String, default: '' },
     isAdmin: {type: Boolean, default: false},
     isSuperAdmin: {type: Boolean, default: false},
+    dpaAccepted: {type: Date},  // data processing agreement acceptance date
     locales: {type: String, default: 'sk-SK'}
 });
 

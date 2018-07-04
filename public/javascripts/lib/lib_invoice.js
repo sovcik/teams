@@ -156,23 +156,80 @@ libInvoice.notifyOverdue = function(invId, cb){
         });
 };
 
-libInvoice.addLine = function(invId, cb, lineText, lineValue){
-    console.log('Add Line '+invId);
+libInvoice.renumberItems = function(invId, cb){
+    console.log('renumber items '+invId);
     (typeof cb === 'function') || (cb = libCommon.noop);
     $.post("/invoice/"+invId,
         {
-            cmd: 'addLine',
-            text: lineText,
-            value: lineValue
+            cmd: 'renumber'
         },
         function (res) {
-            console.log("addLine: Server returned",res);
+            console.log("renumber: Server returned",res);
             if (res.result == "ok") {
-                console.log("line added");
+                console.log("renumbering done");
                 cb(res);
             } else {
-                console.log("Error adding line",res);
+                console.log("Error renumbering",res);
+                cb(res,{message:"Nepodarilo prečíslovať riadky."});
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error renumbering",err);
+            cb(null, err);
+        });
+};
+
+libInvoice.addItem = function(invId, cb, lineText, lineValue, lineNo, lineQty, lineUnit, lineNote ){
+    console.log('Add item '+invId);
+    (typeof cb === 'function') || (cb = libCommon.noop);
+    (typeof lineNo === 'undefined') && (lineNo = 1);
+    (typeof lineQty === 'undefined') && (lineQty = 1);
+    (typeof lineUnit === 'undefined') && (lineUnit = '');
+    (typeof lineNote === 'undefined') && (lineNote = '');
+    $.post("/invoice/"+invId,
+        {
+            cmd: 'addItem',
+            text: lineText,
+            value: lineValue,
+            unit: lineUnit,
+            qty: lineQty,
+            itemNo: lineNo,
+            note: lineNote
+        },
+        function (res) {
+            console.log("addItem: Server returned",res);
+            if (res.result == "ok") {
+                console.log("item added");
+                cb(res);
+            } else {
+                console.log("Error adding item",res);
                 cb(res,{message:"Nepodarilo pridať riadok."});
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error sending notification",err);
+            cb(null, err);
+        });
+};
+
+libInvoice.removeItem = function(invId, cb, itmNo){
+    console.log('Remove item '+invId);
+    (typeof cb === 'function') || (cb = libCommon.noop);
+    $.post("/invoice/"+invId,
+        {
+            cmd: 'removeItem',
+            itemNo: itmNo
+        },
+        function (res) {
+            console.log("removeItem: Server returned",res);
+            if (res.result == "ok") {
+                console.log("removed added");
+                cb(res);
+            } else {
+                console.log("Error removing item",res);
+                cb(res,{message:"Nepodarilo vymazať riadok."});
             }
         }
     )

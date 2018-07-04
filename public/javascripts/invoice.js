@@ -96,22 +96,92 @@ viewInvoice.init = function(invId, u) {
 
     });
 
-    $("#invAddLine").on("click", function(e){
-        console.log("click invoice add line",invId);
-        if (confirm('Naozaj chcete pridať príspevok?')) {
-            $("#invActions").dropdown("toggle");
-            libInvoice.addLine(
+    $("#invAddItem").on("click", function(e){
+        console.log("click invoice add item",invId);
+        $("#invActions").dropdown("toggle");
+        var fields = [
+            {id:"id", label:"Číslo riadku", type:"number", required:1},
+            {id:"text", label:"Popis položky", type:"text", placeholder:"položka", required:1},
+            {id:"note", label:"Poznámka k položke", type:"text", placeholder:"", required:0},
+            {id:"price", label:"Cena", type:"number", required:1},
+            {id:"qty",  label:"Množstvo", type:"number", required:1},
+            {id:"unit", label:"Jednotka", type:"text", placeholder:"-- ks --", required:0}
+        ];
+
+        libModals.multiFieldDialog(
+            "Nový riadok faktúry",
+            "",
+            fields,
+            function (flds, cb) {
+                libInvoice.addItem(
+                    invId,
+                    function (res, err) {
+                        if (err)
+                            alert("Nepodarilo sa pridať riadok.");
+                        else {
+                            alert("Riadok pridaný.");
+                            location.reload();
+                        }
+                    },
+                    fields.find(function(f){return f.id == "text"}).value,
+                    fields.find(function(f){return f.id == "price"}).value,
+                    fields.find(function(f){return f.id == "id"}).value,
+                    fields.find(function(f){return f.id == "qty"}).value,
+                    fields.find(function(f){return f.id == "unit"}).value,
+                    fields.find(function(f){return f.id == "note"}).value
+                );
+            },
+            function cb(res, err) {
+                if (err) {
+                    console.log("CB-ERROR", err);
+                    alert(err.message);
+                }
+                console.log("CB-DONE");
+            }
+        );
+
+        e.stopPropagation();
+        e.preventDefault();
+
+    });
+
+    $("#invRenumber").on("click", function(e){
+        var i = e.target.id.substr(3);
+        console.log("click invoice renumber items",e,i);
+        if (confirm('Naozaj chcete prečíslovať riadky dokladu?')) {
+            libInvoice.renumberItems(
                 invId,
                 function (res, err) {
                     if (err)
-                        alert("Nepodarilo sa pridať riadok.");
+                        alert("Nepodarilo sa prečíslovať riadky.");
                     else {
-                        alert("Riadok pridaný.");
+                        alert("Riadoky sú prečíslované.");
                         location.reload();
                     }
                 },
-                "Príspevok na registráciu",
-                -100.0
+                i
+            );
+        }
+        e.stopPropagation();
+        e.preventDefault();
+
+    });
+
+    $(".invRemoveItem").on("click", function(e){
+        var i = e.target.id.substr(3);
+        console.log("click invoice remove item",e,i);
+        if (confirm('Naozaj chcete vymazať riadok '+i+'?')) {
+            libInvoice.removeItem(
+                invId,
+                function (res, err) {
+                    if (err)
+                        alert("Nepodarilo sa vymazať riadok.");
+                    else {
+                        alert("Riadok vymazaný.");
+                        location.reload();
+                    }
+                },
+                i
             );
         }
         e.stopPropagation();
