@@ -17,6 +17,36 @@ libEvent.exportData = function (eventId,cb){
 
 };
 
+libEvent.deregisterTeam = function(eventId, username, teamId, callback){
+
+    if (typeof callback !== "function")
+        callback = function(res,err){return;};
+
+    console.log('Deregistering team: user='+username+' event='+eventId+' team='+teamId);
+    $.post("/event/"+eventId,
+        {
+            cmd: 'deregisterTeam',
+            eventId: eventId,
+            teamId: teamId
+        },
+        function (res) {
+            console.log("Deregister: Server returned",res);
+            if (res.result == "ok") {
+                console.log("team deregistered from event");
+                callback(res);
+            } else {
+                console.log("Error deregistering team from.",res);
+                callback(res, res.error);
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error deregistreing team from event err=",err);
+            callback(null, err);
+        });
+
+};
+
 libEvent.addOrganizer = function(eventId, username, callback){
 
     if (typeof callback !== "function")

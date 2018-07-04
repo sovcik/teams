@@ -142,6 +142,8 @@ viewEvent.loadRegisteredTeams = function(eventId){
                             .append(item.name+(item.teamEvent.teamNumber?"  [#"+item.teamEvent.teamNumber+"]":"")+", "+(item.billingAdr?item.billingAdr.city:"xxx")+", "+(item.billingOrg?item.billingOrg.name:"xxx")))
                         .append(perms.isAdmin||perms.isProgramManager?$('<button id="ETN'+item.teamEvent._id+'" class="btn btn-default btnEditTeamNumber" style="float:right">')
                             .append("Číslo tímu"):'')
+                        .append(perms.isAdmin||perms.isProgramManager?$('<button id="DRT'+item._id+'" class="btn btn-default btnDeregisterTeam" style="float:right">')
+                            .append("Odhlás"):'')
                         .append(perms.isAdmin||perms.isInvoicingOrgManager?$('<button id="CNI'+item._id+'" class="btn btn-default btnCreateNTInvoice" style="float:right">')
                             .append("Vytvor proformu"):'')
                         .append(perms.isAdmin||perms.isInvoicingOrgManager?$('<button id="CTI'+item._id+'" class="btn btn-default btnCreateTaxInvoice" style="float:right">')
@@ -150,6 +152,7 @@ viewEvent.loadRegisteredTeams = function(eventId){
                     sel.append(c);
 
                 });
+
                 $(".btnCreateNTInvoice").on("click",function(event){
                     libInvoice.create(this.id.substr(3),eventId,"P",function(res,err){
                         if (err)
@@ -158,6 +161,7 @@ viewEvent.loadRegisteredTeams = function(eventId){
                             alert("Zálohová Faktúra bola vytvorená. Nájdete ju na stránke tímu.");
                     });
                 });
+
                 $(".btnCreateTaxInvoice").on("click",function(event){
                     libInvoice.create(this.id.substr(3),eventId,"I",function(res,err){
                         if (err)
@@ -166,6 +170,18 @@ viewEvent.loadRegisteredTeams = function(eventId){
                             alert("Daňová faktúra bola vytvorená. Nájdete ju na stránke tímu.");
                     });
                 });
+
+                $(".btnDeregisterTeam").on("click",function(event){
+                    libEvent.deregisterTeam(eventId, viewEvent.user, this.id.substr(3), function(res,err){
+                        if (err)
+                            alert("Chyba odhlasovaní tímu.",err);
+                        else {
+                            alert("Tím bol odhlásený.");
+                            location.reload(true);
+                        }
+                    });
+                });
+
                 $(".btnEditTeamNumber").on("click",function(evt){
                     let teId = evt.target.id.substr(3);
                     $("#teamEventId").val(teId);

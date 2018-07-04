@@ -272,6 +272,17 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
     try {
         switch (cmd) {
+            case 'deregisterTeam':
+                log.DEBUG('Going to de-register team for an event='+req.event._id);
+                let qr = {teamId:req.body.teamId, eventId:req.body.eventId, $or:[{eventDate:{$gte:today}},{eventDate:null}]};
+                let tpr = await TeamEvent.findOne(qr); // find all ACTIVE events from the same program team is already registered for
+                if (tpr){
+                    await TeamEvent.deleteOne({_id:tpr._id});
+                } else {
+                    log.DEBUG("Team not registered for specified event, or event is in the past.");
+                }
+                r.result = "ok";
+                break;
             case 'registerTeam':
                 log.DEBUG('Going to register team for an event='+req.event._id);
 
