@@ -63,9 +63,7 @@ viewTeam.init = function(teamId, u){
             {id:"foundingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1},
             {id:"foundingOrg.companyNo", label:"IČO", type:"text"},
             {id:"foundingOrg.taxNo", label:"DIČ", type:"text"},
-            {id:"foundingContact.name", label:"Kontaktná osoba", type:"text"},
-            {id:"foundingContact.phone", label:"Telefón", type:"text"},
-            {id:"foundingContact.email", label:"E-mail", type:"email"}
+            {id:"foundingOrg.VATNo", label:"IČ DPH", type:"text"}
         ];
 
         libModals.fields = fields;
@@ -100,9 +98,7 @@ viewTeam.init = function(teamId, u){
             {id:"billingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1},
             {id:"billingOrg.companyNo", label:"IČO", type:"text"},
             {id:"billingOrg.taxNo", label:"DIČ", type:"text"},
-            {id:"billingContact.name", label:"Kontaktná osoba", type:"text"},
-            {id:"billingContact.phone", label:"Telefón", type:"text"},
-            {id:"billingContact.email", label:"E-mail", type:"email"}
+            {id:"billingOrg.VATNo", label:"IČ DPH", type:"text"}
         ];
 
         libModals.fields = fields;
@@ -111,7 +107,7 @@ viewTeam.init = function(teamId, u){
 
             libModals.multiFieldDialog(
                 "Fakturačné údaje",
-                "Tieto údaje sa použijú na vystavenie faktúr. Osoba tu uvedená bude kontaktovaná v prípade otázok týkajúcich sa faktúr.",
+                "Tieto údaje sa použijú na vystavenie faktúr.",
                 res,
                 function (flds, cb) {
                     viewTeam.saveAddressDetails2("billing", flds, teamId, cb)
@@ -135,10 +131,7 @@ viewTeam.init = function(teamId, u){
             {id:"shippingAdr.addrLine1", label:"Adresa - riadok 1", type:"text", placeholder:"adresa riadok 1", required:1},
             {id:"shippingAdr.addrLine2", label:"Adresa - riadok 2", type:"text", placeholder:"adresa riadok 2"},
             {id:"shippingAdr.city",  label:"Mesto", type:"text", placeholder:"mesto", required:1},
-            {id:"shippingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1},
-            {id:"shippingContact.name", label:"Kontaktná osoba", type:"text"},
-            {id:"shippingContact.phone", label:"Telefón", type:"text"},
-            {id:"shippingContact.email", label:"E-mail", type:"email"}
+            {id:"shippingAdr.postCode", label:"PSČ", type:"text", placeholder:"poštové smerové číslo", required:1}
         ];
 
         libModals.fields = fields;
@@ -147,7 +140,7 @@ viewTeam.init = function(teamId, u){
 
             libModals.multiFieldDialog(
                 "Korešpondenčné údaje",
-                "Tieto údaje sa použijú pri zasielaní dokumentov/balíkov bežnou poštou alebo kuriérom. Osoba tu uvedená bude kontaktovaná v prípade otázok týkajúcich sa zásielky.",
+                "Tieto údaje sa použijú pri zasielaní dokumentov/balíkov bežnou poštou alebo kuriérom.",
                 res,
                 function (flds, cb) {
                     viewTeam.saveAddressDetails2("shipping", flds, teamId, cb)
