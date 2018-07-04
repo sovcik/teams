@@ -3,7 +3,8 @@ extends includes/layout
 block content
     include includes/header-sm
     h1 Stretnutie/turnaj
-    h2 #{event.name}
+    h2(id='eventName' data-name='name' data-title='Názov' data-type='text' data-pk=event._id data-url='/event/' + event._id + '/fields' class='editable' href='#')
+        = event.name
     div(class="panel")
         div(class="panel-body")
             h3 Dátum konania
