@@ -594,6 +594,9 @@ viewTeam.registerForEvent = function (teamId, eventId, cb){
             console.log("registerTeam for event: Server returned",res);
             if (res.result == "ok") {
                 console.log("team registered");
+                if (res.messages){
+                    res.messages.forEach(function(m,i){alert(m.message)})
+                }
                 location.reload(true);
             } else {
                 console.log("Error while registering for event");

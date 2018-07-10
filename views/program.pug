@@ -26,11 +26,16 @@ block content
                 a(id='endDate' data-name='endDate' data-type='combodate' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-pk=program._id data-url='/program/' + program._id + '/fields' class='editable form-control' href='#')
                     = program.endDate?fmt.fmtDate(program.endDate, user.locales):"nezadaný"
 
+            if user && (user.isAdmin || user.isProgramManager)
+                div(class='form-group')
+                    label Správa pre registrácii
+                    textarea(id='message' rows=5 data-name='message' data-type='textarea' data-pk=program._id data-url='/program/' + program._id + '/fields' class='editable form-control' href='#')
+                        = program.message
 
         if user && (user.isAdmin || user.isProgramManager)
             div(class='panel-footer')
-                button(id='exportData' type="button" class="btn btn-default") Export dát
-                button(id='addManager' type="button" class="btn btn-default") Pridať manažéra
+                    button(id='exportData' type="button" class="btn btn-default") Export dát
+                    button(id='addManager' type="button" class="btn btn-default") Pridať manažéra
 
     if (user.username)
         div(class="panel panel-primary")

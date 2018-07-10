@@ -283,8 +283,8 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 }
                 r.result = "ok";
                 break;
-            case 'registerTeam':
-                log.DEBUG('Going to register team for an event='+req.event._id);
+            case 'registerTeam': {
+                log.DEBUG('Going to register team for an event=' + req.event._id);
 
                 let t = await Team.findOneActive({_id: req.body.teamId});
                 if (!t) throw new Error("Team not found");
@@ -294,39 +294,39 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     throw new Error("Required team data not provided");
 
                 let e = await Event.findOneActive(req.event._id);
-                if (!e) throw new Error("Event is not active id="+e._id);
+                if (!e) throw new Error("Event is not active id=" + e._id);
 
                 if (e.regEndDate && e.regEndDate < today && !r.isAdmin && !r.isEventOrganizer)
-                    throw new Error("Event is not open for registration. Registration end="+e.regEndDate);
+                    throw new Error("Event is not open for registration. Registration end=" + e.regEndDate);
 
-                log.DEBUG('Registering for program id='+e.programId);
+                log.DEBUG('Registering for program id=' + e.programId);
 
-                let q = {teamId:t._id, programId:e.programId, $or:[{eventDate:{$gte:today}},{eventDate:null}]};
+                let q = {teamId: t._id, programId: e.programId, $or: [{eventDate: {$gte: today}}, {eventDate: null}]};
                 let tp = await TeamEvent.findOne(q); // find all ACTIVE events from the same program team is already registered for
-                if (tp){
-                    log.DEBUG("Already registered teamevent id="+tp._id+" event="+tp.eventId+" program="+tp.programId+" dateStart="+tp.eventDate);
+                if (tp) {
+                    log.DEBUG("Already registered teamevent id=" + tp._id + " event=" + tp.eventId + " program=" + tp.programId + " dateStart=" + tp.eventDate);
                     throw new Error("Team is already registered for active event in the same program");
 
                 }
 
                 /*
-                tp = await Event.populate(tp, "eventId"); // load event data
+                 tp = await Event.populate(tp, "eventId"); // load event data
 
-                for (let et of tp){
-                    if (et.eventId.startDate >= today || !et.eventId.startDate) {
-                        log.DEBUG("Already registered teamevent id="+et._id+" event="+et.eventId._id+" program="+et.programId+" dateStart="+et.eventId.startDate);
-                        throw new Error("Team is already registered for active event in the same program");
-                    }
-                }
-                */
+                 for (let et of tp){
+                 if (et.eventId.startDate >= today || !et.eventId.startDate) {
+                 log.DEBUG("Already registered teamevent id="+et._id+" event="+et.eventId._id+" program="+et.programId+" dateStart="+et.eventId.startDate);
+                 throw new Error("Team is already registered for active event in the same program");
+                 }
+                 }
+                 */
 
-                e = await User.populate(e,"managers"); // needed in order to get event managers' emails
-                if (!e) throw new Error("Failed to populate event managers for event id="+e._id);
+                e = await User.populate(e, "managers"); // needed in order to get event managers' emails
+                if (!e) throw new Error("Failed to populate event managers for event id=" + e._id);
 
                 let te;
 
-                te = await TeamEvent.findOne({teamId:t._id, eventId:e._id});
-                if (te) throw new Error("Team is already registered for specified event id="+e._id);
+                te = await TeamEvent.findOne({teamId: t._id, eventId: e._id});
+                if (te) throw new Error("Team is already registered for specified event id=" + e._id);
 
                 try {
                     te = await TeamEvent.create({
@@ -337,20 +337,20 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                         eventDate: e.startDate,
                     });
                 } catch (er) {
-                    log.ERROR("Failed registering team="+t.name+" for event="+e.name+" err="+er.message);
+                    log.ERROR("Failed registering team=" + t.name + " for event=" + e.name + " err=" + er.message);
                 }
 
                 if (!te) throw new Error("Failed to register");
 
                 let inv;
                 try {
-                    log.DEBUG('Going to create invoice team='+t.id+' event='+e.id);
+                    log.DEBUG('Going to create invoice team=' + t.id + ' event=' + e.id);
                     inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
                     inv = await libInvoice.confirmInvoice(inv._id);
-                    inv = await Team.populate(inv,'team');
-                    log.INFO("Invoice created #"+inv.number);
+                    inv = await Team.populate(inv, 'team');
+                    log.INFO("Invoice created #" + inv.number);
                 } catch (er) {
-                    log.ERROR("Failed creating invoice for teamId="+te.teamId+" eventId="+te.eventId+" err="+er.message);
+                    log.ERROR("Failed creating invoice for teamId=" + te.teamId + " eventId=" + te.eventId + " err=" + er.message);
                 }
 
                 if (inv)
@@ -359,7 +359,18 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
 
                 r.result = "ok";
+
+                r.messages = [];
+                if (e.message)
+                    r.messages.push({message: e.message});
+
+                let p = await Program.findById(e.programId);
+                
+                if (p.message)
+                    r.messages.push({message: p.message});
+
                 r.teamEvent = te;
+            }
                 break;
             case "addOrganizer":
                 console.log('Going to add organizer for an event');
