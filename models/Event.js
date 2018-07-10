@@ -19,6 +19,7 @@ const EventSchema = new mongoose.Schema({
     organizerOrg: OrgSchema,
     organizerAdr: AddressSchema,
     organizerContact: ContactSchema,
+    message: { type: String, required: false },
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 

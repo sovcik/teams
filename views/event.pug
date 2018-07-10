@@ -36,7 +36,14 @@ block content
                 h5
                 h5 Fakturujúca organizácia
                 h5 #{event.invoicingOrg.org.name}, #{event.invoicingOrg.adr.city}
-        div(class="panel-footer")
+
+            if user && (user.isAdmin || user.isEventOrganizer)
+                div(class='form-group')
+                    label Správa pre registrácii
+                    textarea(id='message' rows=5 data-name='message' data-type='textarea' data-pk=event._id data-url='/event/' + event._id + '/fields' class='editable form-control' href='#')
+                        = event.message
+
+    div(class="panel-footer")
             if user.isAdmin || user.isEventOrganizer || user.isProgramManager
                 button(id='addOrganizer' type='button' class='btn btn-default') Pridaj organizátora
                 button(id='exportData' type="button" class="btn btn-default") Export dát
