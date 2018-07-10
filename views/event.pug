@@ -39,7 +39,7 @@ block content
 
             if user && (user.isAdmin || user.isEventOrganizer)
                 div(class='form-group')
-                    label Správa pre registrácii
+                    label Správa po registrácii
                     textarea(id='message' rows=5 data-name='message' data-type='textarea' data-pk=event._id data-url='/event/' + event._id + '/fields' class='editable form-control' href='#')
                         = event.message
 

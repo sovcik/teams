@@ -28,7 +28,7 @@ block content
 
             if user && (user.isAdmin || user.isProgramManager)
                 div(class='form-group')
-                    label Správa pre registrácii
+                    label Správa po registrácii
                     textarea(id='message' rows=5 data-name='message' data-type='textarea' data-pk=program._id data-url='/program/' + program._id + '/fields' class='editable form-control' href='#')
                         = program.message
 
