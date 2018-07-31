@@ -357,8 +357,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     console.log("ITEM=",itm);
 
                     req.invoice.items.push(itm);
+                    console.log("pushed");
 
                     req.invoice.updateTotal();
+                    console.log("updated total");
 
                     await req.invoice.save();
                     console.log('Invoice', req.invoice._id, "item added total=", req.invoice.total);
