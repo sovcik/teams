@@ -8,6 +8,8 @@ const TempUserSchema = new mongoose.Schema({
     email: { type: String},
     salt: { type: String},
     passwordHash: { type: String}
+}, {
+    usePushEach: true
 });
 
 const OneTimeSchema = new mongoose.Schema({
@@ -15,6 +17,8 @@ const OneTimeSchema = new mongoose.Schema({
     type: { type: String, required: true }, // rstpwd = password reset
     active: {type: Boolean, default: true},
     user: TempUserSchema
+}, {
+    usePushEach: true
 });
 
 // create TTL index

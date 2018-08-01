@@ -8,6 +8,8 @@ const TeamUserSchema = new mongoose.Schema({
     userId: { type: String, required: true },
     teamId: { type: String, required: true },
     role: { type: String, required: true }  // coach, member
+}, {
+    usePushEach: true
 });
 
 if (!mongoose.models.TeamUser) {

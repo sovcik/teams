@@ -28,6 +28,8 @@ const InvoiceSchema = new mongoose.Schema({
     currency: {type: String},
     event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
     taxInvoice: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice' }
+}, {
+    usePushEach: true
 });
 
 InvoiceSchema.methods.updateTotal = function() {

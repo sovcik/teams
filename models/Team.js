@@ -33,6 +33,8 @@ const TeamSchema = new mongoose.Schema({
     shippingAdr: {type: AddressSchema, default:{}},
     shippingContact: {type: ContactSchema, default:{}}
 
+}, {
+    usePushEach: true
 });
 
 // virtual set of teams

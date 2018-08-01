@@ -9,6 +9,8 @@ const OrganizationSchema = new mongoose.Schema({
     VATNo: { type: String, default:'' },
     bankAccount: {type: String, default:''},
     bankSWIFT: {type: String, default:''}
+}, {
+    usePushEach: true
 });
 
 OrganizationSchema.testData = function(rec, prefix){

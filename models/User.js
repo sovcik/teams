@@ -34,6 +34,8 @@ const UserSchema = new Schema({
     isSuperAdmin: {type: Boolean, default: false},
     dpaAccepted: {type: Date},  // data processing agreement acceptance date
     locales: {type: String, default: 'sk-SK'}
+}, {
+    usePushEach: true
 });
 
 // helper function handling hash creation

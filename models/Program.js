@@ -8,6 +8,8 @@ const ProgramSchema = new mongoose.Schema({
     endDate: {type: Date, required: false},
     message: {type: String, required: false}, // message to be displayed when team is registering for program event
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+}, {
+    usePushEach: true
 });
 
 ProgramSchema.plugin(statusPlugin);

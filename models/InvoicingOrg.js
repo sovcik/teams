@@ -23,6 +23,8 @@ const InvoicingOrgSchema = new mongoose.Schema({
     crInvNumPrefix: {type:String, required:true, default:'CR'},
     dueDays:{type:Number, required:true, default:14},
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+}, {
+    usePushEach: true
 });
 
 InvoicingOrgSchema.plugin(statusPlugin);

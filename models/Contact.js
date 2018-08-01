@@ -7,6 +7,8 @@ const ContactSchema = new mongoose.Schema({
     phone: { type: String, default:'' },
     mobile: { type: String, default:'' },
     email: { type: String, default:'' },
+}, {
+    usePushEach: true
 });
 
 ContactSchema.testData = function(rec, prefix) {

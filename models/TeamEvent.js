@@ -8,6 +8,8 @@ const TeamEventSchema = new mongoose.Schema({
     registeredOn: {type: Date, required: true },
     eventDate: {type: Date },
     teamNumber: {type:String}
+}, {
+    usePushEach: true
 });
 
 // unique index to ensure team can register for specific event only once

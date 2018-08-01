@@ -3,6 +3,8 @@ mongoose.Promise = require('bluebird');
 
 const EnvSchema = new mongoose.Schema({
     dbrev: { type: Number, required: true, default:0 }
+}, {
+    usePushEach: true
 });
 
 if (!mongoose.models.Env) {

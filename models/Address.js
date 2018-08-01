@@ -8,6 +8,8 @@ const AddressSchema = new mongoose.Schema({
     addrLine3: { type: String, default:'' },
     city: { type: String, default:'' },
     postCode: { type: String, default:'' }
+}, {
+    usePushEach: true
 });
 
 AddressSchema.testData = function(rec, prefix){

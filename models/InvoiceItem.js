@@ -13,6 +13,8 @@ const InvoiceItemSchema = new mongoose.Schema({
     unitPrice: { type: Number },
     total: { type: Number }
 
+}, {
+    usePushEach: true
 });
 
 InvoiceItemSchema.testData = function(rec, prefix) {

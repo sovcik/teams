@@ -21,6 +21,8 @@ const EventSchema = new mongoose.Schema({
     organizerContact: ContactSchema,
     message: { type: String, required: false },
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+}, {
+    usePushEach: true
 });
 
 // virtual set of teams
