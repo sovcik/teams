@@ -26,6 +26,8 @@ viewInvoice.init = function(invId, u) {
             "",
             fields,
             function (flds, cb) {
+                var pd = flds.find(function(f){return f.id == "paidOn"}).dateValue;
+                pd.setHours(12); // adjust hours so paid date will be ok for all time zones
                 libInvoice.markAsPaid(
                     invId,
                     function (res, err) {
@@ -36,7 +38,7 @@ viewInvoice.init = function(invId, u) {
                             location.reload();
                         }
                     },
-                    flds.find(function(f){return f.id == "paidOn"}).dateValue,
+                    pd,
                 );
             },
             function cb(res, err) {
