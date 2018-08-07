@@ -180,7 +180,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 r.result = "ok";
                 r.list = ut;
             } catch (err) {
-                log.WARN("Failed to fetch coach's teams. err="+err);
+                log.ERROR("Failed to fetch coach's teams. err="+err);
                 r.error = err;
             }
             break;

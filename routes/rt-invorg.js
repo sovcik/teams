@@ -178,6 +178,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             } catch (err) {
                 r.error = {};
                 r.error.message = err.message;
+                log.ERROR("rt-invorg POST:"+err.message);
                 console.log(err);
             }
             break;

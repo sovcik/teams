@@ -118,7 +118,7 @@ router.get('/', /*cel.ensureLoggedIn('/login'), */async function (req, res, next
         }
     } catch(err) {
         r.error = {message:err.message};
-        log.ERROR(err);
+        log.ERROR(err.message);
     }
     res.json(r);
     res.end();

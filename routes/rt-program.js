@@ -205,6 +205,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                 r.user = req.user;
                 r.result = 'ok';
             } catch (err) {
+                log.ERROR("Failed to export program data. err="+err.message);
                 r.error = {message:"Failed to export program data. err="+err};
             }
 
@@ -331,6 +332,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
         }
     } catch (err) {
         console.log(err);
+        log.ERROR(err.message);
         r.error = {message:err.message};
     }
     res.json(r);

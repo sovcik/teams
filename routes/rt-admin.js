@@ -46,6 +46,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
+        log.ERROR("rt-admin GET: "+err.message)
     }
     res.json(r);
     res.end();
@@ -86,6 +87,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
+        log.ERROR("rt-admin POST:"+err.message);
     }
     res.json(r);
     res.end();

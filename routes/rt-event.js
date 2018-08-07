@@ -427,6 +427,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
         }
     } catch (err) {
         console.log(err);
+        log.ERROR(err.message);
         r.error = {message:err.message};
     }
     res.json(r);
@@ -480,6 +481,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
+        log.ERROR(err.message);
     }
     res.json(r);
     res.end();

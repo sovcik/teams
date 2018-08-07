@@ -58,7 +58,7 @@ router.param('id', async function (req, res, next){
         }
         next();
     } catch (err) {
-        log.ERROR(err);
+        log.ERROR(err.message);
         console.log(err.stack);
         res.render('message',{title:"Tím nenájdený",error:{status:err.message}});
     }
@@ -88,7 +88,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         }
     } catch(err) {
         r.error = {message:err.message};
-        log.ERROR(err);
+        log.ERROR(err.message);
     }
     res.json(r);
     res.end();
@@ -398,6 +398,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             } catch(err) {
                 r.error = {message:err.message};
                 console.log(err.message);
+                log.ERROR("rt-team POST:"+err.message);
             }
             break;
 

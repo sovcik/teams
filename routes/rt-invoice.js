@@ -138,6 +138,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
+        log.ERROR("rt-inv GET cmd:"+err.message);
     }
     res.json(r);
     res.end();
@@ -183,6 +184,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
+        log.ERROR("rt-inv GET cmd:"+err.message);
     }
     res.json(r);
     res.end();
@@ -477,6 +479,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
         }
     } catch (err) {
         r.error = {};
+        log.ERROR(err.message);
         r.error.message = err.message;
     }
     res.json(r);
