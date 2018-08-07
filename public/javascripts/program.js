@@ -7,7 +7,7 @@ viewProgram.init = function (rId, u){
     moment.locale(viewProgram.user.locales.substr(0,2));
     var resId = rId; //getResourceId(location.href);
 
-    if (viewProgram.user.username > 0)
+    if (viewProgram.user.username.length > 0)
         viewProgram.loadManagers(resId);
 
     viewProgram.loadEvents(resId);
