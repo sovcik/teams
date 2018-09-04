@@ -26,6 +26,15 @@ block content
                         option(value="A") všetky
                         option(value="P") zálohové
                         option(value="I") daňové
+                div(class="form-group" style="margin-bottom:8pt;margin-right:5pt")
+                    label(for="filterInvYear") Rok:
+                    select(class="form-control" id="filterInvYear")
+                        option(value="2021") 2021
+                        option(value="2020") 2020
+                        option(value="2019") 2019
+                        option(value="2018") 2018
+                        option(value="2017") 2017
+
             div(style="max-height: 400pt; overflow:auto;")
                 table(id="allInvoices")
 

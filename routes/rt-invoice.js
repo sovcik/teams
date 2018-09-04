@@ -82,7 +82,9 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const teamId = req.query.teamId;
     const invType = req.query.type;
     const invOrg = req.query.invOrg;
+    const invYear = req.query.year;
     const isPaid = req.query.isPaid;
+
     console.log("/invoice - get (with CMD)");
     console.log(req.query);
 
@@ -106,6 +108,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 if (invType) q.type = invType;
                 if (isPaid && isPaid != "A") q.paidOn = (isPaid == "N"?null:{$type:"date"});
                 if (invOrg) q.invoicingOrg = invOrg;
+                if (invYear) q.issuedOn = {$gte:invYear+'-01-01T00:00:00', $lte:invYear+'-12-31T23:59:59'};
 
                 if (!p.isAdmin && !p.isInvoicingOrgManager) // exclude draft invoices for normal users
                     q.isDraft = false;
@@ -125,7 +128,14 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     total:true,
                     currency:true,
                     isDraft:true
-                });
+                },
+                    {
+                        sort: {
+                            issuedOn: -1,
+                            number: -1
+                        }
+                    }
+                );
                 r.result = "ok";
                 r.list = l;
                 r.user = req.user;

@@ -4,6 +4,7 @@ var viewInvOrg = {};
 
 viewInvOrg.filterPaidStatus = 'A';
 viewInvOrg.filterInvType = 'A';
+viewInvOrg.filterInvYear = (new Date()).getFullYear().toString();
 
 viewInvOrg.init = function(invOrgId, u){
     console.log("Initializing Invoicing Org");
@@ -15,6 +16,7 @@ viewInvOrg.init = function(invOrgId, u){
     //var invOrgId = getResourceId(location.href);
     $("#filterPaidStatus").val(viewInvOrg.filterPaidStatus);
     $("#filterInvType").val(viewInvOrg.filterInvType);
+    $("#filterInvYear").val(viewInvOrg.filterInvYear);
     viewInvOrg.loadInvoices(invOrgId);
 
     $("#filterPaidStatus").on('change',function(ev){
@@ -26,6 +28,12 @@ viewInvOrg.init = function(invOrgId, u){
     $("#filterInvType").on('change',function(ev){
         viewInvOrg.filterInvType = ev.target.value;
         console.log(viewInvOrg.filterInvType);
+        viewInvOrg.loadInvoices(invOrgId);
+    });
+
+    $("#filterInvYear").on('change',function(ev){
+        viewInvOrg.filterInvYear = ev.target.value;
+        console.log(viewInvOrg.filterInvYear);
         viewInvOrg.loadInvoices(invOrgId);
     });
 };
@@ -42,6 +50,8 @@ viewInvOrg.loadInvoices = function(invOrgId){
 
     if (viewInvOrg.filterInvType != "A")
         q += "&type="+viewInvOrg.filterInvType;
+
+    q += "&year="+viewInvOrg.filterInvYear;
 
     $.get( libCommon.getNoCache("/invoice?cmd=getList"+q), function(res) {
         console.log("Server returned invoices",res);
