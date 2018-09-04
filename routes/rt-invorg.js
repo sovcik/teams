@@ -72,7 +72,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             console.log('Going to get list of invoicing orgs');
             let p;
             try {
-                p = await InvoicingOrg.find({recordStatus: 'active'}, {org: true, adr: true});
+                p = await InvoicingOrg.find({recordStatus: 'active'}, {org: true, adr: true}, {lean:1});
+                p.forEach(function(e){e.name = e.org.name}); // add name field so result can be used in generic LoadList method
             } catch (err) {
                 log.WARN("Failed fetching list of invoicing orgs");
             }

@@ -47,11 +47,16 @@ block content
         div(class='panel-heading') Stretnutia/Turnaje
         div(class='panel-body')
             div(id='eventList' class='container-fluid')
+        div(class='panel-footer')
+            button(id='addEventBtn' type='button' class='btn btn-default') Pridaj
 
     div(class="panel panel-primary")
         div(class='panel-heading') Zapojené tímy
         div(class='panel-body')
             div(id='teamList' class='container-fluid' style="max-height: 400pt; overflow: auto;")
+
+
+    div(id="modalDlgs")
 
     script.
         var u = '{ "locales": "#{user.locales}" ,'

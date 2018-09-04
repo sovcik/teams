@@ -75,6 +75,34 @@ viewProgram.init = function (rId, u){
 
     );
 
+    $("#addEventBtn").on("click", function(){
+        var fields = [
+            {id:"eventName", label:"Názov", type:"text", required:1},
+            {id:"eventIO", label:"Fakturujúca organizácia", type:"select",
+                init:function(domid,cb){libCommon.loadList(domid,"/invorg?cmd=getList&active=1", cb)},}
+        ];
+        libModals.multiFieldDialog(
+            "Nové stretnutie/turnaj",
+            "Zadajte názov a vyberte fakturujúcu organizáciu",
+            fields,
+            function (flds, cb) {
+                viewProgram.createNewEvent(resId,flds.findById("eventName").value,flds.findById("eventIO").value, cb);
+            },
+            function cb(res, err) {
+                if (err) {
+                    console.log("CB-ERROR", err);
+                    alert("Nepodarilo sa vytvoriť.\n\n"+err.message);
+                } else {
+                    console.log("CB-OK Member created");
+                    alert("Stretnutie/turnaj bol vytvorený.");
+                    viewProgram.loadEvents(resId);
+                }
+                console.log("CB-DONE");
+            }
+        );
+
+    });
+
 };
 
 viewProgram.loadManagers = function (progId){
@@ -120,7 +148,10 @@ viewProgram.loadEvents = function (progId){
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
-                    var c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name);
+                    var c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name
+                        +'   (D:'+(item.startDate?(new Date(item.startDate)).toLocaleDateString(viewProgram.user.locales):"neurčený")+')'
+                        +'   (R:'+(item.regEndDate?(new Date(item.regEndDate)).toLocaleDateString(viewProgram.user.locales):"neurčený")+')'
+                        );
                     selEv.append(c);
                 });
             } else {
@@ -160,4 +191,20 @@ viewProgram.loadTeams = function (progId){
 
     });
 
+};
+
+viewProgram.createNewEvent = function (progId, evName, evInvOrg, cb){
+    console.log("Posting request to create new event");
+    $.post("/event", {cmd: 'createEvent', name: evName, programId:progId, invOrgId:evInvOrg}, function (res) {
+        console.log("createEvent: Server returned",res);
+        if (res.result == "ok") {
+            console.log("Event created");
+            cb(res);
+        } else {
+            console.log("Error while creating event");
+        }
+    })
+        .fail(function () {
+            cb(res, true);
+        });
 };
