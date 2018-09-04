@@ -313,6 +313,9 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
         );
     });
 
+    // add lookup method to fields array
+    fields.findById = function(findValue){return this.find(function(f){return f.id == findValue})};
+
     console.log("Opening multi-field dialog");
     $("#multiFieldDlg").modal("show");
 
