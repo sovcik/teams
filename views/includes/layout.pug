@@ -1,6 +1,14 @@
 doctype html
 html
-    include head
+    head
+        title
+            if PageTitle
+                =PageTitle
+            else
+                ="Teams"
+        meta(charset="utf-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+        block scripts
     style.
         .mainpnl {
             max-width: 600pt;
