@@ -15,7 +15,6 @@ viewAdmin.init = function(){
     });
 
     viewAdmin.loadPrograms();
-    viewAdmin.loadEvents();
     viewAdmin.loadInvoicingOrgs();
     viewAdmin.loadUsers();
     viewAdmin.loadTeams();
@@ -67,38 +66,8 @@ viewAdmin.createNewProgram = function (){
     }
 };
 
-viewAdmin.createNewEvent = function (){
-    var selEvName = $('#newEventName');
-    var selStatus = $("#teamCreateStatus");
-    var selEvProg = $('#eventProgram');
-    var selEvIO = $('#eventInvOrg');
-    if (selEvName.val().trim() != '') {
-        console.log("Posting request to create new event");
-        $.post("/event", {cmd: 'createEvent', name: selEvName.val(), programId:selEvProg.val(), invOrgId:selEvIO.val()}, function (res) {
-            console.log("createEvent: Server returned",res);
-            if (res.result == "ok") {
-                console.log("Event created");
-                viewAdmin.loadEvents();
-                selEvName.val('');
-            } else {
-                console.log("Error while creating event");
-            }
-        })
-            .fail(function () {
-                selStatus.text('Nepodarilo sa vytvoriť turnaj.');
-                console.log("Creation failed");
-            });
-    } else {
-        selStatus.text('Turnaj musí mať meno.');
-        selStatus.css("display", "inline").fadeOut(2000);
-    }
-};
-
-
-
 viewAdmin.loadPrograms = function (){
     var selProg = $('#allPrograms');
-    var selEvProg = $('#eventProgram');
     console.log('Loading programs');
     $.get( libCommon.getNoCache("/program?cmd=getList"), function(res) {
         console.log("loadProgs: Server returned",res);
@@ -107,15 +76,12 @@ viewAdmin.loadPrograms = function (){
             res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
             // clear page elements containing programs
             selProg.empty();
-            selEvProg.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     var c = $('<a href="/program/'+item._id+'" class="list-group-item" >').append(item.name);
                     //var c = $('<li class="list-group-item" value="'+item._id+'"">').append(item.name);
                     selProg.append(c);
-                    c = $('<option value="'+item._id+'"">').append(item.name);
-                    selEvProg.append(c);
                 });
             } else {
                 t.text('Žiadne programy');
@@ -128,35 +94,8 @@ viewAdmin.loadPrograms = function (){
 
 };
 
-viewAdmin.loadEvents = function (){
-    var selEv = $('#allEvents');
-    console.log('Loading events');
-    $.get( libCommon.getNoCache("/event?cmd=getList"), function(res) {
-        console.log("loadEvents: Server returned",res);
-        if (res.result === 'ok'){
-            // sort events by name
-            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
-            selEv.empty();
-            if (res.list.length > 0) {
-                console.log("Found ",res.list.length,"records");
-                res.list.forEach(function(item) {
-                    var c = $('<a class="list-group-item" href="/event/'+item._id+'"">').append(item.name);
-                    selEv.append(c);
-                });
-            } else {
-                t.text('Žiadne turnaje');
-            }
-        } else {
-            console.log("loadEvents: Server returned ERROR");
-        }
-
-    });
-
-};
-
 viewAdmin.loadInvoicingOrgs = function (){
     var selIO = $('#allInvoicingOrgs');
-    var selEvIO = $('#eventInvOrg');
     console.log('Loading invoicing orgs');
     $.get( libCommon.getNoCache("/invorg?cmd=getList"), function(res) {
         console.log("loadInvOrgs: Server returned",res);
@@ -165,15 +104,11 @@ viewAdmin.loadInvoicingOrgs = function (){
             res.list.sort(function(a,b) {return (a.org.name > b.org.name) ? 1 : ((b.org.name > a.org.name) ? -1 : 0);} );
             // clear page elements containing programs
             selIO.empty();
-            selEvIO.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     var c = $('<a href="/invorg/'+item._id+'" class="list-group-item" >').append(item.org.name+", "+item.adr.city);
                     selIO.append(c);
-                    c = $('<option value="'+item._id+'"">').append(item.org.name+", "+item.adr.city);
-                    selEvIO.append(c);
-
                 });
             } else {
                 selIO.text('Žiadne');
