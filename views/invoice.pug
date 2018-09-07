@@ -51,6 +51,10 @@ block content
                 li
                     a(href="#" id="invRenumber") Prečíslovať
 
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invLoadBillTo") Nahrať fakturačné údaje
+
 
             if !inv.isDraft && !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
                 li

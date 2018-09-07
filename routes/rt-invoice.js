@@ -172,20 +172,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
         }
 
         switch (cmd) {
-            case 'reloadInvoiceData':
-                console.log('Reloading invoice data');
-                if (req.user.permissions.canWrite || req.user.permissions.isCoach ) {
-                    team = await Team.findById(req.invoice.team);
-                    req.invoice.billOrg = team.billingOrg;
-                    req.invoice.billAdr = team.billingAdr;
-                    req.invoice.billContact = team.billingContact;
-                    await req.invoice.save();
-                    log.INFO("INVOICE data reloaded: id=" + req.invoice.id + " no=" + req.invoice.number + " by user=" + req.user.username);
-                    return res.redirect('/invoice/' + req.invoice.id);
-                } else {
-                    error.message="permission denied";
-                }
-                break;
+
 
             default:
                 console.log('cmd=unknown');
@@ -481,6 +468,27 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 } catch (err) {
                     r.error = err;
                     log.WARN("Failed renumbering invoice items. err="+err.message);
+                }
+                break;
+            case 'reloadBillTo':
+                console.log('Reloading invoice bill-to');
+                if (!req.user.permissions.isInvoicingOrgManager
+                    && !req.user.permissions.isAdmin) {
+                    throw new Error("Invoice reload bill-to - Permission denied");
+                }
+
+                try {
+                    let team = await Team.findById(req.invoice.team);
+                    req.invoice.billOrg = team.billingOrg;
+                    req.invoice.billAdr = team.billingAdr;
+                    req.invoice.billContact = team.billingContact;
+                    await req.invoice.save();
+                    log.INFO("INVOICE bill-to reloaded: id=" + req.invoice.id + " no=" + req.invoice.number + " by user=" + req.user.username);
+                    r.result = "ok";
+                    r.invoice = req.invoice;
+                } catch (err) {
+                    r.error = err;
+                    log.WARN("Failed reloading invoice bill-to. err="+err.message);
                 }
                 break;
             default:

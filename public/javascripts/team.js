@@ -645,9 +645,6 @@ viewTeam.loadInvoices = function(teamId){
 
                     if (item.type == "P" && !item.taxInvoice && !item.isDraft)
                         c
-                            .append($('<a href="/invoice/' + item._id + '?cmd=reloadInvoiceData" class="btn btn-default">')
-                                .append('Nahraj nové údaje')
-                            )
                             .append($('<button id="CIN'+item._id+'" class="btn btn-default createTaxInvoice">')
                                 .append('Vytvor faktúru')
                             );

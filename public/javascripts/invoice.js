@@ -75,6 +75,27 @@ viewInvoice.init = function(invId, u) {
 
     });
 
+    $("#invLoadBillTo").on("click", function(e){
+        console.log("click invoice load bill-to",invId);
+        if (confirm('Naozaj chcete znovunačítať fakturačné údaje?')) {
+            $("#invActions").dropdown("toggle");
+            libInvoice.loadBillingDetails(
+                invId,
+                function (res, err) {
+                    if (err)
+                        alert("Nepodarilo sa znovunačítať fakturačné údaje.");
+                    else {
+                        alert("Faktúračné údaje boli úspešne načítané.");
+                        location.reload();
+                    }
+                }
+            );
+        }
+        e.stopPropagation();
+        e.preventDefault();
+
+    });
+
     $("#invConfirm").on("click", function(e){
         console.log("click invoice confirm",invId);
         if (confirm('Naozaj chcete potvrdiť tento návrh faktúry?')) {

@@ -28,6 +28,32 @@ libInvoice.createTaxInvoice = function(invId, cb){
 
 };
 
+
+libInvoice.loadBillingDetails = function(invId, cb, paidOn){
+    console.log('loading billing details to invoice '+invId);
+    (typeof cb === 'function') || (cb = libCommon.noop);
+    $.post("/invoice/"+invId,
+        {
+            cmd : 'reloadBillTo'
+        },
+        function (res) {
+            console.log("loadBilling: Server returned",res);
+            if (res.result == "ok") {
+                console.log("loadBilling: details loaded", res.invoice._id);
+                cb(res);
+            } else {
+                console.log("Error loading billing details",res);
+                cb(res,{message:"Error loading billing details"});
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Error loading billing details",err);
+            cb(null, err);
+        });
+};
+
+
 libInvoice.markAsPaid = function(invId, cb, paidOn){
     console.log('Marking invoice as paid '+invId);
     (typeof cb === 'function') || (cb = libCommon.noop);
