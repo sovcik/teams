@@ -57,7 +57,8 @@ router.param('id', async function (req, res, next){
 router.get('/', async function (req, res, next) {
     console.log("/invoice/ - get");
 
-    req.user.permissions = await libPerm.getUserInvoicePermissions(req.user.id, null);
+    if (req.user)
+        req.user.permissions = await libPerm.getUserInvoicePermissions(req.user.id, null);
 
     next();
 
@@ -303,6 +304,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
                 break;
             case 'remove':
+                log.INFO("Going to remove invoice #"+req.invoice._id+" user="+req.user.username );
                 try {
                     if (!req.user.permissions.isInvoicingOrgManager
                         && !req.user.permissions.isAdmin) {
@@ -311,13 +313,18 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     }
 
                     let invId = req.invoice._id;
+
                     let d = await libInvoice.removeInvoice(invId);
+
+                    let toEml = new Set();
+                    toEml.add(process.env.EMAIL_REPLYTO_BILLING);
+
                     if (d._id) {
                         log.INFO("Invoice removed: #" + d.number + " id=" + invId + " by user=" + req.user.username);
                         email.sendMessage(
                             req.user,
                             req.user.email,
-                            rocess.env.EMAIL_REPLYTO_BILLING,
+                            toEml,
                             "Invoice deleted "+d.number,"Invoice deleted",
                             "Invoice "+d.number+" deleted by user: "+req.user.username+" email:"+req.user.email,
                             siteUrl);
