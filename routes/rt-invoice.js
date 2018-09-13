@@ -265,7 +265,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                         log.INFO("INVOICE paid: no=" + i.number + " id=" + i.id + " by user=" + req.user.username);
                         r.result = "ok";
                         r.invoice = i;
-                        email.sendInvoice(req.user,i,siteUrl);
+                        email.sendInvoicePaid(req.user,i,siteUrl);
                     }
                 } catch (err) {
                     throw new Error("Failed marking invoice as paid. err=" + err.message);
@@ -314,6 +314,13 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     let d = await libInvoice.removeInvoice(invId);
                     if (d._id) {
                         log.INFO("Invoice removed: #" + d.number + " id=" + invId + " by user=" + req.user.username);
+                        email.sendMessage(
+                            req.user,
+                            req.user.email,
+                            rocess.env.EMAIL_REPLYTO_BILLING,
+                            "Invoice deleted "+d.number,"Invoice deleted",
+                            "Invoice "+d.number+" deleted by user: "+req.user.username+" email:"+req.user.email,
+                            siteUrl);
 
                         r.result = "ok";
                         r.invoice = d;

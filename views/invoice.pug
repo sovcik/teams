@@ -71,7 +71,7 @@ block content
                     a(href="#" id="invConfirm") Potvrď návrh
 
 
-            if !inv.paidOn &&  inv.type == "P" && (user.isInvoicingOrgManager || user.isAdmin)
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
                 li
                     a(href="#" id="invRemove") Vymazať
 
