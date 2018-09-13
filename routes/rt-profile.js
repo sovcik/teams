@@ -107,7 +107,7 @@ router.get('/:id', async function (req, res, next) {
 
             log.INFO("OneTime used: id="+otc+" type="+ot.type);
 
-            res.render('resetPwd',{otc:otc, ot:ot, profile:req.profile, fmt:fmtLib});
+            res.render('resetPwd',{otc:otc, ot:ot, profile:req.profile, fmt:libFmt});
 
             nextRouter = false;
             break;
