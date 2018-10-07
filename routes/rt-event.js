@@ -340,23 +340,29 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     log.ERROR("Failed registering team=" + t.name + " for event=" + e.name + " err=" + er.message);
                 }
 
-                if (!te) throw new Error("Failed to register");
-
-                let inv;
-                try {
-                    log.DEBUG('Going to create invoice team=' + t.id + ' event=' + e.id);
-                    inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
-                    inv = await libInvoice.confirmInvoice(inv._id);
-                    inv = await Team.populate(inv, 'team');
-                    log.INFO("Invoice created #" + inv.number);
-                } catch (er) {
-                    log.ERROR("Failed creating invoice for teamId=" + te.teamId + " eventId=" + te.eventId + " err=" + er.message);
-                }
-
-                if (inv)
-                    email.sendInvoice(req.user, inv, siteUrl);
                 if (te)
                     email.sendEventRegisterConfirmation(req.user, t, e, siteUrl);
+                else
+                    throw new Error("Failed to register");
+
+                const createInvoice = req.body.createInvoice;
+
+                if (createInvoice == "yes") {
+                    let inv;
+                    try {
+                        log.DEBUG('Going to create invoice team=' + t.id + ' event=' + e.id);
+                        inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
+                        inv = await libInvoice.confirmInvoice(inv._id);
+                        inv = await Team.populate(inv, 'team');
+                        log.INFO("Invoice created #" + inv.number);
+                    } catch (er) {
+                        log.ERROR("Failed creating invoice for teamId=" + te.teamId + " eventId=" + te.eventId + " err=" + er.message);
+                    }
+
+                    if (inv)
+                        email.sendInvoice(req.user, inv, siteUrl);
+
+                }
 
                 r.result = "ok";
 

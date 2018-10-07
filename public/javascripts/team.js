@@ -585,10 +585,17 @@ viewTeam.loadTeamData = function (teamId){
 
 viewTeam.registerForEvent = function (teamId, eventId, cb){
     console.log('Registering team=', teamId, "for event=", eventId);
+    var createInvoice = "yes";
+
+    if (viewTeam.user.permissions.isAdmin && !confirm('Automaticky vytvoriť faktúru?')) {
+        createInvoice = "no";
+    }
+
     $.post("/event/"+eventId,
         {
             cmd: 'registerTeam',
-            teamId: teamId
+            teamId: teamId,
+            createInvoice: createInvoice
         },
         function (res) {
             console.log("registerTeam for event: Server returned",res);
