@@ -53,6 +53,11 @@ viewTeam.init = function(teamId, u){
         viewTeam.removeTeam(teamId);
     });
 
+    $("#btnRestoreTeam").on("click", function(){
+        viewTeam.restoreTeam(teamId);
+    });
+
+
     $("#btnFounderDetails").on("click", function(event){
         var fields = [
             {id:"btnCpyFromBill", label:"Kopíruj údaje z fakturačných", type:"button", onclick:function(){viewTeam.cpyAdr('B','F',teamId)}},
@@ -315,6 +320,33 @@ viewTeam.removeTeam = function (teamId) {
             .fail(function (err) {
                 console.log("Error while removing team");
                 alert('Nepodarilo sa zrušiť tím.\n\n'+err.message);
+            });
+    }
+};
+
+viewTeam.restoreTeam = function (teamId) {
+    var cfm = window.confirm("Kliknite OK ak naozaj chcete obnoviť tento tím.");
+    if (cfm) {
+        console.log("Posting request to restore team=",teamId);
+        $.post("/team/",
+            {
+                cmd: 'restore',
+                teamId: teamId
+            },
+            function (res) {
+                console.log("restoreTeam: Server returned",res);
+                if (res.result == "ok") {
+                    console.log("Team Restored");
+                    location.reload();
+                } else {
+                    console.log("Error while restoring team");
+                    alert('Nepodarilo sa obnoviť tím.\n\n'+res.error.message);
+                }
+            }
+        )
+            .fail(function (err) {
+                console.log("Error while restoring team");
+                alert('Nepodarilo sa obnoviť tím.\n\n'+err.message);
             });
     }
 };

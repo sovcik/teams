@@ -68,6 +68,9 @@ block content
                 if user && user.permissions.isAdmin  && team.recordStatus == 'active'
                     div(class='btn-group pull-right')
                         button(id="btnRemoveTeam" class="btn btn-default") Zruš tím
+                if user && user.permissions.isAdmin && team.recordStatus == 'inactive'
+                    div(class='btn-group pull-right')
+                        button(id="btnRestoreTeam" class="btn btn-default") Obnov tím
 
     div(id='registerEvent' class='modal fade' role='dialog')
         div(class='modal-dialog')
