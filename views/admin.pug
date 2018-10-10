@@ -89,10 +89,16 @@ block content
                     button(id='saveInvOrgDetails' type='button' class='btn btn-default') Uložiť
 
     div(class="panel panel-primary")
-        div(class='panel-heading') Tímy
+        div(class='panel-heading') Aktívne Tímy
         div(class='panel-body')
             div(style="max-height: 400pt; overflow: auto;")
-                div(id="allTeams")
+                div(id="activeTeams")
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Vymazané Tímy
+        div(class='panel-body')
+            div(style="max-height: 400pt; overflow: auto;")
+                div(id="inactiveTeams")
 
 
     div(class="panel panel-primary")

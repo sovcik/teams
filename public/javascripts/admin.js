@@ -17,7 +17,8 @@ viewAdmin.init = function(){
     viewAdmin.loadPrograms();
     viewAdmin.loadInvoicingOrgs();
     viewAdmin.loadUsers();
-    viewAdmin.loadTeams();
+    viewAdmin.loadTeams($('#activeTeams'),true);
+    viewAdmin.loadTeams($('#inactiveTeams'),false);
 
     console.log("/admin - Initializing completed");
 };
@@ -260,23 +261,22 @@ viewAdmin.loadUsers = function (){
 
 };
 
-viewAdmin.loadTeams = function (){
-    var selEv = $('#allTeams');
+viewAdmin.loadTeams = function (dstElm, active){
     console.log('Loading teams');
-    $.get( libCommon.getNoCache("/team?cmd=getList"), function(res) {
+    $.get( libCommon.getNoCache("/team?cmd=getList&active="+(active?"yes":"no")), function(res) {
         console.log("loadTeams: Server returned",res);
         if (res.result === 'ok'){
             // sort teams by name
             res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
-            selEv.empty();
+            dstElm.empty();
             if (res.list.length > 0) {
                 console.log("Found ",res.list.length,"records");
                 res.list.forEach(function(item) {
                     var c = $('<a class="list-group-item" href="/team/'+item._id+'"">').append(item.name + ', ' + item.foundingOrg.name + ', ' + item.foundingAdr.city);
-                    selEv.append(c);
+                    dstElm.append(c);
                 });
             } else {
-                t.text('Žiadne tímy');
+                dstElm.text('Žiadne tímy');
             }
         } else {
             console.log("loadTeams: Server returned ERROR");

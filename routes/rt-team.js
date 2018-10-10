@@ -74,8 +74,17 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     try {
         switch (cmd) {
             case 'getList':
+                let act = req.query.active;
                 log.DEBUG('Going to get list of teams');
-                let q = {recordStatus:'active'};
+                let q = {};
+                if (act == "yes") {
+                    q.recordStatus = 'active';
+                    log.DEBUG('Sending only ACTIVE teams');
+                }
+                if (act == "no") {
+                    q.recordStatus = 'inactive';
+                    log.DEBUG('Sending only INACTIVE teams');
+                }
 
                 const tc = await Team.find(q,{name:1, foundingOrg:1, foundingAdr:1});
                 r.result = "ok";
