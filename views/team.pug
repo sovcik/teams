@@ -65,6 +65,7 @@ block content
                         button(id="btnFounderDetails" class="btn btn-default") Zriaďovateľ tímu
                         button(id="btnBillingDetails" class="btn btn-default") Fakturačné údaje
                         button(id="btnShippingDetails" class="btn btn-default") Korešpondenčné údaje
+                if user && user.permissions.isAdmin  && team.recordStatus == 'active'
                     div(class='btn-group pull-right')
                         button(id="btnRemoveTeam" class="btn btn-default") Zruš tím
 
