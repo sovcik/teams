@@ -154,12 +154,18 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
                     );
                 break;
             case "select":
+                var s_items = $("<select id='MFDF"+f.id+"'"+" class='form-control' name='"+f.name+"'>");
+                if (f.options) {
+                    for (var j=0;j<f.options.length;j++){
+                        s_items.append(
+                            $("<option value='"+f.options[j].value+"'>").append(f.options[j].label)
+                        );
+                    }
+                }
                 gr
                     .append($("<div class='form-group'>")
                         .append($("<label for='MFDF"+f.id+"'>").append(f.label))
-                        .append($("<select id='MFDF"+f.id+"'"
-                            +" class='form-control' name='"+f.name+"'>")
-                        )
+                        .append(s_items)
                     );
                 break;
             case "date":

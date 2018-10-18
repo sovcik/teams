@@ -228,6 +228,47 @@ viewTeam.init = function(teamId, u){
         );
     });
 
+    $("#btnCreateInvoice").on("click", function(event){
+
+        var fields = [
+            {id:"invType", label:"Typ faktúry", type:"select",
+                options:[
+                    {value:"P",label:"Zálohová faktúra"},
+                    {value:"I",label:"Daňová faktúra"},
+                    {value:"C",label:"Dobropis"},
+                ],
+            },
+            {id:"availInvOrgs", label:"Fakturujúca organizácia", type:"select",
+                init:function(domid,cb){
+                    libCommon.loadList(domid,"/invorg?cmd=getList&active=1", cb);
+                }
+            }
+        ];
+
+        libModals.fields = fields;
+
+        libModals.multiFieldDialog(
+            "Vytvor novú faktúru",
+            "",
+            fields,
+            function (flds, cb) {
+                viewTeam.createInvoice(
+                    teamId,
+                    flds.find(function(f){ return f.id === "invType"}).value,
+                    flds.find(function(f){ return f.id === "availInvOrgs"}).value,
+                    cb
+                );
+            },
+            function cb(res, err) {
+                if (err) {
+                    console.log("CB-ERROR", err);
+                    alert(err.message);
+                }
+                console.log("CB-DONE");
+            }
+        );
+    });
+
 
     viewTeam.loadCoaches(teamId);
     //viewTeam.loadMembers(teamId);
@@ -708,5 +749,36 @@ viewTeam.loadInvoices = function(teamId){
 
     });
 
+};
+
+viewTeam.createInvoice = function (teamId, invType, invOrgId, cb){
+
+    console.log("Creating new invoice", "type=",invType, "io=",invOrgId);
+    if (typeof cb !== "function") cb = libCommon.noop();
+
+    console.log("Posting request to create new invoice");
+
+    $.post("/invoice/",
+        {
+            cmd: 'createEmpty',
+            team: teamId,
+            type: invType,
+            invOrg: invOrgId
+        },
+        function (res) {
+            console.log("createInvoice: Server returned",res);
+            if (res.result == "ok") {
+                cb(res);
+            } else {
+                console.log("Error while creating invoice");
+                cb(res,res.error);
+            }
+        }
+    )
+        .fail(function (err) {
+            console.log("Invoice creation failed",err);
+            cb(res,err);
+
+        });
 };
 
