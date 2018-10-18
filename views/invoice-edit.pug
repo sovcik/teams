@@ -41,11 +41,40 @@ block content
             span(class="glyphicon glyphicon-menu-hamburger")
         ul(class="dropdown-menu" id="invMenu")
             li
-                a(href="#" id="invPrint") Tlačiť
+                a(href="#" id="invView") Zobraziť s úpravami
 
             if (user.isInvoicingOrgManager || user.isAdmin)
                 li
-                    a(href="#" id="invEdit") Upraviť
+                    a(href="#" id="invAddItem") Pridať riadok
+
+            if (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invRenumber") Prečíslovať
+
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invLoadBillTo") Nahrať fakturačné údaje
+
+
+            if !inv.isDraft && !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invPay") Zaplatiť
+
+            - var now3 = new Date();
+            - now3.setDate(now3.getDate()-3);
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin) && (inv.dueOn < now3) && !inv.isDraft
+                li
+                    a(href="#" id="invNotifyOverdue") Upozorniť na nezaplatenie
+
+            if inv.isDraft
+                li
+                    a(href="#" id="invConfirm") Potvrď návrh
+
+
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invRemove") Vymazať
+
 
     div(style="max-width:600pt")
         div(class="onerow")
@@ -95,45 +124,59 @@ block content
                 td(style="border: thin solid black;width:300pt;padding:5pt")
 
                     h5 Odberateľ
-                    h4 #{inv.billOrg.name}
-                    p #{inv.billAdr.addrLine1}
-                        if inv.billAdr.addrLine2
-                            =", "+inv.billAdr.addrLine2
-                        if inv.billAdr.addrLine3
-                            =", "+inv.billAdr.addrLine3
-                        br
-                        span #{inv.billAdr.postCode} #{inv.billAdr.city}
+                    h4(id='billOrgName' data-name='billOrg.name' data-title='Názov' data-type='text' data-pk=inv._id data-url='/invoice/'+inv._id+'/fields' class='editable' href='#')
+                        = inv.billOrg.name
+                    p(id='billOrgAdr1' data-name='billAdr.addrLine1' data-title='Adresa 1' data-type='text' data-pk=inv._id data-url='/invoice/'+inv._id+'/fields' class='editable' href='#')
+                        =inv.billAdr.addrLine1
+                    p(id='billOrgAdr2' data-name='billAdr.addrLine2' data-title='Adresa 2' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                        =inv.billAdr.addrLine2
+                    p(id='billOrgAdr3' data-name='billAdr.addrLine3' data-title='Adresa 3' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                        =inv.billAdr.addrLine3
+                    p(id='billOrgPostCode' data-name='billAdr.postCode' data-title='PSČ' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                        =inv.billAdr.postCode
+                    p(id='billOrgCity' data-name='billAdr.city' data-title='Obec' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                        =inv.billAdr.city
 
-                    if inv.billOrg.companyNo
-                        p
-                            span(class="lbl2") IČO:
+                    p
+                        span(class="lbl2") IČO:
+                        =" "
+                        span(id='companyNo' data-name='billOrg.companyNo' data-title='IČO' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                            =inv.billOrg.companyNo
+                        if inv.billOrg.taxNo
+                            span(class="lbl2") , DIČ:
                             =" "
-                            span #{inv.billOrg.companyNo}
-                            if inv.billOrg.taxNo
-                                span(class="lbl2") , DIČ:
-                                =" "
-                                span #{inv.billOrg.taxNo}
+                            span(id='taxNo' data-name='billOrg.taxNo' data-title='DIČ' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                                =inv.billOrg.taxNo
                     if inv.billOrg.VATNo
                         p
                             span(class="lbl2") IČ DPH:
                             =" "
-                            span #{inv.billOrg.VATNo}
+                            span(id='VATNo' data-name='billOrg.VATNo' data-title='IČ DPH' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                                =inv.billOrg.VATNo
                     if inv.billOrg.bankAccount
                         p
                             span(class="lbl2") IBAN:
                             =" "
-                            span #{inv.billOrg.bankAccount}
+                            span(id='AccntNo' data-name='billOrg.bankAccount' data-title='IBAN' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                                =inv.billOrg.bankAccount
                     if inv.billOrg.bankSWIFT
                         p
                             span(class="lbl2") SWIFT:
                             =" "
-                            span #{inv.billOrg.bankSWIFT}
+                            span(id='Swift' data-name='billOrg.bankSWIFT' data-title='SWIFT' data-type='text' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                                =inv.billOrg.bankSWIFT
 
 
-        p(style="margin-top:10pt") Fakturujeme vám za tím '#{inv.team.name}':
+        p(style="margin-top:10pt") Fakturujeme vám za tím '
+            span
+                =inv.team.name
+            span '
+
 
         table(style="border-top:2pt;border-bottom:2pt")
             tr
+                th(class="itm" style="width:20pt")
+                    =""
                 th(class="itm" style="width:20pt")
                     ="#"
                 th(class="itm" style="width:380pt;text-align:left")
@@ -146,6 +189,9 @@ block content
                     ="Cena"
             each itm in inv.items
                 tr
+                    td(class="itm")
+                        a
+                            span(class="glyphicon glyphicon-remove invRemoveItem" id="ITM"+itm.itemNo)
                     td(class="itm")
                         p #{itm.itemNo}
                     td(class="itm")
@@ -165,6 +211,7 @@ block content
                             p
                                 =itm.total.toFixed(2) + " " + inv.currency
             tr
+                td(class="itm")
                 td(class="itm")
                     h4 Celkom
                 td(class="itm")

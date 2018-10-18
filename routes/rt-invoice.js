@@ -78,6 +78,33 @@ router.get('/:id', async function (req, res, next) {
     }
 });
 
+router.get('/:id/view', async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    const cmd = req.query.cmd;
+    console.log("/invoice/ID/view - get");
+
+    if (cmd)
+        next();
+    else {
+        let i = await Team.populate(req.invoice,'team');
+        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt, PageTitle:req.invoice.number+' ('+req.invoice.team.name+')'} );
+    }
+});
+
+router.get('/:id/edit', async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    const cmd = req.query.cmd;
+    console.log("/invoice/ID/edit - get");
+
+    if (cmd)
+        next();
+    else {
+        let i = await Team.populate(req.invoice,'team');
+        res.render('invoice-edit', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt, PageTitle:req.invoice.number+' ('+req.invoice.team.name+')'} );
+    }
+});
+
+
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     const teamId = req.query.teamId;
@@ -233,6 +260,57 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         r.error = err;
         log.ERROR("INVOICE POST failed. "+err.message);
     }
+    res.json(r);
+    res.end();
+
+});
+
+router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/invoice/:ID/fields - post");
+    console.log(req.body);
+    const r = {result:"error", status:200};
+
+    // no modifications allowed unless user is billing organization manager or admin
+    if (!req.user.permissions.isAdmin && !req.user.permissions.isInvoicingOrgManager){
+        r.error = {};
+        r.error.message = "permission denied";
+        res.json(r);
+        res.end();
+        return;
+    }
+
+    try {
+        if (req.body.name) {
+            let na = req.body.name.split('.'); // split name
+            let t = await Invoice.findById(req.body.pk);
+            if (t) {
+                switch (na.length){
+                    case 1:
+                        t[na[0]] = req.body.value;
+                        break;
+                    case 2:
+                        t[na[0]][na[1]] = req.body.value;
+                        break;
+                    case 3:
+                        t[na[0]][na[1]][na[2]] = req.body.value;
+                        break;
+                }
+                let verr = t.validateSync();
+                if (!verr) {
+                    await t.save();
+                    r.result = "ok";
+                } else
+                    r.error = {message:"Chyba: "+verr};
+            } else {
+                r.error = {message:"Faktura nebola nájdená id="+req.body.pk};
+            }
+        }
+
+    } catch (err) {
+        r.error = {message:err.message};
+        log.ERROR("Error rt-invoice post. err="+err.message);
+    }
+
     res.json(r);
     res.end();
 
