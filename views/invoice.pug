@@ -46,6 +46,24 @@ block content
             if (user.isInvoicingOrgManager || user.isAdmin)
                 li
                     a(href="#" id="invEdit") Upraviť
+            if !inv.isDraft && !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invPay") Zaplatiť
+
+            - var now3 = new Date();
+            - now3.setDate(now3.getDate()-3);
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin) && (inv.dueOn < now3) && !inv.isDraft
+                li
+                    a(href="#" id="invNotifyOverdue") Upozorniť na nezaplatenie
+
+            if inv.isDraft
+                li
+                    a(href="#" id="invConfirm") Potvrď návrh
+
+
+            if !inv.paidOn && (user.isInvoicingOrgManager || user.isAdmin)
+                li
+                    a(href="#" id="invRemove") Vymazať
 
     div(style="max-width:600pt")
         div(class="onerow")
