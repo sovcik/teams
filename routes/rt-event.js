@@ -351,16 +351,25 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     let inv;
                     try {
                         log.DEBUG('Going to create invoice team=' + t.id + ' event=' + e.id);
-                        inv = await libInvoice.createInvoice(te.teamId, te.eventId, "P");
-                        inv = await libInvoice.confirmInvoice(inv._id);
-                        inv = await Team.populate(inv, 'team');
+                        inv = await libInvoice.createInvoice(e.invoicingOrg, "P", t.billingOrg, t.billingAdr, t.billingContact);  // create draft of "empty non-tax invoice"  todo: add invoice template to load right items
+                        inv.event = e._id;    // link with event
+                        inv.team = t._id;     // link with team
+                        await inv.save();     // save changes
+
+                        inv = await libInvoice.confirmInvoice(inv._id);  // confirm invoice draft -> create invoice from invoice draft
                         log.INFO("Invoice created #" + inv.number);
                     } catch (er) {
                         log.ERROR("Failed creating invoice for teamId=" + te.teamId + " eventId=" + te.eventId + " err=" + er.message);
                     }
 
-                    if (inv)
-                        email.sendInvoice(req.user, inv, siteUrl);
+                    try {
+                        if (inv) {
+                            inv = await Team.populate(inv,'team');
+                            email.sendInvoice(req.user, inv, siteUrl);
+                        }
+                    } catch (er) {
+                        log.ERROR("Failed sending invoice inv="+inv.id+" for teamId=" + te.teamId+" err=" + er.message);
+                    }
 
                 }
 

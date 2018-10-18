@@ -760,10 +760,10 @@ viewTeam.createInvoice = function (teamId, invType, invOrgId, cb){
 
     $.post("/invoice/",
         {
-            cmd: 'createEmpty',
-            team: teamId,
+            cmd: 'create',
+            teamId: teamId,
             type: invType,
-            invOrg: invOrgId
+            invOrgId: invOrgId
         },
         function (res) {
             console.log("createInvoice: Server returned",res);
