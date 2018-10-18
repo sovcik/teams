@@ -51,12 +51,7 @@ block content
                                     a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
 
                 div(class='form-group' id='panel-invoices')
-                    div(id="unpaidInvoices")
-                        ul(class='list-group' id="invoices-unpaid")
-                    div(class='btn-group')
-                        button(class="btn btn-default" type="button" data-parent='#panel-invoices' data-toggle="collapse" data-target="#allInvoices") Zobraz všetky faktúry
-                    div(class="collapse" id="allInvoices")
-                        ul(class='list-group' id="invoices")
+
 
         div(class='panel-footer')
             div(class='form-group')
@@ -68,27 +63,27 @@ block content
                 if user && user.permissions.isAdmin  && team.recordStatus == 'active'
                     div(class='btn-group pull-right')
                         button(id="btnRemoveTeam" class="btn btn-default") Zruš tím
+                if user && user.permissions.isAdmin && team.recordStatus == 'inactive'
+                    div(class='btn-group pull-right')
+                        button(id="btnRestoreTeam" class="btn btn-default") Obnov tím
 
-    div(id='registerEvent' class='modal fade' role='dialog')
-        div(class='modal-dialog')
-            div(class='modal-content')
-                div(class='modal-header')
-                    button(type='button', class='close' data-dismiss='modal') &times;
-                    h4 Registrácia
-                div(class='modal-body')
-                    div(class='form-group')
-                        label Dostupné programy
-                        select(id='availProgs' class="form-control")
-                            option -none-
-                    div(class='form-group')
-                        label Dostupné súťaže
-                        select(id='availEvents' class="form-control")
-                            option -none-
-                div(class='modal-footer')
-                    div(class='row')
-                        div(class='col-sm-12')
-                            span(id="registerStatus" class="text-warning")
-                    button(id='btnRegister' type='button' class='btn btn-default') Potvrdiť registráciu
+    div(class="panel panel-primary")
+        div(class='panel-heading') Faktúry
+            =" "
+            span(id="invoiceCount")
+        div(id='invoiceList' class='panel-body')
+            div(id="unpaidInvoices")
+                ul(class='list-group' id="invoices-unpaid")
+            div(class='btn-group')
+                button(class="btn btn-default" type="button" data-parent='#panel-invoices' data-toggle="collapse" data-target="#allInvoices") Zobraz všetky faktúry
+            div(class="collapse" id="allInvoices")
+                ul(class='list-group' id="invoices")
+
+
+        if user && (user.permissions.isAdmin) && team.recordStatus == 'active'
+            div(class='panel-footer')
+                div(class='btn-group')
+                    button(id='btnCreateInvoice' class="btn btn-default") Nová faktúra
 
     div(class="panel panel-primary")
         div(class='panel-heading') Tréneri
@@ -119,6 +114,27 @@ block content
 
 
     div(id="modalDlgs")
+
+    div(id='registerEvent' class='modal fade' role='dialog')
+        div(class='modal-dialog')
+            div(class='modal-content')
+                div(class='modal-header')
+                    button(type='button', class='close' data-dismiss='modal') &times;
+                    h4 Registrácia
+                div(class='modal-body')
+                    div(class='form-group')
+                        label Dostupné programy
+                        select(id='availProgs' class="form-control")
+                            option -none-
+                    div(class='form-group')
+                        label Dostupné súťaže
+                        select(id='availEvents' class="form-control")
+                            option -none-
+                div(class='modal-footer')
+                    div(class='row')
+                        div(class='col-sm-12')
+                            span(id="registerStatus" class="text-warning")
+                    button(id='btnRegister' type='button' class='btn btn-default') Potvrdiť registráciu
 
     script.
         var u = '{ "locales": "#{user.locales?user.locales:fmt.defaultLocales}" ,'

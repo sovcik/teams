@@ -411,6 +411,31 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             }
             break;
 
+        case 'restore':
+            console.log('Going to restore team', req.body.teamId);
+            try{
+                let t = await Team.findById(req.body.teamId);
+                if (!t)
+                    throw new Error("Team not found");
+
+                if (t.recordStatus == 'inactive') {
+                    t.activate();
+                    await t.save();
+                }
+
+                console.log("Team",t._id,"restored");
+                r.result = "ok";
+
+                //todo: notify coaches
+
+            } catch(err) {
+                r.error = {message:err.message};
+                console.log(err.message);
+                log.ERROR("rt-team POST:"+err.message);
+            }
+            break;
+
+
         default:
             console.log('cmd=unknown');
             break;

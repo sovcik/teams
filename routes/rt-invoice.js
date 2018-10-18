@@ -40,8 +40,8 @@ router.param('id', async function (req, res, next){
             const p = await libPerm.getUserInvoicePermissions(req.user.id, inv.id);
             req.user.permissions = p;
 
-            console.log("PERM=",p);
-            console.log("USER=",req.user);
+            //console.log("PERM=",p);
+            //console.log("USER=",req.user);
 
         } catch (err) {
             log.WARN("Failed fetching user permissions. err="+err.message);
@@ -77,6 +77,33 @@ router.get('/:id', async function (req, res, next) {
         res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt, PageTitle:req.invoice.number+' ('+req.invoice.team.name+')'} );
     }
 });
+
+router.get('/:id/view', async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    const cmd = req.query.cmd;
+    console.log("/invoice/ID/view - get");
+
+    if (cmd)
+        next();
+    else {
+        let i = await Team.populate(req.invoice,'team');
+        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt, PageTitle:req.invoice.number+' ('+req.invoice.team.name+')'} );
+    }
+});
+
+router.get('/:id/edit', async function (req, res, next) {
+    const siteUrl = req.protocol + '://' + req.get("host");
+    const cmd = req.query.cmd;
+    console.log("/invoice/ID/edit - get");
+
+    if (cmd)
+        next();
+    else {
+        let i = await Team.populate(req.invoice,'team');
+        res.render('invoice-edit', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt, PageTitle:req.invoice.number+' ('+req.invoice.team.name+')'} );
+    }
+});
+
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
@@ -191,33 +218,39 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 
 router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.body.cmd;
-    const teamId = req.body.teamId;
-    const invType = req.body.type;
-    const eventId = req.body.eventId;
     console.log("/invoice - post");
     console.log(req.body);
     const r = {result:"error", status:200};
 
-    try {
+    const invOrgId = req.body.invOrgId;
+    const invType = req.body.type;
+    const teamId = req.body.teamId;
 
-        let p = await libPerm.getUserTeamPermissions(req.user.id, teamId);
+    let p = await libPerm.getUserPermissions(req.user.id, teamId, null, invOrgId);
+
+    try {
 
         switch (cmd) {
             case 'create':
                 console.log('Going to create invoice');
-
-                if (!p.isCoach
-                    && !p.isInvoicingOrgManager
-                    && !p.isAdmin) {
-                    throw new Error("Invoice create - Permission denied");
+                if (!p.isAdmin && !p.isInvoicingOrgManager){
+                    r.error = {};
+                    r.error.message = "permission denied";
+                    res.json(r);
+                    res.end();
+                    return;
                 }
 
                 try {
-                    let inv = await libInvoice.createInvoice(teamId, eventId, invType);
-                    //inv = await libInvoice.confirmInvoice(inv._id);
+                    let inv;
+                    if (teamId) {
+                        inv = await libInvoice.createTeamInvoice(invOrgId, invType, teamId);
+                    }
+
                     r.result = "ok";
                     r.invoice = inv;
                     log.INFO("INVOICE created: id=" + inv.id + " no=" + inv.number + " by user=" + req.user.username);
+                    
                 } catch (err) {
                     r.error = err;
                     log.WARN("Failed creating invoice. err="+err.message);
@@ -233,6 +266,57 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         r.error = err;
         log.ERROR("INVOICE POST failed. "+err.message);
     }
+    res.json(r);
+    res.end();
+
+});
+
+router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/invoice/:ID/fields - post");
+    console.log(req.body);
+    const r = {result:"error", status:200};
+
+    // no modifications allowed unless user is billing organization manager or admin
+    if (!req.user.permissions.isAdmin && !req.user.permissions.isInvoicingOrgManager){
+        r.error = {};
+        r.error.message = "permission denied";
+        res.json(r);
+        res.end();
+        return;
+    }
+
+    try {
+        if (req.body.name) {
+            let na = req.body.name.split('.'); // split name
+            let t = await Invoice.findById(req.body.pk);
+            if (t) {
+                switch (na.length){
+                    case 1:
+                        t[na[0]] = req.body.value;
+                        break;
+                    case 2:
+                        t[na[0]][na[1]] = req.body.value;
+                        break;
+                    case 3:
+                        t[na[0]][na[1]][na[2]] = req.body.value;
+                        break;
+                }
+                let verr = t.validateSync();
+                if (!verr) {
+                    await t.save();
+                    r.result = "ok";
+                } else
+                    r.error = {message:"Chyba: "+verr};
+            } else {
+                r.error = {message:"Faktura nebola nájdená id="+req.body.pk};
+            }
+        }
+
+    } catch (err) {
+        r.error = {message:err.message};
+        log.ERROR("Error rt-invoice post. err="+err.message);
+    }
+
     res.json(r);
     res.end();
 
@@ -261,12 +345,17 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     log.DEBUG('Going to set invoice as paid. no='+req.invoice.number+' id='+req.invoice.id+" date="+dp);
 
                     let i = await Invoice.findByIdAndUpdate(req.invoice.id, {$set: {paidOn: dp}}, {new:true});
-                    i = await Team.populate(i,'team');
                     if (i) {
                         log.INFO("INVOICE paid: no=" + i.number + " id=" + i.id + " by user=" + req.user.username);
                         r.result = "ok";
                         r.invoice = i;
-                        email.sendInvoicePaid(req.user,i,siteUrl);
+
+                        try {
+                            i = await Team.populate(i, 'team'); // email requires populating team
+                            email.sendInvoicePaid(req.user, i, siteUrl);
+                        } catch (er) {
+                            log.WARN("Failed sending paid notification for invoice inv="+i.id+" err="+er.message);
+                        }
                     }
                 } catch (err) {
                     throw new Error("Failed marking invoice as paid. err=" + err.message);

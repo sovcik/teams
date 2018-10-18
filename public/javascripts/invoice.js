@@ -6,6 +6,13 @@ viewInvoice.init = function(invId, u) {
     console.log("Invoice initialized");
     viewInvoice.user = JSON.parse(u);
 
+    $(document).ready(function() {
+        if (viewInvoice.user.permissions.isAdmin || viewInvoice.user.permissions.isInvoicingOrgManager) {
+            $.fn.editable.defaults.mode = 'inline';
+            $('.editable').editable();
+        }
+    });
+
     $("#invPrint").on("click", function(e){
         console.log("click invoice print",invId);
         $("#invActions").dropdown("toggle");
@@ -13,6 +20,23 @@ viewInvoice.init = function(invId, u) {
         e.stopPropagation();
         e.preventDefault();
     } );
+
+    $("#invEdit").on("click", function(e){
+        console.log("click invoice edit",invId);
+        $("#invActions").dropdown("toggle");
+        window.location.href =  window.location.href + "/edit";
+        e.stopPropagation();
+        e.preventDefault();
+    } );
+
+    $("#invView").on("click", function(e){
+        console.log("click invoice view",invId);
+        $("#invActions").dropdown("toggle");
+        window.location.href =  "/invoice/"+invId;
+        e.stopPropagation();
+        e.preventDefault();
+    } );
+
 
     $("#invPay").on("click", function(e){
         console.log("click invoice paid",invId);
