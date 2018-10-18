@@ -32,7 +32,7 @@ viewInvoice.init = function(invId, u) {
     $("#invView").on("click", function(e){
         console.log("click invoice view",invId);
         $("#invActions").dropdown("toggle");
-        window.location.href =  window.location.href + "/view";
+        window.location.href =  "/invoice/"+invId;
         e.stopPropagation();
         e.preventDefault();
     } );
