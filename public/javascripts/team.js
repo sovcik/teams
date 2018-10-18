@@ -769,6 +769,7 @@ viewTeam.createInvoice = function (teamId, invType, invOrgId, cb){
             console.log("createInvoice: Server returned",res);
             if (res.result == "ok") {
                 cb(res);
+                location.reload(true);
             } else {
                 console.log("Error while creating invoice");
                 cb(res,res.error);
