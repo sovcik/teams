@@ -44,7 +44,8 @@ block content
                             =" "
                             span(id='billOrgPostCode' data-name='adr.postCode' data-title='PSČ' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
                                 =io.adr.postCode
-                        
+
+                        hr
                         p
                             span(class="lbl2") IČO:
                             =" "
@@ -69,6 +70,23 @@ block content
                             =" "
                             span(id='Swift' data-name='org.bankSWIFT' data-title='SWIFT' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
                                 =io.org.bankSWIFT
+                        hr
+                        p
+                            span(class="lbl2") Contact name:
+                            =" "
+                            span(id='cName' data-name='contact.name' data-title='Contact name' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.contact.name
+                        p
+                            span(class="lbl2") Contact phone:
+                            =" "
+                            span(id='cPhone' data-name='contact.phone' data-title='Contact phone' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.contact.phone
+                        p
+                            span(class="lbl2") Contact email:
+                            =" "
+                            span(id='cEmail' data-name='contact.email' data-title='Contact email' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.contact.email
+
 
 
     div(class="panel panel-primary")
