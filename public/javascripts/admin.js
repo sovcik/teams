@@ -6,12 +6,10 @@ viewAdmin.init = function(){
     console.log("/admin - Initializing");
     $("#newProgramBtn").on("click",viewAdmin.createNewProgram);
     $("#newEventBtn").on("click",viewAdmin.createNewEvent);
-    $("#saveInvOrgDetails").on("click", function(event){
-        viewAdmin.saveIODetails();
-    });
 
     $("#newInvOrgBtn").on("click",function(event){
-        viewAdmin.editInvoicingOrg();
+        var ioName = $("#newOrgName").val();
+        viewAdmin.createIO(ioName);
     });
 
     viewAdmin.loadPrograms();
@@ -23,24 +21,6 @@ viewAdmin.init = function(){
     console.log("/admin - Initializing completed");
 };
 
-viewAdmin.editInvoicingOrg = function(invOrgId){
-    console.log(invOrgId);
-    var dlgEdit = $('#invOrgDetails');
-    // clear fields
-    try {
-        $('#frmIODetails')[0].reset();
-    } catch (err) {
-        console.log(err);
-    }
-
-    if (invOrgId)
-        viewAdmin.loadAddressDetails(invOrgId,function(){
-            dlgEdit.modal("show");
-        });
-    else
-        dlgEdit.modal("show");
-
-};
 
 viewAdmin.createNewProgram = function (){
     var selProgName = $('#newProgramName');
@@ -122,38 +102,13 @@ viewAdmin.loadInvoicingOrgs = function (){
 
 };
 
-viewAdmin.saveIODetails = function (orgId){
+viewAdmin.createIO = function (ioName){
     var succ = false;
-    var selStatus;
-    var selDialog;
-    console.log("Saving invoicing org details");
-
-    var details = {};
-
-    selStatus = $("#saveInvOrgStatus");
-    selDialog = $("#invOrgDetails");
-
-    details.orgName = $("#billOrg").val();
-    details.addr1 = $("#billAdr1").val();
-    details.addr2 = $("#billAdr2").val();
-    details.city = $("#billCity").val();
-    details.postCode = $("#billPostCode").val();
-    details.compNo = $("#billCompNo").val();
-    details.taxNo = $("#billTaxNo").val();
-    details.conName = $("#billContactName").val();
-    details.conPhone = $("#billContactPhone").val();
-    details.conEmail = $("#billContactEmail").val();
-
-    details.VATNo = $("#billVATNo").val();
-    details.invNumPrefix = $("#invNumPrefix").val();
-    details.nextInvNumber = $("#nextInvNumber").val();
-    details.ntInvNumPrefix = $("#ntInvNumPrefix").val();
-    details.nextNTInvNumber = $("#nextNTInvNumber").val();
-    details.dueDays = $("#dueDays").val();
-
-    details.bankAccount = $("#bankAccount").val();
-    details.bankSWIFT = $("#bankSWIFT").val();
-
+    console.log("Creating new invoicing org", ioName);
+    if (!ioName){
+        console.log("IOName not specified");
+        return;
+    }
 
     $.ajax({
         type:"POST",
@@ -161,71 +116,25 @@ viewAdmin.saveIODetails = function (orgId){
         dataType: "json",
         data: {
             cmd: 'create',
-            data: JSON.stringify(details)
+            name: ioName
         }
 
     })
         .done( function (res) {
-            console.log("saveAdrDetails: Server returned",res);
+            console.log("createIO: Server returned",res);
             if (res.result == "ok") {
-                console.log("Details saved");
-                selStatus.text('Uložené');
-                selStatus.css("display", "inline").fadeOut(2000);
-                selDialog.modal("hide");
                 viewAdmin.loadInvoicingOrgs();
             } else {
-                console.log("Error while saving details");
-                selStatus.text('Nepodarilo sa uložiť.');
-                selStatus.css("display", "inline").fadeOut(5000);
+                console.log("Error creating org");
             }
         })
         .fail(function (err) {
-            selStatus.text('Nepodarilo sa uložiť detaily.');
-            selStatus.css("display", "inline").fadeOut(5000);
-            console.log("Save failed",err);
+            console.log("Creating org failed",err);
         });
 
     return succ;
 };
 
-viewAdmin.loadAddressDetails = function (orgId, callback){
-    console.log("Loading invoicing org address details");
-    $.get(libCommon.getNoCache("/invorg/"+orgId+"&cmd=getAdrDetails"))
-        .done(function (res) {
-            console.log("loadAdrDetails: Server returned",res);
-            if (res.result == "ok") {
-                viewAdmin.formatAddressDetails(res.details);
-                callback(orgId);
-            } else {
-                console.log("Error while loading details");
-            }
-        })
-        .fail(function (err) {
-            console.log("Load failed",err);
-        });
-};
-
-viewAdmin.formatAddressDetails = function (data) {
-
-    if (!data.billingOrg) data.billingOrg = {};
-    $("#invOrgId").val(data._id || '');
-
-    $("#billOrg").val(data.billingOrg.name || '');
-    $("#billCompNo").val(data.billingOrg.companyNo || '');
-    $("#billTaxNo").val(data.billingOrg.taxNo || '');
-
-    if (!data.billingAdr) data.billingAdr = {};
-    $("#billAdr1").val(data.billingAdr.addrLine1 || '');
-    $("#billAdr2").val(data.billingAdr.addrLine2 || '');
-    $("#billCity").val(data.billingAdr.city || '');
-    $("#billPostCode").val(data.billingAdr.postCode || '');
-
-    if (!data.billingContact) data.billingContact = {};
-    $("#billContactName").val(data.billingContact.name || '');
-    $("#billContactPhone").val(data.billingContact.phone || '');
-    $("#billContactEmail").val(data.billingContact.email || '');
-
-};
 
 viewAdmin.loadUsers = function (){
     var sel = $('#allUsers');

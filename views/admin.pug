@@ -7,8 +7,8 @@ block content
         div(class='panel-body')
             ul(id="allPrograms" class="list-group")
         div(class='panel-footer')
-            label Meno programu
-            input(id='newProgramName' type='text', placeholder='meno nového programu' name='newProgramName' class="form-control")
+            label Názov nového programu
+            input(id='newProgramName' type='text', placeholder='názov nového programu' name='newProgramName' class="form-control")
             button(id='newProgramBtn' type='button' class='btn btn-default') Pridaj program
 
     div(class="panel panel-primary")
@@ -16,77 +16,9 @@ block content
         div(class='panel-body')
             ul(id="allInvoicingOrgs" class="list-group")
         div(class='panel-footer')
+            label Názov novej organizácie
+            input(id='newOrgName' type='text', placeholder='názov novej organizácie' name='newOrgName' class="form-control")
             button(id='newInvOrgBtn' type='button' class='btn btn-default') Pridaj organizáciu
-
-    div(id='invOrgDetails' class='modal fade' role='dialog')
-        div(class='modal-dialog')
-            div(class='modal-content')
-                div(class='modal-header')
-                    button(type='button', class='close' data-dismiss='modal') &times;
-                    h4 Fakturačné údaje
-                div(class='modal-body')
-                    form(id="frmIODetails")
-                        input(id="invOrgId" type="hidden")
-                        div(class='form-group')
-                            label(for='billOrg') Organizácia
-                            input(id='billOrg' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='billAdr1') Adresa riadok 1
-                            input(id='billAdr1' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='billAdr2') Adresa riadok 2
-                            input(id='billAdr2' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='billCity') Mesto
-                            input(id='billCity' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='billPostCode') PSČ
-                            input(id='billPostCode' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='billCompNo') IČO
-                            input(id='billCompNo' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='billTaxNo') DIČ
-                            input(id='billTaxNo' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='billVATNo') IČ DPH
-                            input(id='billVATNo' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='invNumPrefix') Prefix čísla faktúry
-                            input(id='invNumPrefix' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='nextInvNumber') Nasledujúce číslo faktúry
-                            input(id='nextInvNumber' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='ntInvNumPrefix') Prefix čísla zálohovej faktúry
-                            input(id='ntInvNumPrefix' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='nextNTInvNumber') Nasledujúce číslo zálohovej faktúry
-                            input(id='nextNTInvNumber' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='dueDays') Splatnosť v dňoch
-                            input(id='dueDays' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='bankAccount') Bankový účet/IBAN
-                            input(id='bankAccount' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='bankSWIFT') SWIFT
-                            input(id='bankSWIFT' type='text' class='form-control')
-
-                        div(class='form-group')
-                            label(for='billContactName') Kontaktné osoba
-                            input(id='billContactName' type='text' class='form-control' data-toggle="tooltip" title="Osoba, s ktorou sa môžu riešiť faktúry a úhrady")
-                        div(class='form-group')
-                            label(for='billContactPhone') Kontaktný telefón
-                            input(id='billContactPhone' type='text' class='form-control')
-                        div(class='form-group')
-                            label(for='billContactEmail') Kontaktný e-mail
-                            input(id='billContactEmail' type='text' class='form-control')
-                div(class='modal-footer')
-                    div(class='row')
-                        div(class='col-sm-12')
-                            span(id="saveInvOrgStatus" class="text-warning")
-                    button(id='saveInvOrgDetails' type='button' class='btn btn-default') Uložiť
 
     div(class="panel panel-primary")
         div(class='panel-heading') Aktívne Tímy
