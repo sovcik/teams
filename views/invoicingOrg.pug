@@ -8,10 +8,72 @@ block content
         }
 
     h1 Fakturujúca organizácia
-    h2 #{(io.org && io.org.name)?io.org.name:"xxx"}, #{(io.org && io.adr.city)?io.adr.city:"xxx"}
+    h2(id='orgName' data-name='org.name' data-title='Názov' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+        =io.org.name
 
     div(class="panel panel-primary")
-        div(class='panel-heading') Vystavené faktúry
+        div(class='panel-heading' data-toggle="collapse" data-target="#pnlDetails")
+            ="Detaily"
+            span(class="caret")
+        if io.org && io.adr
+            div(class="collapse" id="pnlDetails")
+                div(class='panel-body')
+                    div(class="form")
+                        p
+                            span(class="lbl2") Adr1:
+                            =" "
+                            span(id='orgAdr1' data-name='adr.addrLine1' data-title='Adresa 1' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.adr.addrLine1
+                        p
+                            span(class="lbl2") Adr2:
+                            =" "
+                            span(id='orgAdr2' data-name='adr.addrLine2' data-title='Adresa 2' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.adr.addrLine2
+                        p
+                            span(class="lbl2") Adr3:
+                            =" "
+                            span(id='billOrgAdr3' data-name='adr.addrLine3' data-title='Adresa 3' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.adr.addrLine3
+                        p
+                            span(class="lbl2") Obec:
+                            =" "
+                            span(id='billOrgCity' data-name='adr.city' data-title='Obec' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.adr.city
+                        p
+                            span(class="lbl2") PSČ:
+                            =" "
+                            span(id='billOrgPostCode' data-name='adr.postCode' data-title='PSČ' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.adr.postCode
+                        
+                        p
+                            span(class="lbl2") IČO:
+                            =" "
+                            span(id='companyNo' data-name='org.companyNo' data-title='IČO' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.org.companyNo
+                            span(class="lbl2") , DIČ:
+                            =" "
+                            span(id='taxNo' data-name='org.taxNo' data-title='DIČ' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.org.taxNo
+                        p
+                            span(class="lbl2") IČ DPH:
+                            =" "
+                            span(id='VATNo' data-name='org.VATNo' data-title='IČ DPH' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.org.VATNo
+                        p
+                            span(class="lbl2") IBAN:
+                            =" "
+                            span(id='AccntNo' data-name='org.bankAccount' data-title='IBAN' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.org.bankAccount
+                        p
+                            span(class="lbl2") SWIFT:
+                            =" "
+                            span(id='Swift' data-name='org.bankSWIFT' data-title='SWIFT' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
+                                =io.org.bankSWIFT
+
+
+    div(class="panel panel-primary")
+        div(class='panel-heading')
+            ="Vystavené faktúry"
         div(class='panel-body')
             div(class="form-inline")
                 div(class="form-group" style="margin-bottom:8pt;margin-right:5pt")
@@ -39,29 +101,32 @@ block content
                 table(id="allInvoices")
 
     div(class="panel panel-primary")
-        div(class='panel-heading') Číselníky
-        div(class='panel-body')
-            div(class="form")
-                h5 Prefix čísla zálohovej faktúry
-                a(id='ntInvNumPrefix' data-name='ntInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.ntInvNumPrefix}
-                h5 Číslo nasledujúcej zálohovej faktúry
-                a(id='nextNTInvNumber' data-name='nextNTInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextNTInvNumber}
+        div(class='panel-heading' data-toggle="collapse" data-target="#pnlSettings")
+            ="Číselníky"
+            span(class="caret")
+        div(class="collapse" id="pnlSettings")
+            div(class='panel-body')
+                div(class="form")
+                    h5 Prefix čísla zálohovej faktúry
+                    a(id='ntInvNumPrefix' data-name='ntInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.ntInvNumPrefix}
+                    h5 Číslo nasledujúcej zálohovej faktúry
+                    a(id='nextNTInvNumber' data-name='nextNTInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextNTInvNumber}
 
-                h5 Prefix čísla faktúry
-                a(id='invNumPrefix' data-name='invNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.invNumPrefix}
-                h5 Číslo nasledujúcej faktúry
-                a(id='nextInvNumber' data-name='nextInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextInvNumber}
+                    h5 Prefix čísla faktúry
+                    a(id='invNumPrefix' data-name='invNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.invNumPrefix}
+                    h5 Číslo nasledujúcej faktúry
+                    a(id='nextInvNumber' data-name='nextInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextInvNumber}
 
-                h5 Prefix čísla dobropisu
-                a(id='crInvNumPrefix' data-name='crInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.crInvNumPrefix}
-                h5 Číslo nasledujúceho dobropisu
-                a(id='nextCRInvNumber' data-name='nextCRInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextCRInvNumber}
+                    h5 Prefix čísla dobropisu
+                    a(id='crInvNumPrefix' data-name='crInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.crInvNumPrefix}
+                    h5 Číslo nasledujúceho dobropisu
+                    a(id='nextCRInvNumber' data-name='nextCRInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextCRInvNumber}
 
-                h5 Počet dní splatnosti
-                a(id='dueDays' data-name='dueDays' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.dueDays}
+                    h5 Počet dní splatnosti
+                    a(id='dueDays' data-name='dueDays' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.dueDays}
 
-                h5 Prefix čísla návrhu faktúry
-                a(id='draftInvNumPrefix' data-name='draftInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.draftInvNumPrefix}
+                    h5 Prefix čísla návrhu faktúry
+                    a(id='draftInvNumPrefix' data-name='draftInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.draftInvNumPrefix}
 
     script.
         var u = '{ "locales": "#{user.locales}" ,'

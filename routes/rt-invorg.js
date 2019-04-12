@@ -94,8 +94,8 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, re
     console.log(req.body);
     const r = {result:"error", status:200};
 
-    // no modifications allowed unless user is team coach or admin
-    if (!req.user.isAdmin){
+    // no modifications allowed unless user is invoicing org manager or admin
+    if (!req.user.isAdmin && !req.user.isInvoicingOrgManager){
         r.error = {};
         r.error.message = "permission denied";
         res.json(r);
@@ -106,8 +106,20 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, re
     try {
         if (req.body.name) {
             let t = await InvoicingOrg.findById(req.body.pk);
+            let na = req.body.name.split('.'); // split name
             if (t) {
-                t[req.body.name] = req.body.value;
+                switch (na.length){
+                    case 1:
+                        t[na[0]] = req.body.value;
+                        break;
+                    case 2:
+                        t[na[0]][na[1]] = req.body.value;
+                        break;
+                    case 3:
+                        t[na[0]][na[1]][na[2]] = req.body.value;
+                        break;
+                }
+
                 let verr = t.validateSync();
                 if (!verr) {
                     await t.save();
@@ -140,35 +152,21 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             if (!req.user.isAdmin)
                 return res.render('message',{title:"Prístup zamietnutý"});
             try {
-                let data = JSON.parse(req.body.data);
-                let ioId = req.body.invOrgId;
-                console.log('Going to create invoicing org ', data.orgName);
+                console.log('Going to create invoicing org ');
 
                 const io = {};
                 io.org = {};
-                io.org.name = data.orgName;
-                io.org.companyNo = data.compNo;
-                io.org.taxNo = data.taxNo;
-                io.org.VATNo = data.VATNo;
-                io.org.bankAccount = data.bankAccount;
-                io.org.bankSWIFT = data.bankSWIFT;
+                io.org.name = req.body.name?req.body.name:"IOName";
 
                 io.adr = {};
-                io.adr.addrLine1 = data.adr1;
-                io.adr.addrLine2 = data.adr2;
-                io.adr.city = data.city;
-                io.adr.postCode = data.postCode;
 
                 io.contact = {};
-                io.contact.name = data.conName;
-                io.contact.phone = data.conPhone;
-                io.contact.email = data.conEmail;
 
-                io.invNumPrefix = data.invNumPrefix;
-                io.nextInvNumber = data.nextInvNumber;
-                io.ntInvNumPrefix = data.ntInvNumPrefix;
-                io.nextNTInvNumber = data.nextNTInvNumber;
-                io.dueDays = data.dueDays;
+                io.invNumPrefix = "INV";
+                io.nextInvNumber = 1;
+                io.ntInvNumPrefix = "NT";
+                io.nextNTInvNumber = 1;
+                io.dueDays = 14;
 
                 let i = InvoicingOrg(io);
                 i = await i.save();
@@ -182,6 +180,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 log.ERROR("rt-invorg POST:"+err.message);
                 console.log(err);
             }
+
             break;
         default:
             console.log('cmd=unknown');
