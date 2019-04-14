@@ -48,15 +48,21 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     if (cmd)
         next();
     else {
-        req.iorg.invoices = [];
         let inv;
         try {
-            inv = await Invoice.find({invoicingOrg: req.iorg.id});
+            // each invoicing org should have at least one invoice template
+            inv = await Invoice.find({invoicingOrg: req.iorg.id, type:"T"});
         } catch (err) {
-            log.WARN("Failed to fetch invoices for iorg "+req.iorg.id+" err="+err);
+            log.WARN("Failed to find templates for iorg "+req.iorg.id+" err="+err);
         }
-        if (inv)
-            req.iorg.invoices = inv;
+
+        if (inv.length < 1){
+            console.log('Creating invoice template for INVORG ',req.iorg.id);
+            await libInvoice.createTemplateInvoice(req.iorg.id);
+        } else {
+            console.log("TEMPLATES",inv);
+        }
+
         res.render('invoicingOrg', {io: req.iorg, user: req.user, fmt:libFmt});
     }
 
