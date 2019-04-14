@@ -37,7 +37,7 @@ block content
                                 button(id="btnSuspendProfile" class="btn btn-default") Zakáž konto
                             else
                                 button(id="btnActivateProfile" class="btn btn-default") Aktivuj konto
-                        if (profile.isAdmin)
+                        if (profile.isAdmin && !profile.isSuperAdmin)
                             button(id="btnSuspAdmin" class="btn btn-default") Zakáž admin
                         if (user && user.isSuperAdmin && !profile.isAdmin)
                             button(id="btnMakeAdmin" class="btn btn-default") Urob admin

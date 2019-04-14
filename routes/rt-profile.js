@@ -318,7 +318,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                 if (!up1)
                     throw new Error("User not found");
                 // check if old password is correct
-                if (!req.user.isAdmin && !req.user.isSuperAdmin)
+                if (!(req.user.isAdmin && !req.profile.isSuperAdmin) && !req.user.isSuperAdmin)
                     if (!await bcrypt.compare(req.body.oldPwd, up1.passwordHash))
                         throw new Error("Invalid old password specified");
 
@@ -334,7 +334,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             break;
         case 'setAdmin':
             log.DEBUG("Going to setAdmin user "+id);
-            if (!req.user.isAdmin && !req.user.isSuperAdmin) {
+            if (!req.user.isSuperAdmin) {
                 r.error = {message: "Permission denied"};
                 log.CRIT("setAdmin denied for user " + req.user.username);
             } else {
