@@ -106,24 +106,25 @@ block content
                         option(value="A") všetky
                         option(value="P") zálohové
                         option(value="I") daňové
+                        option(value="T") šablóny
                 div(class="form-group" style="margin-bottom:8pt;margin-right:5pt")
                     label(for="filterInvYear") Rok:
                     select(class="form-control" id="filterInvYear")
-                        option(value="2021") 2021
-                        option(value="2020") 2020
-                        option(value="2019") 2019
-                        option(value="2018") 2018
-                        option(value="2017") 2017
+                        -var y = new Date().getFullYear();
+                        while (y>=2017)
+                            option=y--
 
             div(style="max-height: 400pt; overflow:auto;")
                 table(id="allInvoices")
 
     div(class="panel panel-primary")
         div(class='panel-heading' data-toggle="collapse" data-target="#pnlSettings")
-            ="Číselníky"
+            ="Nastavenia"
             span(class="caret")
         div(class="collapse" id="pnlSettings")
             div(class='panel-body')
+                h5 Šablóny faktúr
+                div(id="InvTemplates")
                 div(class="form")
                     h5 Prefix čísla zálohovej faktúry
                     a(id='ntInvNumPrefix' data-name='ntInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.ntInvNumPrefix}

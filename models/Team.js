@@ -14,6 +14,7 @@ const TeamSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        index: true,
         minLength: [5, "Názov tímu je príliš krátky. Názov musí mať aspoň `{MINLENGTH}` znakov."]
 
     },

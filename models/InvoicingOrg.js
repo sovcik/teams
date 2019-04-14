@@ -10,9 +10,9 @@ const OrgSchema = require('./Organization');
 const ContactSchema = require('./Contact');
 
 const InvoicingOrgSchema = new mongoose.Schema({
-    org: OrgSchema,
-    adr: AddressSchema,
-    contact: ContactSchema,
+    org: {type:OrgSchema, default:{}},
+    adr: {type: AddressSchema, default:{}},
+    contact: {type:ContactSchema, default:{}},
     nextDraftInvNumber: {type:Number, required:true, default:1},  // next draft invoice number
     draftInvNumPrefix: {type:String, required:true, default:'DR'},
     nextInvNumber: {type:Number, required:true, default:1},  // next tax invoice number

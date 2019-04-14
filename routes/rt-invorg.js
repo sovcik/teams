@@ -6,6 +6,7 @@ const cel = require('connect-ensure-login');
 const router = express.Router();
 const log = require('../lib/logger');
 const libFmt = require('../lib/fmt');
+const libInvoice = require('../lib/invoice');
 
 const InvoicingOrg = mongoose.models.InvoicingOrg;
 const Invoice = mongoose.models.Invoice;
@@ -47,15 +48,21 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     if (cmd)
         next();
     else {
-        req.iorg.invoices = [];
         let inv;
         try {
-            inv = await Invoice.find({invoicingOrg: req.iorg.id});
+            // each invoicing org should have at least one invoice template
+            inv = await Invoice.find({invoicingOrg: req.iorg.id, type:"T"});
         } catch (err) {
-            log.WARN("Failed to fetch invoices for iorg "+req.iorg.id+" err="+err);
+            log.WARN("Failed to find templates for iorg "+req.iorg.id+" err="+err);
         }
-        if (inv)
-            req.iorg.invoices = inv;
+
+        if (inv.length < 1){
+            console.log('Creating invoice template for INVORG ',req.iorg.id);
+            await libInvoice.createTemplateInvoice(req.iorg.id);
+        } else {
+            console.log("TEMPLATES",inv);
+        }
+
         res.render('invoicingOrg', {io: req.iorg, user: req.user, fmt:libFmt});
     }
 
@@ -158,22 +165,15 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 io.org = {};
                 io.org.name = req.body.name?req.body.name:"IOName";
 
-                io.adr = {};
-
-                io.contact = {};
-
-                io.invNumPrefix = "INV";
-                io.nextInvNumber = 1;
-                io.ntInvNumPrefix = "NT";
-                io.nextNTInvNumber = 1;
-                io.dueDays = 14;
-
                 let i = InvoicingOrg(io);
                 i = await i.save();
                 if (i) {
                     console.log("invoicing org created", i.org.name, i.id);
                     r.result = "ok";
                 }
+                // create default invoice template for newly created invoicing org
+                await libInvoice.createTemplateInvoice(i.id);
+
             } catch (err) {
                 r.error = {};
                 r.error.message = err.message;

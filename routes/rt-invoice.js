@@ -28,7 +28,7 @@ router.param('id', async function (req, res, next){
         };
 
     try {
-        inv = await Invoice.findById(invoiceId);
+        inv = await Invoice.findById(invoiceId,{},{lean:false});
         req.invoice = inv;
         if (!inv)
             throw new Error("invoice not found");
@@ -74,7 +74,9 @@ router.get('/:id', async function (req, res, next) {
         next();
     else {
         let i = await Team.populate(req.invoice,'team');
-        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt, PageTitle:req.invoice.number+' ('+req.invoice.team.name+')'} );
+        //console.log("INV=",req.invoice);
+        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt,
+            PageTitle:req.invoice.number+' ('+!req.invoice.team?"---":req.invoice.team.name+')'} );
     }
 });
 
@@ -87,7 +89,8 @@ router.get('/:id/view', async function (req, res, next) {
         next();
     else {
         let i = await Team.populate(req.invoice,'team');
-        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt, PageTitle:req.invoice.number+' ('+req.invoice.team.name+')'} );
+        res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt,
+            PageTitle:req.invoice.number+' ('+!req.invoice.team?"---":req.invoice.team.name+')'} );
     }
 });
 
@@ -100,7 +103,8 @@ router.get('/:id/edit', async function (req, res, next) {
         next();
     else {
         let i = await Team.populate(req.invoice,'team');
-        res.render('invoice-edit', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt, PageTitle:req.invoice.number+' ('+req.invoice.team.name+')'} );
+        res.render('invoice-edit', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt,
+            PageTitle:req.invoice.number+' ('+!req.invoice.team?"---":req.invoice.team.name+')'} );
     }
 });
 
@@ -122,7 +126,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
         let p = await libPerm.getUserTeamPermissions(req.user.id, teamId);
 
-        if (!p.isCoach
+        if (!(p.isCoach && teamId)
             && !p.isInvoicingOrgManager
             && !p.isAdmin) {
             throw new Error("Invoices query - Permission denied");
@@ -378,7 +382,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                         try {
                             req.invoice.save();
                         } catch (err) {
-                            log.WARN("Failed to save tax invoice number "+invNew.id+" to invoice "+req.invoice.id);
+                            log.WARN("Failed to save tax invoice number "+invNew._id+" to invoice "+req.invoice.id);
                         }
 
                         r.result = "ok";
@@ -388,7 +392,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                         email.sendInvoice(req.user,invNew,siteUrl);
                     }
                 } catch (err) {
-                    throw new Error("Failed copying invoice "+req.invoice.id+" err="+err.message);
+                    throw new Error("Failed copying invoice "+req.invoice._id+" err="+err.message);
                 }
 
                 break;
@@ -432,6 +436,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     if (!req.user.permissions.isInvoicingOrgManager
                         && !req.user.permissions.isAdmin) {
                         log.WARN("Invoice add item - permission denied. user="+req.user.username+" invoice="+req.invoice._id);
+                        console.log("PERMS=",req.user.permissions);
                         throw new Error("permission denied");
                     }
 
@@ -469,7 +474,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
 
                 } catch (err) {
                     log.WARN("Adding item to invoice="+req.invoice._id+" err="+err.message);
-                    throw new Error("Adding item to invoice "+req.invoice.id+" err="+err.message);
+                    throw new Error("Adding item to invoice "+req.invoice._id+" err="+err.message);
                 }
 
                 break;

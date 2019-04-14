@@ -9,17 +9,17 @@ const ContactSchema = require('./Contact');
 const InvoiceItemSchema = require('./InvoiceItem');
 
 const InvoiceSchema = new mongoose.Schema({
-    number: { type: String },  // normally created as prefix+number
-    type: {type: String, required: true}, // I/C/P
+    number: { type: String, index:true },  // normally created as prefix+number
+    type: {type: String, required: true}, // I=tax invoice/C=credit note/P=proforma invoice/T=template
     isDraft: {type: Boolean, default: true},
     invoicingOrg: { type: mongoose.Schema.Types.ObjectId, ref: 'invoicingOrg', required:true },
-    issuingOrg: OrgSchema,
-    issuingAdr: AddressSchema,
-    issuingContact: ContactSchema,
-    billOrg: OrgSchema,
-    billAdr: AddressSchema,
-    billContact: ContactSchema,
-    issuedOn: {type: Date},
+    issuingOrg: {type:OrgSchema, default:{}},
+    issuingAdr: {type:AddressSchema, default:{}},
+    issuingContact: {type:ContactSchema, default:{}},
+    billOrg: {type:OrgSchema, default:{}},
+    billAdr: {type:AddressSchema, default:{}},
+    billContact: {type:ContactSchema, default:{}},
+    issuedOn: {type: Date, index:true},
     dueOn: {type:Date},
     paidOn: {type: Date},
     team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' },
