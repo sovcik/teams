@@ -17,7 +17,9 @@ viewInvOrg.init = function(invOrgId, u){
     $("#filterPaidStatus").val(viewInvOrg.filterPaidStatus);
     $("#filterInvType").val(viewInvOrg.filterInvType);
     $("#filterInvYear").val(viewInvOrg.filterInvYear);
+
     viewInvOrg.loadInvoices(invOrgId);
+    viewInvOrg.loadTemplates(invOrgId);
 
     $("#filterPaidStatus").on('change',function(ev){
         viewInvOrg.filterPaidStatus = ev.target.value;
@@ -97,6 +99,40 @@ viewInvOrg.loadInvoices = function(invOrgId){
 
             } else {
                 t.text('Žiadne faktúry');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
+
+};
+
+viewInvOrg.loadTemplates = function(invOrgId){
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    console.log("Loading invoice templates");
+    var t = $("#InvTemplates");
+    var ti = $("#InvTemplates>*");  // all children of specified element
+    var q = "&invOrg="+invOrgId+"&type=T";
+
+    $.get( libCommon.getNoCache("/invoice?cmd=getList"+q), function(res) {
+        console.log("Server returned invoices",res);
+        if (res.result === 'ok'){
+            console.log("List of",res.list.length,"records");
+            ti.remove();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+
+                res.list.forEach(function(item) {
+                    var c =
+                        $('<tr>')
+                            .append($('<td>').append($('<a href="/invoice/'+item._id+'">').append(item.number)));
+
+                    t.append(c);
+                });
+
+            } else {
+                t.text('Žiadne šablóny');
             }
         } else {
             console.log("Server returned ERROR");
