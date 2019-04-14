@@ -15,6 +15,7 @@ const Team = mongoose.models.Team;
 const TeamEvent = mongoose.models.TeamEvent;
 const Program = mongoose.models.Program;
 const InvoicingOrg = mongoose.models.InvoicingOrg;
+const Invoice = mongoose.models.Invoice;
 const User = mongoose.models.User;
 
 module.exports = router;
@@ -351,7 +352,8 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     let inv;
                     try {
                         log.DEBUG('Going to create invoice team=' + t.id + ' event=' + e.id);
-                        inv = await libInvoice.createInvoice(e.invoicingOrg, "P", t.billingOrg, t.billingAdr, t.billingContact);  // create draft of "empty non-tax invoice"  todo: add invoice template to load right items
+                        inv = await Invoice.findOne({invoicingOrg:e.invoicingOrg, type:"T"}); // find invoice template used by invoicing org
+                        inv = await libInvoice.createInvoice(e.invoicingOrg, "P", t.billingOrg, t.billingAdr, t.billingContact, !inv?null:inv._id);
                         inv.event = e._id;    // link with event
                         inv.team = t._id;     // link with team
                         await inv.save();     // save changes
