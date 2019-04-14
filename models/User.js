@@ -17,6 +17,7 @@ const UserSchema = new Schema({
         type: String,
         unique: true,
         trim: true,
+        index: true,
         minLength: [5, "Meno používateľa je príliš krátke. Meno musí mať aspoň `{MINLENGTH}` znakov."]
     },
     fullName: { type:String, required:true },
@@ -24,7 +25,8 @@ const UserSchema = new Schema({
         type: String,
         validate: [validateEmail, 'Zadaná email adresa je neplatná.'],
         trim: true,
-        lowercase: true
+        lowercase: true,
+        index:true
     },
     phone: { type: String },
     dateOfBirth: {type:Date },
