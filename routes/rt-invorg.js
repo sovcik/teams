@@ -6,6 +6,7 @@ const cel = require('connect-ensure-login');
 const router = express.Router();
 const log = require('../lib/logger');
 const libFmt = require('../lib/fmt');
+const libInvoice = require('../lib/invoice');
 
 const InvoicingOrg = mongoose.models.InvoicingOrg;
 const Invoice = mongoose.models.Invoice;
@@ -165,12 +166,8 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                     r.result = "ok";
                 }
                 // create default invoice template for newly created invoicing org
-                let inv = Invoice();
-                inv.type = "T"; // creating new invoice template
-                inv.isDraft = false;
-                inv.invoicingOrg = i.id;
-                inv = await inv.save();
-                console.log(inv);
+                await libInvoice.createTemplateInvoice(i.id);
+
             } catch (err) {
                 r.error = {};
                 r.error.message = err.message;
