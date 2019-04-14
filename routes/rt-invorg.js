@@ -158,22 +158,19 @@ router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 io.org = {};
                 io.org.name = req.body.name?req.body.name:"IOName";
 
-                io.adr = {};
-
-                io.contact = {};
-
-                io.invNumPrefix = "INV";
-                io.nextInvNumber = 1;
-                io.ntInvNumPrefix = "NT";
-                io.nextNTInvNumber = 1;
-                io.dueDays = 14;
-
                 let i = InvoicingOrg(io);
                 i = await i.save();
                 if (i) {
                     console.log("invoicing org created", i.org.name, i.id);
                     r.result = "ok";
                 }
+                // create default invoice template for newly created invoicing org
+                let inv = Invoice();
+                inv.type = "T"; // creating new invoice template
+                inv.isDraft = false;
+                inv.invoicingOrg = i.id;
+                inv = await inv.save();
+                console.log(inv);
             } catch (err) {
                 r.error = {};
                 r.error.message = err.message;
