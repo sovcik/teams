@@ -235,7 +235,10 @@ block content
                     span Stránku tímu môžete otvoriť aj klinknutím na tento link
                         =" "
                         a(href=(siteUrl||'')+"/team/"+inv.team._id) Otvoriť stránku tímu
-            p=" "
+            p(style="clear:both")=" "
+
+        if inv.footer
+            p(style="margin-top:10pt; clear: both; font-size:80%;")=inv.footer
 
     div(id="modalDlgs")
 

@@ -26,6 +26,8 @@ const InvoiceSchema = new mongoose.Schema({
     items: [InvoiceItemSchema],
     total: {type: Number},
     currency: {type: String},
+    logo: {type: String},
+    footer: {type: String},
     event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
     taxInvoice: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice' }
 }, {
@@ -87,6 +89,9 @@ InvoiceSchema.statics.testData = function(rec, id){
     rec.issuedOn = new Date();
     rec.dueOn = new Date();
     rec.dueOn.setDate(rec.dueOn.getDate()+14);
+
+    rec.logo = "https://github.com/FLL-SK/teams/raw/master/public/teams-logo-150x150px.png";
+    rec.footer = "footer text "+id;
 
     return rec;
 };
