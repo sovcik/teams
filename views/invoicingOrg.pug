@@ -147,6 +147,13 @@ block content
                     h5 Prefix čísla návrhu faktúry
                     a(id='draftInvNumPrefix' data-name='draftInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.draftInvNumPrefix}
 
+                    h5 Logo
+                    a(id='logo' data-name='logo' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.logo}
+
+                    h5 Pätička faktúry
+                    a(id='footer' data-name='invoiceFooter' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.invoiceFooter}
+
+
     script.
         var u = '{ "locales": "#{user.locales}" ,'
             + '"dateFormat": "#{fmt.fmtDateFormat(user.locales)}", '

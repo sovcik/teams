@@ -22,6 +22,8 @@ const InvoicingOrgSchema = new mongoose.Schema({
     ntInvNumPrefix: {type:String, required:true, default:'NT'},
     crInvNumPrefix: {type:String, required:true, default:'CR'},
     dueDays:{type:Number, required:true, default:14},
+    logo:{type:String, required:true, default:"https://github.com/FLL-SK/teams/raw/master/public/teams-logo-150x150px.png"},
+    invoiceFooter:{type:String, required:false, default:""},
     managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, {
     usePushEach: true

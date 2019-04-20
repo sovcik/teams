@@ -65,52 +65,52 @@ block content
                 li
                     a(href="#" id="invRemove") Vymazať
 
-    div(style="max-width:600pt")
+    div(style="max-width:810px")
         if (inv.type == "T")
             h3 Šablóna faktúry
                 =" "+inv.number
         if (inv.type != "T")
-            div(class="onerow")
-                table
-                    tr
-                        td(style="width:85pt")
-                            img(src=siteUrl + "/images/FLL_Logo_web_white.jpg" alt="FLL Logo" width="80pt")
-                        td(style="width:300pt;padding-left:5pt")
-                            h4 #{inv.issuingOrg.name}
-                                br
-                                small= inv.issuingAdr.addrLine1 + (inv.issuingAdr.addrLine2?', '+inv.issuingAdr.addrLine2:'') + (inv.issuingAdr.addrLine3?', '+inv.issuingAdr.addrLine3:'')
-                                br
-                                small #{inv.issuingAdr.postCode} #{inv.issuingAdr.city}
-                                br
-                                small
-                                    if inv.issuingOrg.companyNo
-                                        span(class="lbl2") IČO:
-                                        =" "
-                                        span #{inv.issuingOrg.companyNo}
-                                    if inv.issuingOrg.taxNo
-                                        span(class="lbl2") , DIČ:
-                                        =" "
-                                        span #{inv.issuingOrg.taxNo}
-                                    if inv.issuingOrg.VATNo
-                                        br
-                                        span(class="lbl2") IČ DPH:
-                                        =" "
-                                        span #{inv.issuingOrg.VATNo}
 
-                        td(style="width:200pt;text-align:right")
-                            h3= inv.isDraft?"NÁVRH ":" "
-                                =inv.type=="I"?"Faktúra":(inv.type=="C"?"Dobropis":"Zálohová faktúra")
-                                br
-                                ="č. "+inv.number
-                            p Dátum vystavenia:
-                                =" " + fmt.fmtDate(inv.issuedOn, user.locales)
-                                br
-                                span Dátum dodania:
-                                    =" " + fmt.fmtDate(inv.issuedOn, user.locales)
-                                br
-                                span(class="bold") Dátum splatnosti:
-                                    =" " + fmt.fmtDate(inv.dueOn, user.locales)
-            p(style="font-size:80%") FIRST® LEGO® League is jointly held trademark of FIRST® (www.firstinspires.org) and the LEGO Group, neither of which is overseeing, involved with, or responsible for this activity, product, or service.
+            div(style="width:150px; height:150px; float:left; clear:left;")
+                if inv.logo
+                    img(src=inv.logo alt="Logo" width="150px" height="150px")
+            div(style="width:300px; height:150px; padding-left:5pt; float:left;")
+                h4 #{inv.issuingOrg.name}
+                    br
+                    small= inv.issuingAdr.addrLine1 + (inv.issuingAdr.addrLine2 ? ', ' + inv.issuingAdr.addrLine2 : '') + (inv.issuingAdr.addrLine3 ? ', ' + inv.issuingAdr.addrLine3 : '')
+                    br
+                    small #{inv.issuingAdr.postCode} #{inv.issuingAdr.city}
+                    br
+                    small
+                        if inv.issuingOrg.companyNo
+                            span(class="lbl2") IČO:
+                            =" "
+                            span #{inv.issuingOrg.companyNo}
+                        if inv.issuingOrg.taxNo
+                            span(class="lbl2") , DIČ:
+                            =" "
+                            span #{inv.issuingOrg.taxNo}
+                        if inv.issuingOrg.VATNo
+                            br
+                            span(class="lbl2") IČ DPH:
+                            =" "
+                            span #{inv.issuingOrg.VATNo}
+
+            div(style="width:350px;height:150px; text-align:right; float:left;")
+                h3= inv.isDraft ? "NÁVRH " : " "
+                =inv.type == "I" ? "Faktúra" : (inv.type == "C" ? "Dobropis" : "Zálohová faktúra")
+                br
+                ="č. " + inv.number
+                p Dátum vystavenia:
+                    =" " + fmt.fmtDate(inv.issuedOn, user.locales)
+                    br
+                    span Dátum dodania:
+                        =" " + fmt.fmtDate(inv.issuedOn, user.locales)
+                    br
+                    span(class="bold") Dátum splatnosti:
+                        =" " + fmt.fmtDate(inv.dueOn, user.locales)
+
+            p(style="clear:both")=" "
 
             table
                 tr
@@ -152,7 +152,8 @@ block content
                                 span #{inv.billOrg.bankSWIFT}
 
 
-            p(style="margin-top:10pt") Fakturujeme vám za tím '#{inv.team.name}':
+            if inv.team
+                p(style="margin-top:10pt") Fakturujeme vám za tím '#{inv.team.name}':
 
         table(style="border-top:2pt;border-bottom:2pt")
             tr
@@ -168,7 +169,7 @@ block content
                     ="Cena"
             each itm in inv.items
                 tr
-                    td(class="itm")
+                    td(class="itm" style="text-align:center")
                         p #{itm.itemNo}
                     td(class="itm")
                         p #{itm.text}
@@ -197,36 +198,29 @@ block content
 
         if (inv.type != "T")
             if inv.paidOn && inv.type !== "C"
-                h4(style="border: thin solid black;padding:5pt") Nič netreba platiť. Úhrada bola prijatá dňa
-                    =" "+ fmt.fmtDate(inv.paidOn, user.locales)
+                div(style="clear: left; float: left; border: thin solid black; padding:5pt")
+                    h5 Nič netreba platiť. Úhrada bola prijatá dňa
+                        =" " + fmt.fmtDate(inv.paidOn, user.locales)
 
             if !inv.paidOn && inv.type !== "C"
-                table(style="border: thin solid black; width=100%")
-                    tr
-                        td(class="itm")
-                            h5
-                                span(class="bold") Uhradiť do:
-                                br
-                                =" " + fmt.fmtDate(inv.dueOn, user.locales)
-                        td(class="itm")
-                            h5
-                                span(class="bold") IBAN:
-                                br
-                                =" " + inv.issuingOrg.bankAccount
-                        td(class="itm")
-                            h5
-                                span(class="bold") SWIFT:
-                                br
-                                =" " + inv.issuingOrg.bankSWIFT
+                div(style="float: left; border: thin solid black;padding:5pt;")
+                    div(style="padding:5pt; clear: left; float:left;")
+                        h5 Uhradiť do:
+                        h4=" " + fmt.fmtDate(inv.dueOn, user.locales)
+                    div(style="padding:5pt; float:left;")
+                        h5 IBAN:
+                        h4=" " + inv.issuingOrg.bankAccount
+                    div(style="padding:5pt; float:left;")
+                        h5 SWIFT:
+                        h4=" " + inv.issuingOrg.bankSWIFT
+                    div(style="padding:5pt; float:left;")
+                        h5 VS:
+                        h4=" " + inv.number
 
-                        td(class="itm")
-                            h5
-                                span(class="bold") VS:
-                                br
-                                =" " + inv.number
 
             if inv.type == "P"
-                p(style="margin-top:10pt") Ak si želáte zmeniť vaše fakturačné údaje na dokumente, tak ich môžete zmeniť na stránke tímu.
+                p(style="clear:both")=" "
+                p(style="margin-top:10pt; clear: left;") Ak si želáte zmeniť vaše fakturačné údaje na dokumente, tak ich môžete zmeniť na stránke tímu.
                     br
                     span Ak potrebujete finálnu faktúru, tak po skontrolovaní fakturačných údajov kliknite na stránke tímu na tlačidlo "Vytvor faktúru"
                     br
@@ -235,7 +229,10 @@ block content
                     span Stránku tímu môžete otvoriť aj klinknutím na tento link
                         =" "
                         a(href=(siteUrl||'')+"/team/"+inv.team._id) Otvoriť stránku tímu
-            p=" "
+            p(style="clear:both")=" "
+
+        if inv.footer
+            p(style="margin-top:10pt; clear: both; font-size:80%;")=inv.footer
 
     div(id="modalDlgs")
 
