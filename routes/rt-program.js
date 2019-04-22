@@ -64,7 +64,7 @@ router.get('/:id', async function (req, res, next) {
             try {
                 log.WARN('Program PUBLIC data export requested for program='+req.program._id);
                 r.data = await dbExport.exportProgramData(req.program._id, null, false);
-                r.user = req.user;
+                //r.user = req.user;
                 r.result = 'ok';
             } catch (err) {
                 r.error = {message:"Failed to export program data. err="+err};

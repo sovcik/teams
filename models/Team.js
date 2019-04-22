@@ -32,7 +32,10 @@ const TeamSchema = new mongoose.Schema({
     // this address is used for sending paper-mail
     shippingOrg: {type: OrgSchema, default:{}},
     shippingAdr: {type: AddressSchema, default:{}},
-    shippingContact: {type: ContactSchema, default:{}}
+    shippingContact: {type: ContactSchema, default:{}},
+
+    boyCount: {type:Number, default:0},
+    girlCount: {type:Number, default:0}
 
 }, {
     usePushEach: true

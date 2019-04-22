@@ -12,6 +12,7 @@ block content
             padding: 3pt;
         }
 
+
     include includes/header-sm
     h1 Profil tímu
 
@@ -22,13 +23,18 @@ block content
                 div(class="alert alert-warning")
                     strong Pozor!
                     =" Tento záznam už nie je aktívny a je udržiavaný iba pre archívne účely."
-            div(class='form-group')
-                a(id='teamName' data-name='name' data-title='Názov' data-type='text' data-pk=team._id data-url='/team/'+team._id+'/fields' class='form-control' href='#')
-                    = team.name
+            div(class='form')
+                label(class="label-control") Názov
+                a(id='teamName' data-name='name' data-title='Názov' data-type='text' data-pk=team._id data-url='/team/'+team._id+'/fields' class='form-control' href='#') #{team.name}
+
+                label(class="label-control") Počet chlapcov
+                a(id='boyCount' data-name='boyCount' data-title='Počet chlapcov' data-type='select' data-pk=team._id data-url='/team/' + team._id + '/fields' class='form-control' href='#') #{team.boyCount}
+
+                label(class="label-control") Počet dievčat
+                a(id='girlCount' data-name='girlCount' data-title='Počet dievčat' data-type='select' data-pk=team._id data-url='/team/' + team._id + '/fields' class='form-control' href='#') #{team.girlCount}
 
             if (user && user.username)
                 div(class='form-group' id="eventReg")
-
 
                     div(id="activeEvents")
                         if team.events && team.events.length > 0

@@ -11,9 +11,21 @@ viewTeam.init = function(teamId, u){
     viewTeam.user = user;
 
     $(document).ready(function() {
+
+        var list10 = function(){
+            var a = [];
+            for(var i=0;i<11;i++){
+                a.push({"value":i, "text":i.toString()});
+            }
+            console.log(a);
+            return a;
+        };
+
         if (viewTeam.user.permissions.isAdmin || viewTeam.user.permissions.isCoach) {
-            $.fn.editable.defaults.mode = 'inline';
+            $.fn.editable.defaults.mode = 'popup';
             $('#teamName').editable();
+            $('#girlCount').editable({source:list10});
+            $('#boyCount').editable({source:list10});
         }
     });
 
