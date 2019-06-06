@@ -202,41 +202,6 @@ block content
                     h4(style="text-align:right")
                         =inv.total.toFixed(2) +" " + inv.currency
 
-            if (inv.type != "T")
-                if inv.paidOn && inv.type !== "C"
-                    div(style="clear: left; float: left; border: thin solid black; padding:5pt")
-                        h5 Nič netreba platiť. Úhrada bola prijatá dňa
-                            =" " + fmt.fmtDate(inv.paidOn, user.locales)
-
-                if !inv.paidOn && inv.type !== "C"
-                    div(style="float: left; border: thin solid black;padding:5pt;")
-                        div(style="padding:5pt; clear: left; float:left;")
-                            h5 Uhradiť do:
-                            h4=" " + fmt.fmtDate(inv.dueOn, user.locales)
-                        div(style="padding:5pt; float:left;")
-                            h5 IBAN:
-                            h4=" " + inv.issuingOrg.bankAccount
-                        div(style="padding:5pt; float:left;")
-                            h5 SWIFT:
-                            h4=" " + inv.issuingOrg.bankSWIFT
-                        div(style="padding:5pt; float:left;")
-                            h5 VS:
-                            h4=" " + inv.number
-
-            if inv.type == "P"
-                p(style="clear:both")=" "
-                p(style="margin-top:10pt; clear:both;") Ak si želáte zmeniť vaše fakturačné údaje na dokumente, tak ich môžete zmeniť na stránke tímu.
-                    br
-                    span Ak potrebujete finálnu faktúru, tak po skontrolovaní fakturačných údajov kliknite na stránke tímu na tlačidlo "Vytvor faktúru"
-                    br
-                    span V prípade, že uhradíte túto zálohovú faktúru, bude vám finálna faktúra vystavená automaticky.
-                    br
-                    span Stránku tímu môžete otvoriť aj klinknutím na tento link
-                        =" "
-                        a(href=(siteUrl||'')+"/team/"+inv.team._id) Otvoriť stránku tímu
-            p(style="clear:both")=" "
-            if inv.footer
-                p(style="margin-top:10pt; clear: both; font-size:80%;")=inv.footer
 
     div(id="modalDlgs")
 
