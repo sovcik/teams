@@ -218,7 +218,10 @@ viewTeam.init = function(teamId, u){
                 init:function(domid,cb){
                     libCommon.loadList(domid,"/event?cmd=getList&active=1&program="+$('#MFDFavailProgs').val(), cb);
                 }
-            }
+            },
+            {id:"acceptRules", label:"Súhlasím s podmienkami programu a turnaja", type:"checkbox", required:true}
+
+
         ];
 
         libModals.fields = fields;
