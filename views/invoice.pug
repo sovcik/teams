@@ -102,13 +102,13 @@ block content
                 br
                 ="č. " + inv.number
                 p Dátum vystavenia:
-                    =" " + fmt.fmtDate(inv.issuedOn, user.locales)
+                    =" " + inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.issuedOn, user.locales)
                     br
                     span Dátum dodania:
-                        =" " + fmt.fmtDate(inv.issuedOn, user.locales)
+                        =" " + inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.issuedOn, user.locales)
                     br
                     span(class="bold") Dátum splatnosti:
-                        =" " + fmt.fmtDate(inv.dueOn, user.locales)
+                        =" " + inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.dueOn, user.locales)
 
             p(style="clear:both")=" "
 

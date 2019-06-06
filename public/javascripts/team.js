@@ -729,8 +729,10 @@ viewTeam.loadInvoices = function(teamId){
                                 .append((item.isDraft?"Návrh ":""))
                                 .append((item.type == "P" ? "Zálohová " : item.type == "C" ? "Dobropis " : "") + item.number)
                             )
-                        )
-                        .append($('<p class="list-group-item-text">')
+                        );
+
+                    if (!item.isDraft)
+                        c.append($('<p class="list-group-item-text">')
                             .append("Vystavená " + moment(item.issuedOn).format("L"))
                             .append(item.paidOn ? ("  Zaplatená "+moment(item.paidOn).format("L")) : ("  Splatná " + (item.dueOn ? moment(item.dueOn).format("L"):'')) )
                         );
