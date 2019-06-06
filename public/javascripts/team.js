@@ -727,7 +727,7 @@ viewTeam.loadInvoices = function(teamId){
                         .append($('<h5 class="list-group-item-heading">')
                             .append($('<a  href="/invoice/' + item._id + '">')
                                 .append((item.isDraft?"Návrh ":""))
-                                .append((item.type == "P" ? "Zálohová " : "") + item.number)
+                                .append((item.type == "P" ? "Zálohová " : item.type == "C" ? "Dobropis " : "") + item.number)
                             )
                         )
                         .append($('<p class="list-group-item-text">')
