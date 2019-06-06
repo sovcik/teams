@@ -142,6 +142,10 @@ libModals.multiFieldDialog = function (title, subtitle, fields, fnvalidate, cb){
                     );
                 break;
             case "checkbox":
+                gr
+                    .append($("<input id='MFDF"+f.id+"' type='checkbox'>"))
+                    .append($("<label for='MFDF"+f.id+"'>").append(f.label));
+                break;
             case "option":
                 gr
                     .append($("<div class='"+f.type+"'>")
