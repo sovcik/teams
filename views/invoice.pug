@@ -98,17 +98,17 @@ block content
 
             div(style="width:350px;height:150px; text-align:right; float:left;")
                 h3= inv.isDraft ? "NÁVRH " : " "
-                =inv.type == "I" ? "Faktúra" : (inv.type == "C" ? "Dobropis" : "Zálohová faktúra")
+                    =inv.type == "I" ? "Faktúra" : (inv.type == "C" ? "Dobropis" : "Zálohová faktúra")
                 br
                 ="č. " + inv.number
                 p Dátum vystavenia:
-                    =" " + inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.issuedOn, user.locales)
+                    =" " + (inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.issuedOn, user.locales))
                     br
                     span Dátum dodania:
-                        =" " + inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.issuedOn, user.locales)
+                        =" " + (inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.issuedOn, user.locales))
                     br
                     span(class="bold") Dátum splatnosti:
-                        =" " + inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.dueOn, user.locales)
+                        =" " + (inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.dueOn, user.locales))
 
             p(style="clear:both")=" "
 
