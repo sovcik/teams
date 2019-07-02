@@ -65,16 +65,16 @@ block content
                 li
                     a(href="#" id="invRemove") Vymazať
 
-    div(style="max-width:810px")
+    div(style="max-width:600px")
         if (inv.type == "T")
             h3 Šablóna faktúry
                 =" "+inv.number
         if (inv.type != "T")
 
-            div(style="width:150px; height:150px; float:left; clear:left;")
+            div(style="width:130px; height:130px; float:left; clear:left;")
                 if inv.logo
-                    img(src=inv.logo alt="Logo" width="150px" height="150px")
-            div(style="width:300px; height:150px; padding-left:5pt; float:left;")
+                    img(src=inv.logo alt="Logo" width="130px" height="130px")
+            div(style="width:250px; height:150px; padding-left:5pt; float:left;")
                 h4 #{inv.issuingOrg.name}
                     br
                     small= inv.issuingAdr.addrLine1 + (inv.issuingAdr.addrLine2 ? ', ' + inv.issuingAdr.addrLine2 : '') + (inv.issuingAdr.addrLine3 ? ', ' + inv.issuingAdr.addrLine3 : '')
@@ -96,7 +96,7 @@ block content
                             =" "
                             span #{inv.issuingOrg.VATNo}
 
-            div(style="width:350px;height:150px; text-align:right; float:left;")
+            div(style="width:200px;height:150px; text-align:right; float:left;")
                 h3= inv.isDraft ? "NÁVRH " : " "
                     =inv.type == "I" ? "Faktúra" : (inv.type == "C" ? "Dobropis" : "Zálohová faktúra")
                 br
@@ -157,9 +157,9 @@ block content
 
         table(style="border-top:2pt;border-bottom:2pt")
             tr
-                th(class="itm" style="width:20pt")
+                th(class="itm" style="width:10pt")
                     ="#"
-                th(class="itm" style="width:380pt;text-align:left")
+                th(class="itm" style="text-align:left")
                     ="Položka"
                 th(class="itm" style="width:70pt;text-align:right")
                     ="J.Cena"

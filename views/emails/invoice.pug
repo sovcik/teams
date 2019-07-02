@@ -36,12 +36,12 @@ block content
             font-weight:bold;
         }
 
-    div(style="max-width:810px")
+    div(style="max-width:600px")
 
-        div(style="width:150px; height:150px; clear:left; float:left;")
+        div(style="width:130px; height:130px; clear:left; float:left;")
             if inv.logo
                 img(src=inv.logo alt="Logo" width="150px" height="150px")
-        div(style="width:300px; height:150px; padding-left:5pt; float:left;")
+        div(style="width:250px; height:150px; padding-left:5pt; float:left;")
             h4 #{inv.issuingOrg.name}
                 br
                 small= inv.issuingAdr.addrLine1 + (inv.issuingAdr.addrLine2?', '+inv.issuingAdr.addrLine2:'') + (inv.issuingAdr.addrLine3?', '+inv.issuingAdr.addrLine3:'')
@@ -63,7 +63,7 @@ block content
                         =" "
                         span #{inv.issuingOrg.VATNo}
 
-        div(style="width:350px; height:150px; text-align:right; float:left")
+        div(style="width:200px; height:150px; text-align:right; float:left")
             h3= inv.isDraft?"Návrh ":" "
                 =inv.type=="I"?"Faktúra":(inv.type=="C"?"Dobropis":"Zálohová faktúra")
                 br
@@ -125,7 +125,7 @@ block content
             tr
                 th(class="itm" style="width:20pt")
                     ="#"
-                th(class="itm" style="width:380pt;text-align:left")
+                th(class="itm" style="text-align:left")
                     ="Položka"
                 th(class="itm" style="width:70pt;text-align:right")
                     ="J.Cena"

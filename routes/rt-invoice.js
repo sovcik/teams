@@ -76,7 +76,7 @@ router.get('/:id', async function (req, res, next) {
         let i = await Team.populate(req.invoice,'team');
         //console.log("INV=",req.invoice);
         res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt,
-            PageTitle:req.invoice.number+' ('+!req.invoice.team?"---":req.invoice.team.name+')'} );
+            PageTitle:(req.invoice.isDraft?"Draft ":"")+req.invoice.number+' ('+(!req.invoice.team?"---":req.invoice.team.name)+')'} );
     }
 });
 
@@ -90,7 +90,7 @@ router.get('/:id/view', async function (req, res, next) {
     else {
         let i = await Team.populate(req.invoice,'team');
         res.render('invoice', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt,
-            PageTitle:req.invoice.number+' ('+!req.invoice.team?"---":req.invoice.team.name+')'} );
+            PageTitle:(req.invoice.isDraft?"Draft ":"")+req.invoice.number+' ('+(!req.invoice.team?"---":req.invoice.team.name)+')'} );
     }
 });
 
@@ -104,7 +104,7 @@ router.get('/:id/edit', async function (req, res, next) {
     else {
         let i = await Team.populate(req.invoice,'team');
         res.render('invoice-edit', {inv: req.invoice, siteUrl: siteUrl, user: req.user, fmt:libFmt,
-            PageTitle:req.invoice.number+' ('+!req.invoice.team?"---":req.invoice.team.name+')'} );
+            PageTitle:(req.invoice.isDraft?"Draft ":"")+req.invoice.number+' ('+(!req.invoice.team?"---":req.invoice.team.name)+')'} );
     }
 });
 
