@@ -1,5 +1,7 @@
 'use strict';
 
+const debugLib = require('debug')('rt-team');
+
 const log = require('../lib/logger');
 const express = require('express');
 const router = express.Router();
@@ -21,8 +23,10 @@ module.exports = router;
 
 router.param('id', async function (req, res, next){
     const id = req.params.id;
+    const debug = debugLib.extend('param');
 
-    console.log("Team id=",id);
+    debug("Team id=%d", id);
+
     try {
         if (!req.user)
             req.user = {id:'999999999999999999999990'};
@@ -53,13 +57,13 @@ router.param('id', async function (req, res, next){
             req.team = r;
 
         } else {
-            console.log('team not found ',id);
+            debug("ERROR: team not found %d", id);
             throw new Error("team not found");
         }
         next();
     } catch (err) {
         log.ERROR(err.message);
-        console.log(err.stack);
+        debug("Error stack: %O", err.stack);
         res.render('message',{title:"Tím nenájdený",error:{status:err.message}});
     }
 
@@ -67,8 +71,9 @@ router.param('id', async function (req, res, next){
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
-    console.log("/team - get");
-    console.log(req.query);
+    const debug = debugLib.extend('GET /');
+
+    debug("get: %O",req.query);
 
     var r = {result:"error", status:200};
     try {
