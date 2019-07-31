@@ -33,32 +33,6 @@ block content
                 label(class="label-control") Počet dievčat
                 a(id='girlCount' data-name='girlCount' data-title='Počet dievčat' data-type='select' data-pk=team._id data-url='/team/' + team._id + '/fields' class='form-control' href='#') #{team.girlCount}
 
-            if (user && user.username)
-                div(class='form-group' id="eventReg")
-
-                    div(id="activeEvents")
-                        if team.events && team.events.length > 0
-                            label(class="label-control") Aktívne registrácie
-                            for e in team.events
-                                if (e.eventDate >= new Date() || !e.eventDate)
-                                    a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
-                            br
-
-                    div(class='btn-group')
-                        if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
-                            button(class="btn btn-success" id="btnRegister2") Registruj na turnaj
-                        button(class="btn btn-default" type="button" data-parent='#panel-events' data-toggle="collapse" data-target="#allEvents") Predchádzajúce registrácie
-
-                    div(class="collapse" id="allEvents" style="max-height: 400pt; overflow: auto;")
-                        if team.events && team.events.length > 0
-                            label(class="label-control") Predchádzajúce registrácie
-                            for e in team.events
-                                if (e.eventDate < new Date())
-                                    a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
-
-                div(class='form-group' id='panel-invoices')
-
-
         div(class='panel-footer')
             div(class='form-group')
                 if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
@@ -66,12 +40,46 @@ block content
                         button(id="btnFounderDetails" class="btn btn-default") Zriaďovateľ tímu
                         button(id="btnBillingDetails" class="btn btn-default") Fakturačné údaje
                         button(id="btnShippingDetails" class="btn btn-default") Korešpondenčné údaje
-                if user && user.permissions.isAdmin  && team.recordStatus == 'active'
+                if user && user.permissions.isAdmin && team.recordStatus == 'active'
                     div(class='btn-group pull-right')
                         button(id="btnRemoveTeam" class="btn btn-default") Zruš tím
                 if user && user.permissions.isAdmin && team.recordStatus == 'inactive'
                     div(class='btn-group pull-right')
                         button(id="btnRestoreTeam" class="btn btn-default") Obnov tím
+
+    if (user && user.username)
+        div(class="panel panel-primary")
+            div(class='panel-heading') Turnaje
+            div(class='panel-body')
+
+                div(id="activeEvents")
+                    if team.events && team.events.length > 0
+                        label(class="label-control") Aktívne registrácie
+                        for e in team.events
+                            if (e.eventDate >= new Date() || !e.eventDate)
+                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate?fmt.fmtDate(e.eventDate,user.locales):"neurčený dátum"})  #{e.name}
+                        br
+
+                div(class="collapse" id="allEvents" style="max-height: 400pt; overflow: auto;")
+                    if team.events && team.events.length > 0
+                        label(class="label-control") Predchádzajúce registrácie
+                        for e in team.events
+                            if (e.eventDate < new Date())
+                                a(class="list-group-item" href="/event/" + e._id) (#{e.eventDate ? fmt.fmtDate(e.eventDate, user.locales) : "neurčený dátum"})  #{e.name}
+
+                div(class='form-group' id='panel-invoices')
+
+            div(class='panel-footer')
+                div(class='btn-group')
+                    if user && (user.permissions.isAdmin || user.permissions.isCoach) && team.recordStatus == 'active'
+                        button(class="btn btn-success" id="btnRegister2") Registruj na turnaj
+                    button(class="btn btn-default" type="button" data-parent='#panel-events' data-toggle="collapse" data-target="#allEvents") Predchádzajúce registrácie
+
+    if (user && user.username)
+        div(class="panel panel-primary")
+            div(class='panel-heading') Dokumenty k turnajom
+            div(class='panel-body')
+                div(id="docList")
 
     div(class="panel panel-primary")
         div(class='panel-heading') Faktúry

@@ -288,6 +288,7 @@ viewTeam.init = function(teamId, u){
     viewTeam.loadCoaches(teamId);
     //viewTeam.loadMembers(teamId);
     viewTeam.loadInvoices(teamId);
+    viewTeam.loadDocs(teamId);
 
     console.log("/team - Initializing completed");
 };
@@ -800,3 +801,31 @@ viewTeam.createInvoice = function (teamId, invType, invOrgId, cb){
         });
 };
 
+viewTeam.loadDocs = function (teamId){
+    var sel = $('#docList');
+    console.log('Loading documents');
+    $.get( libCommon.getNoCache("/docs?cmd=getListTeam&teamId="+teamId), function(res) {
+        console.log("loadDocs: Server returned",res);
+        if (res.result === 'ok'){
+            // sort by name
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+            sel.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                var i=1;
+                res.list.forEach(function(item) {
+                    if (item.name.length>0) {
+                        var c = $('<a class="list-group-item" href="/docs?cmd=download&doc=' + item.key + '"">').append((i++) + '. ' + item.name + ' [' + Math.round(item.size / 1024) + ' kiB]');
+                        sel.append(c);
+                    }
+                });
+            } else {
+                sel.text('Žiadne dokumenty');
+            }
+        } else {
+            console.log("loadDocs: Server returned ERROR");
+        }
+
+    });
+
+};

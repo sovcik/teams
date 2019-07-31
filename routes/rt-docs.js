@@ -12,7 +12,7 @@ const libFmt = require('../lib/fmt');
 const storage = require('../lib/storage');
 
 const Program = mongoose.models.Program;
-const User = mongoose.models.User;
+const TeamEvent = mongoose.models.TeamEvent;
 
 module.exports = router;
 
@@ -23,23 +23,49 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     debug('Query %O',req.query);
 
     const r = {result:"error", status:200};
+    let progs = [];
 
     switch (cmd){
+        case 'getListTeam':
+            debug("documents for team %s",req.query.teamId);
+            let d = new Date();
+            let q = {teamId : req.query.teamId, eventDate: {$gte: d}};
+            let pgs = await TeamEvent.find(q);
+            progs = pgs.map(p => p.programId);
+            debug("Progs = %o",progs);
+
+            //break is omitted intentionally so list of programs is processed 
+
         case 'getList':
+
             let progId = req.query.programId;
             debug('list of docs prg=%s',progId);
 
             try {
-                if (!progId) throw("Program ID not specified.");
+                if (progs.length == 0) {
+                    if (!progId) {
+                        throw("Program ID not specified.");
+                    } else {
+                        progs.push(progId);
+                    }
+                }
 
-                let l = await storage.listFiles(progId+'/');
-                debug('%O',l);
-                let l2 = l.Contents.map(function(itm){
-                    let a = itm.Key.split('/');
-                    let n = a[a.length-1];
-                    return {name:decodeURI(n), size:itm.Size, key:itm.Key}
-                });
-                r.list = l2;
+                r.list = [];
+
+                let i = 0;
+                while(i<progs.length) {
+
+                    let l = await storage.listFiles(progs[i] + '/');
+                    debug('%O', l);
+                    let l2 = l.Contents.map(function (itm) {
+                        let a = itm.Key.split('/');
+                        let n = a[a.length - 1];
+                        return {name: decodeURI(n), size: itm.Size, key: itm.Key}
+                    });
+                    r.list = r.list.concat(l2);
+                    i++;
+                }
+
                 r.user = req.user;
                 r.result = 'ok';
 
