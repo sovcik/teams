@@ -7,7 +7,8 @@ const TeamEventSchema = new mongoose.Schema({
     programId: { type: String, required: true },
     registeredOn: {type: Date, required: true },
     eventDate: {type: Date },
-    teamNumber: {type:String}
+    teamNumber: {type:String},
+    confirmed: {type: Date }
 }, {
     usePushEach: true
 });

@@ -60,6 +60,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
             console.log('Going to assign number=', teamNumber, 'to teamEvent=', req.teamEvent.id);
             try {
                 req.teamEvent.teamNumber = teamNumber;
+                req.teamEvent.confirmed = Date.now();
                 let te = await req.teamEvent.save();
                 if (te) {
                     console.log("Number assigned", te.id, te.teamNumber);
