@@ -12,6 +12,7 @@ viewProgram.init = function (rId, u){
 
     viewProgram.loadEvents(resId);
     viewProgram.loadTeams(resId);
+    viewProgram.loadDocs(resId);
 
     if (viewProgram.user.permissions.isAdmin || viewProgram.user.permissions.isProgramManager) {
         $('.editable').editable();
@@ -103,6 +104,10 @@ viewProgram.init = function (rId, u){
 
     });
 
+    $("#addDocBtn").on("click", function(){
+        //todo
+    });
+
 };
 
 viewProgram.loadManagers = function (progId){
@@ -187,6 +192,35 @@ viewProgram.loadTeams = function (progId){
             }
         } else {
             console.log("loadTeams: Server returned ERROR");
+        }
+
+    });
+
+};
+
+viewProgram.loadDocs = function (progId){
+    var sel = $('#docList');
+    console.log('Loading documents');
+    $.get( libCommon.getNoCache("/docs?cmd=getList&programId="+progId), function(res) {
+        console.log("loadDocs: Server returned",res);
+        if (res.result === 'ok'){
+            // sort by name
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+            sel.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                var i=1;
+                res.list.forEach(function(item) {
+                    if (item.name.length>0) {
+                        var c = $('<a class="list-group-item" href="/docs?cmd=download&doc=' + item.key + '"">').append((i++) + '. ' + item.name + ' [' + Math.round(item.size / 1024) + ' kiB]');
+                        sel.append(c);
+                    }
+                });
+            } else {
+                sel.text('Žiadne dokumenty');
+            }
+        } else {
+            console.log("loadDocs: Server returned ERROR");
         }
 
     });
