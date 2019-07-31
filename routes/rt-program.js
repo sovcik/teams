@@ -1,3 +1,5 @@
+'use strict';
+const debugLib = require('debug')('rt-program');
 const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
@@ -174,12 +176,13 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
-    console.log("/program - get (ID,CMD)");
-    console.log(req.query);
+    const debug = debugLib.extend('GET /id');
+    debug('query %O',req.query);
+
     const r = {result:"error", status:200};
     switch (cmd){
         case 'getManagers':
-            console.log('Going to get list of program managers');
+            debug('Going to get list of program managers');
 
             try {
                 if (req.program.managers.length == 0)
@@ -194,6 +197,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
             break;
 
         case 'export':
+            debug('data export');
             if (!req.user.isAdmin && !req.user.isProgramManager) {
                 r.error = {message:"permission denied"};
                 break;
@@ -210,8 +214,9 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
             }
 
             break;
+
         default:
-            console.log("cmd=unknown");
+            debug('cmd=unknown');
 
     }
     res.json(r);
