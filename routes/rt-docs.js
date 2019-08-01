@@ -58,7 +58,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                         let n = a[a.length - 1];
                         return {name: decodeURI(n), size: itm.Size, key: itm.Key}
                     });
-                    l2 = l2.filter(i => name.length > 0);
+                    l2 = l2.filter(i => i.name.length > 0);
                     r.list = r.list.concat(l2);
                     i++;
                 }
