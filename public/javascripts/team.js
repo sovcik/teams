@@ -820,7 +820,7 @@ viewTeam.loadDocs = function (teamId){
                     }
                 });
             } else {
-                sel.text('Žiadne dokumenty');
+                sel.text('Žiadne dokumenty, alebo nie ste registrovaní na žiadny turnaj.');
             }
         } else {
             console.log("loadDocs: Server returned ERROR");

@@ -42,14 +42,10 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
             debug('list of docs prg=%s',progId);
 
             try {
-                if (progs.length == 0) {
-                    if (!progId) {
-                        throw("Program ID not specified.");
-                    } else {
-                        progs.push(progId);
-                    }
+                if (progs.length == 0 && progId) {
+                    progs.push(progId);
                 }
-
+                
                 r.list = [];
 
                 let i = 0;
@@ -62,6 +58,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                         let n = a[a.length - 1];
                         return {name: decodeURI(n), size: itm.Size, key: itm.Key}
                     });
+                    l2 = l2.filter(i => name.length > 0);
                     r.list = r.list.concat(l2);
                     i++;
                 }
