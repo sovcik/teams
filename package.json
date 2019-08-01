@@ -24,7 +24,6 @@
     "each-async": "^1.1.1",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
-    "le_node": "^1.8.0",
     "moment": "^2.22.0",
     "mongoose": "^4.10.2",
     "morgan": "^1.9.1",
@@ -33,6 +32,7 @@
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "pug": "~2.0.0-beta11",
+    "r7insight_node": "^1.8.3",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "serve-favicon": "^2.5.0"

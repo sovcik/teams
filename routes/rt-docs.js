@@ -45,7 +45,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
                 if (progs.length == 0 && progId) {
                     progs.push(progId);
                 }
-                
+
                 r.list = [];
 
                 let i = 0;
