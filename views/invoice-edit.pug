@@ -98,8 +98,11 @@ block content
                     span Dátum dodania:
                         =" " + (inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.issuedOn, user.locales))
                     br
-                    span(class="bold") Dátum splatnosti:
-                        =" " + (inv.isDraft ? "NÁVRH" :fmt.fmtDate(inv.dueOn, user.locales))
+                    span(class="bold")
+                        ="Dátum splatnosti: "
+                    span(id='dueOn' data-name='dueOn' data-title='Dátum splatnosti' data-type='combodate' data-format='YYYY-MM-DD' data-viewformat=fmt.fmtDateFormat(user.locales).toUpperCase() data-mode='popup' data-pk=inv._id data-url='/invoice/' + inv._id + '/fields' class='editable' href='#')
+                        =fmt.fmtDate(inv.dueOn, user.locales)
+
 
             p(style="clear:both")=" "
 
