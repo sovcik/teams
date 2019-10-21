@@ -110,7 +110,7 @@ block content
 
     if profile.isProgramManager && (user && (user.id == profile.id) || user.isAdmin)
         div(class="panel panel-primary")
-            div(class='panel-heading') Programy, ktoré riadim
+            div(class='panel-heading') Programy, ktoré menežujem
             div(class='panel-body container-fluid')
                 ul(id="myPrograms" class="list-group")
 
@@ -119,6 +119,12 @@ block content
             div(class='panel-heading') Stretnutia/Turnaje, ktoré organizujem
             div(class='panel-body container-fluid')
                 ul(id="myEvents" class="list-group")
+
+    if (user && (user.id == profile.id) || user.isAdmin)
+        div(id="myOrgs" class="panel panel-primary collapse")
+            div(class='panel-heading') Organizácie, ktoré menežujem
+            div(class='panel-body container-fluid')
+                ul(id="myOrgsData" class="list-group")
 
     div(id="modalDlgs")
 

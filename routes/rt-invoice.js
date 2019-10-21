@@ -116,6 +116,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const invOrg = req.query.invOrg;
     const invYear = req.query.year;
     const isPaid = req.query.isPaid;
+    const userId = req.user.id;
 
     console.log("/invoice - get (with CMD)");
     console.log(req.query);
@@ -124,7 +125,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
 
     try {
 
-        let p = await libPerm.getUserTeamPermissions(req.user.id, teamId);
+        let p = await libPerm.getUserPermissions(userId,teamId,null,invOrg);
 
         if (!(p.isCoach && teamId)
             && !p.isInvoicingOrgManager

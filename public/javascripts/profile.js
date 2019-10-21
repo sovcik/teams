@@ -87,6 +87,7 @@ viewProfile.init = function(profId, u){
     //libCommon.loadList($('#newTeamProgram'),"/program?cmd=getList");
     viewProfile.loadMyPrograms(profileId);
     viewProfile.loadMyEvents(profileId);
+    viewProfile.loadMyOrgs(profileId);
 
     console.log("/profile - Initializing completed");
 };
@@ -187,6 +188,36 @@ viewProfile.loadMemberOfTeams = function(){
     console.log("Loading user's teams is not implemented yet");
 };
 
+viewProfile.loadMyOrgs = function (){
+    var profileId = getResourceId(location.href);
+    var selDiv = $("#myOrgs");
+    var selList = $("#myOrgsData");
+    if (null === document.getElementById('myOrgsData')) // profile is not of program manager
+        return;
+    console.log('Loading organizations profile manages');
+    $.get( libCommon.getNoCache("/invorg?cmd=getList&iom="+profileId), function(res) {
+        console.log("Server returned my orgs",res);
+        if (res.result === 'ok'){
+            // sort programs by name
+            res.list.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);} );
+            selList.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    var c = $('<a href="/invorg/'+item._id+'" class="list-group-item" >').append(item.name);
+                    selList.append(c);
+                });
+                selDiv.collapse("show");
+            } else {
+                t.text('Žiadne organizacie');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
+
+};
 
 
 viewProfile.loadMyPrograms = function (){

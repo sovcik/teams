@@ -105,6 +105,8 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
+    const iom = req.query.iom;
+    const active = req.query.active;
     console.log("/invorg - get");
     console.log(req.query);
     const r = {result:"error", status:200};
@@ -112,8 +114,12 @@ router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
         case 'getList':
             console.log('Going to get list of invoicing orgs');
             let p;
+            let q = { recordStatus: 'active' };
+
             try {
-                p = await InvoicingOrg.find({recordStatus: 'active'}, {org: true, adr: true}, {lean:1});
+                if (iom)
+                    q.managers = new mongoose.Types.ObjectId(iom);
+                p = await InvoicingOrg.find(q, {org: true, adr: true}, {lean:1});
                 p.forEach(function(e){e.name = e.org.name}); // add name field so result can be used in generic LoadList method
             } catch (err) {
                 log.WARN("Failed fetching list of invoicing orgs");
