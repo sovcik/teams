@@ -18,6 +18,7 @@ viewInvOrg.init = function(invOrgId, u){
     $("#filterInvType").val(viewInvOrg.filterInvType);
     $("#filterInvYear").val(viewInvOrg.filterInvYear);
 
+    viewInvOrg.loadManagers(invOrgId);
     viewInvOrg.loadInvoices(invOrgId);
     viewInvOrg.loadTemplates(invOrgId);
 
@@ -38,6 +39,44 @@ viewInvOrg.init = function(invOrgId, u){
         console.log(viewInvOrg.filterInvYear);
         viewInvOrg.loadInvoices(invOrgId);
     });
+
+    $("#addManager").on(
+        "click",
+        function(ev) {
+            libModals.editValue(
+                "Pridaj manažéra",
+                "Používateľ",
+                "prihlasovacie meno používateľa",
+                "text",
+                "",
+                function (browserEvent, username, onSuccess, onError) {
+                    if (typeof onSuccess !== "function")
+                        onSuccess = function (u) {
+                            return true;
+                        };
+                    if (typeof onError !== "function")
+                        onError = function (msg) {
+                            console.log("ERROR: ", msg);
+                        };
+
+                    libInvOrg.addManager(invOrgId, username, function (res, err) {
+                        if (err)
+                            return onError(err.message);
+                        onSuccess(res);
+                    });
+                },
+                function (res) {
+                    console.log("new invorg manager added");
+                    viewInvOrg.loadManagers(invOrgId);
+                },
+                function (msg) {
+                    alert("Chyba pri pridávaní manažéra organizácie.\n\n"+msg);
+                }
+            )
+        }
+
+    );
+
 };
 
 viewInvOrg.loadInvoices = function(invOrgId){
@@ -133,6 +172,37 @@ viewInvOrg.loadTemplates = function(invOrgId){
 
             } else {
                 t.text('Žiadne šablóny');
+            }
+        } else {
+            console.log("Server returned ERROR");
+        }
+
+    });
+
+};
+
+viewInvOrg.loadManagers = function (iorgId){
+    var site = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    console.log("Loading invorg managers");
+    var t = $("#iomsList");
+    t.empty();
+    $.get( "/invorg/"+iorgId+"?cmd=getManagers", function(res) {
+        console.log("Server returned managers",res);
+        if (res.result === 'ok'){
+            t.empty();
+            if (res.list.length > 0) {
+                console.log("Found ",res.list.length,"records");
+                res.list.forEach(function(item) {
+                    if (item.fullName) {
+                        var c = $('<a href="' + site + '/profile/' + item._id + '" class="btn btn-success btn-member" role="button">')
+                            .append(item.fullName);
+
+                        t.append(c);
+                    }
+
+                });
+            } else {
+                t.text('Žiadni manažéri');
             }
         } else {
             console.log("Server returned ERROR");

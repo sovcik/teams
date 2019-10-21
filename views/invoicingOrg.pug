@@ -11,6 +11,15 @@ block content
     h2(id='orgName' data-name='org.name' data-title='Názov' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable' href='#')
         =io.org.name
 
+    if (user.username)
+        div(class="panel panel-primary")
+            div(class='panel-heading') Manažéri organizácie
+            div(class='panel-body')
+                div(id='iomsList' class='container-fluid')
+            if user && (user.isAdmin || user.isInvoicingOrgManager)
+                div(class='panel-footer')
+                    button(id='addManager' type="button" class="btn btn-default") Pridať manažéra
+
     div(class="panel panel-primary")
         div(class='panel-heading' data-toggle="collapse" data-target="#pnlDetails")
             ="Detaily"
@@ -153,6 +162,7 @@ block content
                     h5 Pätička faktúry
                     a(id='footer' data-name='invoiceFooter' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.invoiceFooter}
 
+    div(id="modalDlgs")
 
     script.
         var u = '{ "locales": "#{user.locales}" ,'

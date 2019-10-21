@@ -1,5 +1,6 @@
 "use strict";
 
+const debugLib = require('debug')('rt-invorg');
 const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
@@ -10,6 +11,7 @@ const libInvoice = require('../lib/invoice');
 
 const InvoicingOrg = mongoose.models.InvoicingOrg;
 const Invoice = mongoose.models.Invoice;
+const User = mongoose.models.User;
 
 module.exports = router;
 
@@ -67,6 +69,38 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
     }
 
 });
+
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    const cmd = req.query.cmd;
+    const debug = debugLib.extend('GET /id');
+    debug('query %O',req.query);
+
+    const r = {result:"error", status:200};
+    switch (cmd){
+        case 'getManagers':
+            debug('Going to get list of invorg managers');
+
+            try {
+                if (req.iorg.managers.length == 0)
+                    break;
+
+                let u = await User.find({_id:{$in:req.iorg.managers}},{fullName:true, id:true});
+                r.result = "ok";
+                r.list = u;
+            } catch (err) {
+                r.error = {message:"error getting managers err=" + err};
+            }
+            break;
+
+        default:
+            debug('cmd=unknown');
+
+    }
+    res.json(r);
+    res.end();
+
+});
+
 
 
 router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
@@ -145,6 +179,52 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, re
 
     res.json(r);
     res.end();
+
+});
+
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
+    console.log("/invorg - post (ID)");
+
+    console.log(req.body.cmd);
+    const r = {result:"error", status:200};
+
+    try {
+        switch (req.body.cmd) {
+            case "addManager":
+                console.log('Going to add manager to an organization');
+
+                if (!req.user.isAdmin && !req.user.isInvoicingOrgManager) {
+                    log.WARN("addManager: Permission denied for user=" + req.user.username);
+                    r.error = {message: "permission denied"};
+                    break;
+                }
+
+                let u = await User.findOneActive({username: req.body.username});
+                if (!u) throw new Error("User not found " + req.body.username);
+
+                try {
+
+                    let e = await InvoicingOrg.findOneAndUpdate({_id: req.iorg._id}, {$addToSet: {managers: u._id}});
+                    if (!e) throw new Error("Failed to update organization=" + req.iorg._id);
+
+                    r.result = "ok";
+                    r.invorg = e;
+                } catch (err) {
+                    log.ERROR("Failed to save organization manager. err=" + err);
+                }
+                break;
+            default:
+                console.log('cmd=unknown');
+                break;
+        }
+    } catch (err) {
+        console.log(err);
+        log.ERROR(err.message);
+        r.error = {message:err.message};
+    }
+    res.json(r);
+    res.end();
+
 
 });
 
