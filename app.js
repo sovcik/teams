@@ -1,20 +1,18 @@
 const env = require('dotenv').config();
 const express = require('express');
-const session = require('express-session');     // express session management
+const session = require('express-session'); // express session management
 const path = require('path');
 
-const mongoose = require('mongoose');           // mongoDB object mapper
-mongoose.Promise = require('bluebird');         // mongoose promises are deprecated, replacing with bluebird
+const mongoose = require('mongoose'); // mongoDB object mapper
+mongoose.Promise = require('bluebird'); // mongoose promises are deprecated, replacing with bluebird
 // compile DB models
 require('./models');
 
-
-const favicon = require('serve-favicon');       // favicon
-const logger = require('morgan');               // logging
+const favicon = require('serve-favicon'); // favicon
+const logger = require('morgan'); // logging
 const log = require('./lib/logger');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-
 
 const db = require('./lib/db/common.js');
 const dbSeed = require('./lib/db/seed.js');
@@ -27,10 +25,9 @@ db.init()
     .then(dbUpgrade.upgrade)
     .then(dbSeed.testSeed)
     .then(startAll)
-    .catch(function(err){
-        log.FATAL("Application failed to start: "+err.message);
+    .catch(function(err) {
+        log.FATAL('Application failed to start: ' + err.message);
     });
-
 
 function startAll(res) {
     // view engine setup
@@ -40,7 +37,7 @@ function startAll(res) {
     app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
     app.use(logger('dev'));
     app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({extended: false}));
+    app.use(bodyParser.urlencoded({ extended: false }));
     app.use(cookieParser());
     app.use(express.static(path.join(__dirname, 'public')));
 
@@ -48,7 +45,9 @@ function startAll(res) {
     auth.connect2DB(db.conn.model('User'), auth.passport);
 
     // configure nodejs session management
-    app.use(session({secret: '{secret}', name: 'session_id', saveUninitialized: true, resave: true}));
+    app.use(
+        session({ secret: '{secret}', name: 'session_id', saveUninitialized: true, resave: true })
+    );
 
     // initialize passport authentication
     app.use(auth.passport.initialize());
