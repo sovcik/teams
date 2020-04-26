@@ -115,7 +115,9 @@ viewInvOrg.loadInvoices = function(invOrgId) {
                     c = $('<tr>')
                         .append(
                             $('<td>').append(
-                                $('<a href="/invoice/' + item._id + '">').append(item.number)
+                                $('<a href="/invoice/' + item._id + '" target="_blank">').append(
+                                    item.number
+                                )
                             )
                         )
                         .append(
