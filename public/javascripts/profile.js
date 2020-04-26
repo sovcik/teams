@@ -203,7 +203,7 @@ viewProfile.loadMyOrgs = function() {
                 });
                 selDiv.collapse('show');
             } else {
-                t.text('Žiadne organizacie');
+                selList.text('Žiadne organizacie');
             }
         } else {
             console.log('Server returned ERROR');
@@ -235,7 +235,7 @@ viewProfile.loadMyPrograms = function() {
                     selProg.append(c);
                 });
             } else {
-                t.text('Žiadne programy');
+                selProg.text('Žiadne programy');
             }
         } else {
             console.log('Server returned ERROR');
@@ -267,7 +267,7 @@ viewProfile.loadMyEvents = function() {
                     selProg.append(c);
                 });
             } else {
-                t.text('Žiadne stretnutia/turnaje');
+                selProg.text('Žiadne stretnutia/turnaje');
             }
         } else {
             console.log('Server returned ERROR');
