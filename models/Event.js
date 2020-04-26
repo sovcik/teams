@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const statusPlugin = require('./plugins/status-plugin');
@@ -7,23 +6,26 @@ const AddressSchema = require('./Address');
 const OrgSchema = require('./Organization');
 const ContactSchema = require('./Contact');
 
-const EventSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    programId: { type: String, required: true },
-    invoicingOrg: { type: mongoose.Schema.Types.ObjectId, ref: 'InvoicingOrg' },
-    startDate: {type: Date, required: false},
-    endDate: {type: Date, required: false},
-    regEndDate: {type: Date, required: false},
-    address: AddressSchema,
-    instructions: { type: String, required: false },
-    organizerOrg: OrgSchema,
-    organizerAdr: AddressSchema,
-    organizerContact: ContactSchema,
-    message: { type: String, required: false },
-    managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
-}, {
-    usePushEach: true
-});
+const EventSchema = new mongoose.Schema(
+    {
+        name: { type: String, required: true },
+        programId: { type: String, required: true },
+        invoicingOrg: { type: mongoose.Schema.Types.ObjectId, ref: 'InvoicingOrg' },
+        startDate: { type: Date, required: false },
+        endDate: { type: Date, required: false },
+        regEndDate: { type: Date, required: false },
+        address: AddressSchema,
+        instructions: { type: String, required: false },
+        organizerOrg: OrgSchema,
+        organizerAdr: AddressSchema,
+        organizerContact: ContactSchema,
+        message: { type: String, required: false },
+        managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    },
+    {
+        usePushEach: true
+    }
+);
 
 // virtual set of teams
 EventSchema.virtual('teams', {
@@ -34,9 +36,9 @@ EventSchema.virtual('teams', {
 
 EventSchema.plugin(statusPlugin);
 
-EventSchema.statics.testData = function(rec, id){
+EventSchema.statics.testData = function(rec, id) {
     if (!id) id = '';
-    rec.name = "Event "+id;
+    rec.name = 'Event ' + id;
     rec.startDate = new Date();
 
     return rec;

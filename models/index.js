@@ -13,5 +13,4 @@ exp.Schema.InvoiceItem = require('./InvoiceItem');
 exp.Schema.InvoicingOrg = require('./InvoicingOrg');
 exp.Schema.OneTime = require('./OneTime');
 
-
 module.exports = exp;
