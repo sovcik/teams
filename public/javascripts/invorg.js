@@ -11,6 +11,14 @@ viewInvOrg.init = function(invOrgId, u) {
     viewInvOrg.user = JSON.parse(u);
     moment.locale(viewInvOrg.user.locales.substr(0, 2));
 
+    $('#dueOption').editable({
+        source: [
+            { value: 1, text: 'Dni splatnosti' },
+            { value: 2, text: 'Dátum splatnosti' },
+            { value: 3, text: 'min(dni,dátum)' }
+        ]
+    });
+
     $('.editable').editable();
 
     //var invOrgId = getResourceId(location.href);

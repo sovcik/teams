@@ -23,6 +23,8 @@ const InvoicingOrgSchema = new mongoose.Schema(
         ntInvNumPrefix: { type: String, required: true, default: 'NT' },
         crInvNumPrefix: { type: String, required: true, default: 'CR' },
         dueDays: { type: Number, required: true, default: 14 },
+        dueMaxDate: { type: Date, required: false },
+        dueOption: { type: Number, required: false, default: 1 }, // 1 = use dueDays, 2 = use maxDate, 3 = use min(dueDate,date+dueDays)
         logo: {
             type: String,
             required: true,

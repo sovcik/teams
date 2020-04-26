@@ -153,6 +153,12 @@ block content
                     h5 Počet dní splatnosti
                     a(id='dueDays' data-name='dueDays' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.dueDays}
 
+                    h5 Dátum splatnosti
+                    a(id='dueMaxDate' data-name='dueMaxDate' data-type='date' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.dueMaxDate}
+
+                    h5 Spôsob určenia dátumu splatnosti
+                    a(id='dueOption' data-name='dueOption' data-type='select' data-format='yyyy-mm-dd' data-viewformat='yyyy-mm-dd' data-value=io.dueOption data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.dueOption}
+
                     h5 Prefix čísla návrhu faktúry
                     a(id='draftInvNumPrefix' data-name='draftInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.draftInvNumPrefix}
 
