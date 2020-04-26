@@ -17,7 +17,7 @@ const Team = mongoose.models.Team;
 module.exports = router;
 
 router.param('id', async function(req, res, next) {
-    const invoiceId = reqq.params.id;
+    const invoiceId = req.params.id;
     let inv;
     const reqq = req;
     // if user not logged in
