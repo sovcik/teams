@@ -108,6 +108,7 @@ router.get(
                                 r.list.push({
                                     _id: t.teamId.id,
                                     name: t.teamId.name,
+                                    number: t.teamNumber,
                                     foundingOrg: t.teamId.foundingOrg,
                                     foundingAdr: t.teamId.foundingAdr,
                                     foundingContact: req.user ? t.teamId.foundingContact : {},

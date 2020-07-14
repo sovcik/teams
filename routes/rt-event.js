@@ -421,7 +421,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                             }); // find invoice template used by invoicing org
                             inv = await libInvoice.createInvoice(
                                 e.invoicingOrg,
-                                'P',
+                                null, // null means 'use settings'
                                 t.billingOrg,
                                 t.billingAdr,
                                 t.billingContact,

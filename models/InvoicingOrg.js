@@ -25,6 +25,7 @@ const InvoicingOrgSchema = new mongoose.Schema(
         dueDays: { type: Number, required: true, default: 14 },
         dueMaxDate: { type: Date, required: false },
         dueOption: { type: Number, required: false, default: 1 }, // 1 = use dueDays, 2 = use maxDate, 3 = use min(dueDate,date+dueDays)
+        invType: { type: String, required: true, default: 'P' }, // type of invoice created during registration - see Invoice.type
         logo: {
             type: String,
             required: true,
