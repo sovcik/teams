@@ -137,11 +137,13 @@ block content
                 div(class="form")
                     h5 Prefix čísla zálohovej faktúry
                     a(id='ntInvNumPrefix' data-name='ntInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.ntInvNumPrefix}
+                    
                     h5 Číslo nasledujúcej zálohovej faktúry
                     a(id='nextNTInvNumber' data-name='nextNTInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextNTInvNumber}
 
                     h5 Prefix čísla faktúry
                     a(id='invNumPrefix' data-name='invNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.invNumPrefix}
+                    
                     h5 Číslo nasledujúcej faktúry
                     a(id='nextInvNumber' data-name='nextInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextInvNumber}
 
@@ -149,6 +151,10 @@ block content
                     a(id='crInvNumPrefix' data-name='crInvNumPrefix' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.crInvNumPrefix}
                     h5 Číslo nasledujúceho dobropisu
                     a(id='nextCRInvNumber' data-name='nextCRInvNumber' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.nextCRInvNumber}
+
+                    h5 Typ registračnej faktúry
+                    a(id='invType' data-name='invType' data-type='text' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.invType}
+
 
                     h5 Počet dní splatnosti
                     a(id='dueDays' data-name='dueDays' data-type='number' data-pk=io._id data-url='/invorg/' + io._id + '/fields' class='editable form-control' href='#') #{io.dueDays}
