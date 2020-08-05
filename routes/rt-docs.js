@@ -26,7 +26,10 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
         case 'getListTeam': {
             debug('documents for team %s', req.query.teamId);
             let d = new Date();
-            let q = { teamId: req.query.teamId, eventDate: { $gte: d } };
+            let q = {
+                teamId: req.query.teamId,
+                $or: [{ eventDate: { $gte: d } }, { eventDate: { $eq: null } }]
+            };
             let pgs = await TeamEvent.find(q);
             progs = pgs.map(p => p.programId);
             debug('Progs = %o', progs);
