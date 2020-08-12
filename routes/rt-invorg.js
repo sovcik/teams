@@ -1,13 +1,20 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 'use strict';
 
-const debugLib = require('debug')('rt-invorg');
 const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
-const log = require('../lib/logger');
+
 const libFmt = require('../lib/fmt');
 const libInvoice = require('../lib/invoice');
+
+const debugLib = require('debug')('rt-invorg');
+const logERR = require('debug')('ERROR:rt-invorg');
+const logWARN = require('debug')('WARN:rt-invorg');
+const logINFO = require('debug')('INFO:rt-invorg');
 
 const InvoicingOrg = mongoose.models.InvoicingOrg;
 const Invoice = mongoose.models.Invoice;
@@ -18,7 +25,10 @@ module.exports = router;
 router.param('id', async function(req, res, next) {
     const id = req.params.id;
     let r;
-    console.log('Invoicing org id', id);
+
+    const debug = debugLib.extend('param');
+    debug('Invoicing org id %s', id);
+
     try {
         r = await InvoicingOrg.findById(id);
         req.iorg = r;
@@ -32,7 +42,7 @@ router.param('id', async function(req, res, next) {
                     locales: libFmt.defaultLocales
                 };
 
-            console.log('Invoicing org id=', r.id, ' name=', r.org.name);
+            debug('Invoicing org id=%s name=%s', r.id, r.org.name);
         } else throw new Error('invoicing org not found');
         next();
     } catch (err) {
@@ -45,7 +55,9 @@ router.param('id', async function(req, res, next) {
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.query.cmd;
-    console.log('/invorg - get');
+
+    const debug = debugLib.extend('get/id');
+    debug('/invorg - get');
 
     if (cmd) next();
     else {
@@ -54,14 +66,14 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
             // each invoicing org should have at least one invoice template
             inv = await Invoice.find({ invoicingOrg: req.iorg.id, type: 'T' });
         } catch (err) {
-            log.WARN('Failed to find templates for iorg ' + req.iorg.id + ' err=' + err);
+            logWARN('Failed to find templates for iorg %s err=%s', req.iorg.id, err);
         }
 
         if (inv.length < 1) {
-            console.log('Creating invoice template for INVORG ', req.iorg.id);
+            debug('Creating invoice template for INVORG %s', req.iorg.id);
             await libInvoice.createTemplateInvoice(req.iorg.id);
         } else {
-            console.log('TEMPLATES', inv);
+            debug('TEMPLATES %s', inv);
         }
 
         res.render('invoicingOrg', { io: req.iorg, user: req.user, fmt: libFmt });
@@ -70,7 +82,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.query.cmd;
-    const debug = debugLib.extend('GET /id');
+    const debug = debugLib.extend('get+cmd/id');
     debug('query %O', req.query);
 
     const r = { result: 'error', status: 200 };
@@ -103,13 +115,18 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.query.cmd;
     const iom = req.query.iom;
     const active = req.query.active;
-    console.log('/invorg - get');
-    console.log(req.query);
+
+    const debug = debugLib.extend('get/');
+    debug('/invorg - get');
+    debug('%O', req.query);
+
     const r = { result: 'error', status: 200 };
     switch (cmd) {
         case 'getList':
-            console.log('Going to get list of invoicing orgs');
+            debug('Going to get list of invoicing orgs');
+            // eslint-disable-next-line no-case-declarations
             let p;
+            // eslint-disable-next-line no-case-declarations
             let q = { recordStatus: 'active' };
 
             try {
@@ -119,21 +136,22 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     e.name = e.org.name;
                 }); // add name field so result can be used in generic LoadList method
             } catch (err) {
-                log.WARN('Failed fetching list of invoicing orgs');
+                logWARN('Failed fetching list of invoicing orgs');
             }
             r.result = 'ok';
             r.list = p;
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
     }
     res.json(r);
     res.end();
 });
 
 router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/invorg/:ID/fields - post');
-    console.log(req.body);
+    const debug = debugLib.extend('post/id/fields');
+    debug('/invorg/:ID/fields - post');
+    debug('%O', req.body);
     const r = { result: 'error', status: 200 };
 
     // no modifications allowed unless user is invoicing org manager or admin
@@ -173,7 +191,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
         }
     } catch (err) {
         r.error = { message: err.message };
-        log.ERROR('Error rt-team post. err=' + err.message);
+        logERR('Error rt-team post. err=%s', err.message);
     }
 
     res.json(r);
@@ -181,22 +199,24 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/invorg - post (ID)');
+    const debug = debugLib.extend('post/id');
+    debug('/invorg - post (ID)');
 
-    console.log(req.body.cmd);
+    debug('%O', req.body.cmd);
     const r = { result: 'error', status: 200 };
 
     try {
         switch (req.body.cmd) {
             case 'addManager':
-                console.log('Going to add manager to an organization');
+                debug('Going to add manager to an organization');
 
                 if (!req.user.isAdmin && !req.user.isInvoicingOrgManager) {
-                    log.WARN('addManager: Permission denied for user=' + req.user.username);
+                    logWARN('addManager: Permission denied for user=%s', req.user.username);
                     r.error = { message: 'permission denied' };
                     break;
                 }
 
+                // eslint-disable-next-line no-case-declarations
                 let u = await User.findOneActive({ username: req.body.username });
                 if (!u) throw new Error('User not found ' + req.body.username);
 
@@ -210,16 +230,15 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     r.result = 'ok';
                     r.invorg = e;
                 } catch (err) {
-                    log.ERROR('Failed to save organization manager. err=' + err);
+                    logERR('Failed to save organization manager. err=%s', err.message);
                 }
                 break;
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
                 break;
         }
     } catch (err) {
-        console.log(err);
-        log.ERROR(err.message);
+        logERR('%s', err.message);
         r.error = { message: err.message };
     }
     res.json(r);
@@ -227,16 +246,16 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/invorg - post');
+    const debug = debugLib.extend('post/');
+    debug('/invorg - post body=%O', req.body);
 
-    console.log(req.body);
     const r = { result: 'error', status: 200 };
 
     switch (req.body.cmd) {
         case 'create':
             if (!req.user.isAdmin) return res.render('message', { title: 'Prístup zamietnutý' });
             try {
-                console.log('Going to create invoicing org ');
+                debug('Going to create invoicing org ');
 
                 const io = {};
                 io.org = {};
@@ -245,7 +264,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                 let i = InvoicingOrg(io);
                 i = await i.save();
                 if (i) {
-                    console.log('invoicing org created', i.org.name, i.id);
+                    debug('invoicing org created %s %s', i.org.name, i.id);
                     r.result = 'ok';
                 }
                 // create default invoice template for newly created invoicing org
@@ -253,13 +272,13 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
             } catch (err) {
                 r.error = {};
                 r.error.message = err.message;
-                log.ERROR('rt-invorg POST:' + err.message);
+                logERR('rt-invorg POST err=%s', err.message);
                 console.log(err);
             }
 
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
             break;
     }
     res.json(r);

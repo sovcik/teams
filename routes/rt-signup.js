@@ -1,20 +1,28 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const router = express.Router();
 const request = require('request-promise');
 const email = require('../lib/email');
-const log = require('../lib/logger');
+
+const debugLib = require('debug')('rt-signup');
+const logERR = require('debug')('ERROR:rt-signup');
+const logWARN = require('debug')('WARN:rt-signup');
+const logINFO = require('debug')('INFO:rt-signup');
 
 const User = mongoose.models.User;
 
 module.exports = router;
 
 router.get('/', async function(req, res, next) {
+    const debug = debugLib.extend('public-get/');
     const captchaSiteKey = process.env.CAPTCHA_SITEKEY;
     const email = req.query.email;
     if (req.user) {
-        console.log('User already logged in:' + req.user.username);
+        debug('User already logged in:' + req.user.username);
         return res.redirect('/profile');
     } else if (email) {
         const user = await User.find({ username: email });
@@ -24,6 +32,7 @@ router.get('/', async function(req, res, next) {
 });
 
 router.post('/', async function(req, res, next) {
+    const debug = debugLib.extend('public-post/');
     const siteUrl = req.protocol + '://' + req.get('host');
     //const uv = new mongoose.model('UserVerify');
     //const username = req.body.email;
@@ -49,9 +58,9 @@ router.post('/', async function(req, res, next) {
     // Start the request
     const resp = await request(options);
 
-    console.log('CAPTCHA RESPONSE', resp);
+    debug('CAPTCHA RESPONSE', resp);
     if (!resp.success) {
-        log.WARN('CAPTCHA ERROR ' + resp['error-codes']);
+        logWARN('CAPTCHA ERROR %s', resp['error-codes']);
         return res.render('message', {
             title: 'Nie ste človek?',
             error: {
@@ -76,7 +85,7 @@ router.post('/', async function(req, res, next) {
             email: req.body.email
         });
 
-        log.INFO('User created: ' + user.username + '===' + user.id);
+        logINFO('User created: username=%s id=%s', user.username, user.id);
         email.sendSignupConfirmation(user, siteUrl);
         return res.render('message', {
             title: 'Vytvorenie účtu bolo úspešné',

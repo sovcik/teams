@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 const env = require('dotenv').config();
 const express = require('express');
 const session = require('express-session'); // express session management

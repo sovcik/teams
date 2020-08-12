@@ -1,11 +1,16 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 'use strict';
+
 const debugLib = require('debug')('rt-docs');
+const logERR = require('debug')('ERROR:rt-docs');
+const logWARN = require('debug')('WARN:rt-docs');
+
 const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
-
-const log = require('../lib/logger');
 
 const storage = require('../lib/storage');
 
@@ -66,8 +71,10 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     r.user = req.user;
                     r.result = 'ok';
                 } catch (err) {
-                    log.ERROR('Failed to fetch list of files for program. err=' + err.message);
-                    r.error = { message: 'Failed to fetch list of files for program. err=' + err };
+                    logERR('Failed to fetch list of files for program. err=%s', err.message);
+                    r.error = {
+                        message: 'Failed to fetch list of files for program. err=' + err.message
+                    };
                 }
                 res.json(r);
                 res.end();
@@ -85,11 +92,11 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                 s.pipe(res);
                 debug('download started');
             } catch (err) {
-                log.ERROR('Failed downloading file for program. err=' + err.message);
+                logERR('Failed downloading file for program. err=%s', err.message);
                 r.error = { message: 'Failed downloading document. err=' + err.message };
             }
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
     }
 });

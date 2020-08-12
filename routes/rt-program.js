@@ -1,12 +1,20 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 'use strict';
-const debugLib = require('debug')('rt-program');
+
 const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
-const log = require('../lib/logger');
+
 const dbExport = require('../lib/db/export');
 const libFmt = require('../lib/fmt');
+
+const debugLib = require('debug')('rt-program');
+const logERR = require('debug')('ERROR:rt-program');
+const logWARN = require('debug')('WARN:rt-program');
+const logINFO = require('debug')('INFO:rt-program');
 
 const Program = mongoose.models.Program;
 const User = mongoose.models.User;
@@ -14,6 +22,7 @@ const User = mongoose.models.User;
 module.exports = router;
 
 router.param('id', async function(req, res, next) {
+    const debug = debugLib.extend('param');
     const id = req.params.id;
     let p;
     try {
@@ -29,7 +38,7 @@ router.param('id', async function(req, res, next) {
                 locales: libFmt.defaultLocales
             };
 
-        log.DEBUG('Program id=' + req.program.id);
+        debug('Program id=%s', req.program.id);
 
         next();
     } catch (err) {
@@ -40,12 +49,13 @@ router.param('id', async function(req, res, next) {
 router.get(
     '/:id',
     /*cel.ensureLoggedIn('/login'), */ async function(req, res, next) {
+        const debug = debugLib.extend('public-get/');
         const cmd = req.query.cmd;
-        console.log('/program - PUBLIC get (ID)');
+        debug('/program - PUBLIC get (ID)');
 
         if (cmd) next();
         else {
-            console.log('USER=', req.user);
+            debug('USER=', req.user);
             res.render('program', { user: req.user, program: req.program, fmt: libFmt });
         }
     }
@@ -53,15 +63,16 @@ router.get(
 
 // PUBLIC PART OF API
 router.get('/:id', async function(req, res, next) {
+    const debug = debugLib.extend('public-get/id');
     let routerNext = false;
     const cmd = req.query.cmd;
-    console.log('/program - PUBLIC get (ID,CMD)');
-    console.log(req.query);
+    debug('/program - PUBLIC get (ID,CMD)');
+    debug('%O', req.query);
     const r = { result: 'error', status: 200 };
     switch (cmd) {
         case 'exportPublic':
             try {
-                log.WARN('Program PUBLIC data export requested for program=' + req.program._id);
+                logWARN('Program PUBLIC data export requested for program=%s', req.program._id);
                 r.data = await dbExport.exportProgramData(req.program._id, null, false);
                 //r.user = req.user;
                 r.result = 'ok';
@@ -73,7 +84,7 @@ router.get('/:id', async function(req, res, next) {
 
         default:
             routerNext = true;
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
     }
     if (routerNext) next();
     else {
@@ -85,8 +96,9 @@ router.get('/:id', async function(req, res, next) {
 router.get(
     '/',
     /*cel.ensureLoggedIn('/login'),*/ async function(req, res, next) {
+        const debug = debugLib.extend('public-get/');
         const cmd = req.query.cmd;
-        console.log('/program - get');
+        debug('/program - get');
 
         if (cmd) next();
         else {
@@ -104,7 +116,7 @@ router.get(
                 //list = await Program.findActive();
                 list = await Program.find(q, { name: true, id: true });
             } catch (err) {
-                log.WARN('Failed to fetch list of programs. err=' + err);
+                logWARN('Failed to fetch list of programs. err=%s', err);
             }
             res.render('programs', { user: req.user, programs: list, fmt: libFmt });
         }
@@ -112,12 +124,14 @@ router.get(
 );
 
 router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+    const debug = debugLib.extend('get/');
+
     const cmd = req.query.cmd;
     const pm = req.query.pm;
     const active = req.query.active;
 
-    console.log('/program - get (CMD)');
-    console.log(req.query);
+    debug('/program - get (CMD) qry=%O', req.query);
+
     const r = { result: 'error', status: 200 };
 
     let today = new Date();
@@ -125,7 +139,8 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
 
     switch (cmd) {
         case 'getList':
-            console.log('Going to get list of programs');
+            debug('Going to get list of programs');
+            // eslint-disable-next-line no-case-declarations
             let q = { recordStatus: 'active' };
 
             if (active && !req.user.isAdmin) {
@@ -149,15 +164,16 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
 
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
     }
     res.json(r);
     res.end();
 });
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+    const debug = debugLib.extend('get/id');
     const cmd = req.query.cmd;
-    const debug = debugLib.extend('GET /id');
+
     debug('query %O', req.query);
 
     const r = { result: 'error', status: 200 };
@@ -187,17 +203,16 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
             }
 
             try {
-                log.WARN(
-                    'Program data export requested by user=' +
-                        req.user.username +
-                        ' for program=' +
-                        req.program._id
+                logWARN(
+                    'Program data export requested by user=%s for program=%s',
+                    req.user.username,
+                    req.program._id
                 );
                 r.data = await dbExport.exportProgramData(req.program._id, null, true);
                 r.user = req.user;
                 r.result = 'ok';
             } catch (err) {
-                log.ERROR('Failed to export program data. err=' + err.message);
+                logERR('Failed to export program data. err=%s', err.message);
                 r.error = { message: 'Failed to export program data. err=' + err };
             }
 
@@ -211,31 +226,32 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/program - post');
+    const debug = debugLib.extend('post/');
+    debug('/program - post, body=%O', req.body);
 
-    console.log(req.body.cmd);
     const r = { result: 'error', status: 200 };
 
     switch (req.body.cmd) {
         case 'createProgram':
             if (!req.user.isAdmin) return res.render('message', { title: 'Prístup zamietnutý' });
 
+            // eslint-disable-next-line no-case-declarations
             let name = req.body.name;
-            console.log('Going to create program ', name);
+            debug('Going to create program ', name);
             try {
                 let p = await Program.findOneActive({ name: name });
                 if (p) throw new Error('Duplicate program name');
                 p = await Program.create({ name: name });
-                console.log('Program created', p.name, p.id);
+                debug('Program created', p.name, p.id);
                 r.result = 'ok';
             } catch (err) {
                 r.error = {};
                 r.error.message = err.message;
-                console.log(err);
+                logERR('Error creating program. err=%s', err);
             }
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
             break;
     }
     res.json(r);
@@ -243,8 +259,9 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
 });
 
 router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/program/:ID/fields - post');
-    console.log(req.body);
+    const debug = debugLib.extend('post/id/fields');
+    debug('/program/:ID/fields - post, body=%O', req.body);
+
     const r = { result: 'error', status: 200 };
 
     // no modifications allowed unless user is program manager or admin
@@ -272,7 +289,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
         }
     } catch (err) {
         r.error = { message: err.message };
-        log.ERROR('Error rt-team post. err=' + err.message);
+        logERR('Error rt-team post. err=%s', err.message);
     }
 
     res.json(r);
@@ -280,22 +297,23 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/program - post (ID)');
+    const debug = debugLib.extend('post/id');
+    debug('/program - post (ID) body=%O', req.body);
 
-    console.log(req.body.cmd);
     const r = { result: 'error', status: 200 };
 
     try {
         switch (req.body.cmd) {
             case 'addManager':
-                console.log('Going to add manager to a program');
+                debug('Going to add manager to a program');
 
                 if (!req.user.isAdmin && !req.user.isProgramManager) {
-                    log.WARN('addManager: Permission denied for user=' + req.user.username);
+                    logWARN('addManager: Permission denied for user=%s', req.user.username);
                     r.error = { message: 'permission denied' };
                     break;
                 }
 
+                // eslint-disable-next-line no-case-declarations
                 let u = await User.findOneActive({ username: req.body.username });
                 if (!u) throw new Error('User not found ' + req.body.username);
 
@@ -309,16 +327,15 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     r.result = 'ok';
                     r.program = e;
                 } catch (err) {
-                    log.ERROR('Failed to save program manager. err=' + err);
+                    logERR('Failed to save program manager. err=%s', err.message);
                 }
                 break;
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
                 break;
         }
     } catch (err) {
-        console.log(err);
-        log.ERROR(err.message);
+        logERR('%s', err.message);
         r.error = { message: err.message };
     }
     res.json(r);

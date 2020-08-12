@@ -1,8 +1,14 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 const mongoose = require('mongoose');
 const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
-const log = require('../lib/logger');
+
+const debugLib = require('debug')('rt-admin');
+const logERR = require('debug')('ERROR:rt-admin');
+const logWARN = require('debug')('WARN:rt-admin');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
@@ -12,18 +18,19 @@ const Program = mongoose.models.Program;
 module.exports = router;
 
 router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/admin - get');
+    let debug = debugLib.extend('get/admin');
+    debug('/admin - get');
     if (!req.user.isAdmin) return res.render('message', { title: 'Prístup zamietnutý' });
 
     const cmd = req.query.cmd;
 
-    console.log(req.query);
+    debug('%O', req.query);
     const r = { result: 'error', status: 200 };
     try {
         switch (cmd) {
             case 'getAvailTeamEvents':
                 {
-                    log.INFO('u(' + req.user.username + ') Going to get list of team events');
+                    debug('u(%s) Going to get list of team events', req.user.username);
                     const t = await Team.findOneActive({ _id: req.query.teamId });
                     if (t) {
                         const p = await Event.find(
@@ -42,29 +49,30 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                 break;
             default:
                 if (!cmd) return res.render('admin', { user: req.user });
-                else console.log('cmd=unknown');
+                else debug('cmd=unknown');
         }
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
-        log.ERROR('rt-admin GET: ' + err.message);
+        logERR('GET: %s', err.message);
     }
     res.json(r);
     res.end();
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/admin - post');
+    let debug = debugLib.extend('post/admin');
+    debug('/admin - post');
     if (!req.user.isAdmin) return res.render('message', { title: 'Prístup zamietnutý' });
 
     const cmd = req.body.cmd;
-    console.log(req.body);
+    debug('%O', req.body);
     const r = { result: 'error', status: 200 };
     try {
         switch (cmd) {
             case 'registerTeam':
                 {
-                    console.log('Going to register team for an event');
+                    debug('Going to register team for an event');
                     const t = await Team.findOneActive({ _id: req.body.teamId });
                     if (!t) throw new Error('Team not found');
 
@@ -90,12 +98,12 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                 }
                 break;
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
         }
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
-        log.ERROR('rt-admin POST:' + err.message);
+        logERR('rt-admin POST: %s', err.message);
     }
     res.json(r);
     res.end();

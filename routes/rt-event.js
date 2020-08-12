@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 'use strict';
 
 const mongoose = require('mongoose');
@@ -5,10 +8,12 @@ const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
 const email = require('../lib/email');
-const log = require('../lib/logger');
 const libInvoice = require('../lib/invoice');
 const libFmt = require('../lib/fmt');
 const dbExport = require('../lib/db/export');
+const debugLib = require('debug')('rt-event');
+const logERR = require('debug')('ERROR:rt-event');
+const logWARN = require('debug')('WARN:rt-event');
 
 const Event = mongoose.models.Event;
 const Team = mongoose.models.Team;
@@ -23,7 +28,9 @@ module.exports = router;
 router.param('id', async function(req, res, next) {
     const id = req.params.id;
 
-    console.log('Event id', id);
+    let debug = debugLib.extend('param/id');
+    debug('Event id %s', id);
+
     try {
         const r = await Event.findById(id);
         req.event = r;
@@ -52,11 +59,11 @@ router.param('id', async function(req, res, next) {
                 return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
             });
 
-            console.log('Event id=', r.id, ' name=', r.name);
+            debug('Event id=%s name=%s', r.id, r.name);
         } else throw new Error('event not found');
         next();
     } catch (err) {
-        log.ERROR(err);
+        logERR('param err=%s', err.message);
         res.render('message', {
             title: 'Stretnutie/Turnaj nenájdený',
             error: { status: err.message }
@@ -66,7 +73,8 @@ router.param('id', async function(req, res, next) {
 
 router.get('/:id', async function(req, res, next) {
     const cmd = req.query.cmd;
-    console.log('/event/:id - get');
+    let debug = debugLib.extend('get/id');
+    debug('/event/:id - get');
 
     if (cmd) next();
     else res.render('event', { event: req.event, user: req.user, fmt: libFmt });
@@ -75,8 +83,9 @@ router.get('/:id', async function(req, res, next) {
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.query.cmd;
     const eventId = req.params.id;
-    console.log('/event/:id - get (CMD)');
-    console.log(req.query);
+    let debug = debugLib.extend('get/id+cmd');
+    debug('/event/:id - get (CMD)');
+    debug('%O', req.query);
 
     const r = { result: 'error', status: 200 };
 
@@ -87,7 +96,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
         switch (cmd) {
             case 'getTeams':
                 {
-                    console.log('Going to get list of registered teams');
+                    debug('Going to get list of registered teams');
                     const te = await TeamEvent.find({ eventId: eventId });
                     if (!te) throw new Error('Error while fetching teams for event ' + eventId);
 
@@ -95,7 +104,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
                     let ti;
                     for (let t of te) {
                         try {
-                            console.log('TE=', t.id);
+                            debug('TE=%s', t.id);
                             ti = await Team.findById(t.teamId);
                             let a = JSON.parse(JSON.stringify(ti)); // ti is  frozen for adding properties, so copy is needed
                             if (ti) {
@@ -114,7 +123,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
                 break;
             case 'getOrganizers':
                 {
-                    console.log('Going to get list of event organizers');
+                    debug('Going to get list of event organizers');
                     let e = await User.populate(req.event, {
                         path: 'managers',
                         select: { fullName: 1 }
@@ -130,11 +139,10 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
                 }
 
                 try {
-                    log.WARN(
-                        'Event data export requested by user=' +
-                            req.user.username +
-                            ' for event=' +
-                            req.event._id
+                    debug(
+                        'Event data export requested by user= %s for event %s',
+                        req.user.username,
+                        req.event._id
                     );
                     r.data = await dbExport.exportProgramData(
                         req.event.programId,
@@ -150,11 +158,11 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
                 break;
 
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
         }
     } catch (err) {
         r.error = err;
-        log.ERROR('GET /event/:id failed. err=' + err);
+        logERR('GET /event/:id failed. err=%s', err.message);
     }
     res.json(r);
     res.end();
@@ -168,8 +176,9 @@ router.get(
         const evtOrgId = req.query.eo;
         const onlyActive = req.query.active;
 
-        console.log('/event - get (CMD)');
-        console.log(req.query);
+        let debug = debugLib.extend('get/cmd');
+        debug('/event - get (CMD)');
+        debug('%O', req.query);
 
         const r = { result: 'error', status: 200 };
         r.isAdmin = req.user && (req.user.isAdmin || req.user.isSuperAdmin);
@@ -182,7 +191,7 @@ router.get(
             switch (cmd) {
                 case 'getList':
                     {
-                        console.log('Going to get list of events');
+                        debug('Going to get list of events');
                         let q = { recordStatus: 'active' };
                         if (progId) q.programId = progId;
                         if (evtOrgId) q.managers = evtOrgId;
@@ -209,7 +218,7 @@ router.get(
 
                 case 'getAvailTeamEvents':
                     {
-                        console.log('Going to get list of team events');
+                        debug('Going to get list of team events');
                         const t = await Team.findById(req.query.teamId);
                         if (t) {
                             const p = await Event.find(
@@ -230,7 +239,7 @@ router.get(
                     }
                     break;
                 default:
-                    if (cmd) console.log('cmd=unknown');
+                    if (cmd) debug('cmd=unknown');
             }
         } catch (err) {
             r.error = {};
@@ -242,8 +251,9 @@ router.get(
 );
 
 router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/event/:ID/fields - post');
-    console.log(req.body);
+    let debug = debugLib.extend('post/id/fields');
+    debug('/event/:ID/fields - post');
+    debug('%O', req.body);
     const r = { result: 'error', status: 200 };
 
     // no modifications allowed unless user is program manager or admin
@@ -279,7 +289,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
         }
     } catch (err) {
         r.error = { message: err.message };
-        log.ERROR('Error rt-event post. err=' + err.message);
+        logERR('POST fields err=%s', err.message);
     }
 
     res.json(r);
@@ -290,8 +300,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.body.cmd;
 
-    console.log('/event/:id - put');
-    console.log(req.body);
+    let debug = debugLib.extend('post/id');
+
+    debug('/event/:id - put');
+    debug('%O', req.body);
 
     const r = { result: 'error', status: 200 };
     r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
@@ -304,7 +316,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
         switch (cmd) {
             case 'deregisterTeam':
                 {
-                    log.DEBUG('Going to de-register team for an event=' + req.event._id);
+                    debug('Going to de-register team for an event=%s', req.event._id);
                     let qr = {
                         teamId: req.body.teamId,
                         eventId: req.body.eventId,
@@ -314,16 +326,14 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     if (tpr) {
                         await TeamEvent.deleteOne({ _id: tpr._id });
                     } else {
-                        log.DEBUG(
-                            'Team not registered for specified event, or event is in the past.'
-                        );
+                        debug('Team not registered for specified event, or event is in the past.');
                     }
                     r.result = 'ok';
                 }
                 break;
             case 'registerTeam':
                 {
-                    log.DEBUG('Going to register team for an event=' + req.event._id);
+                    debug('Going to register team for an event=%s', req.event._id);
 
                     let t = await Team.findOneActive({ _id: req.body.teamId });
                     if (!t) throw new Error('Team not found');
@@ -340,7 +350,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                             'Event is not open for registration. Registration end=' + e.regEndDate
                         );
 
-                    log.DEBUG('Registering for program id=' + e.programId);
+                    debug('Registering for program id=', e.programId);
 
                     let q = {
                         teamId: t._id,
@@ -349,15 +359,12 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     };
                     let tp = await TeamEvent.findOne(q); // find all ACTIVE events from the same program team is already registered for
                     if (tp) {
-                        log.DEBUG(
-                            'Already registered teamevent id=' +
-                                tp._id +
-                                ' event=' +
-                                tp.eventId +
-                                ' program=' +
-                                tp.programId +
-                                ' dateStart=' +
-                                tp.eventDate
+                        debug(
+                            'Already registered teamevent id=%s event=%s program=%s dateStart=%s',
+                            tp._id,
+                            tp.eventId,
+                            tp.programId,
+                            tp.eventDate
                         );
                         throw new Error(
                             'Team is already registered for active event in the same program'
@@ -396,13 +403,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                             eventDate: e.startDate
                         });
                     } catch (er) {
-                        log.ERROR(
-                            'Failed registering team=' +
-                                t.name +
-                                ' for event=' +
-                                e.name +
-                                ' err=' +
-                                er.message
+                        logERR(
+                            'POST Failed registering team=%s for event=%s err=%s',
+                            t.name,
+                            e.name,
+                            er.message
                         );
                     }
 
@@ -414,7 +419,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     if (createInvoice == 'yes') {
                         let inv;
                         try {
-                            log.DEBUG('Going to create invoice team=' + t.id + ' event=' + e.id);
+                            debug('Going to create invoice team=%s event=%s', t.id, e.id);
                             inv = await Invoice.findOne({
                                 invoicingOrg: e.invoicingOrg,
                                 type: 'T'
@@ -432,15 +437,13 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                             await inv.save(); // save changes
 
                             inv = await libInvoice.confirmInvoice(inv._id); // confirm invoice draft -> create invoice from invoice draft
-                            log.INFO('Invoice created #' + inv.number);
+                            debug('Invoice created #%s', inv.number);
                         } catch (er) {
-                            log.ERROR(
-                                'Failed creating invoice for teamId=' +
-                                    te.teamId +
-                                    ' eventId=' +
-                                    te.eventId +
-                                    ' err=' +
-                                    er.message
+                            logERR(
+                                'Failed creating invoice for teamId=%s eventId=%s err=%s',
+                                te.teamId,
+                                te.eventId,
+                                er.message
                             );
                         }
 
@@ -450,13 +453,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                                 email.sendInvoice(req.user, inv, siteUrl);
                             }
                         } catch (er) {
-                            log.ERROR(
-                                'Failed sending invoice inv=' +
-                                    inv.id +
-                                    ' for teamId=' +
-                                    te.teamId +
-                                    ' err=' +
-                                    er.message
+                            logERR(
+                                'POST Failed sending invoice inv=%s for team=%s err=%s',
+                                inv.id,
+                                te.teamId,
+                                er.message
                             );
                         }
                     }
@@ -475,14 +476,14 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                 break;
             case 'addOrganizer':
                 {
-                    console.log('Going to add organizer for an event');
+                    debug('Going to add organizer for an event');
 
                     if (
                         !req.user.isAdmin &&
                         !req.user.isEventOrganizer &&
                         !req.user.isProgramManager
                     ) {
-                        log.WARN('addOrganizer: Permission denied for user=' + req.user.username);
+                        logWARN('addOrganizer: Permission denied for user=%s', req.user.username);
                         r.error = { message: 'permission denied' };
                         break;
                     }
@@ -500,15 +501,15 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         r.result = 'ok';
                         r.event = e;
                     } catch (err) {
-                        log.ERROR('Failed to save event organizer. err=' + err);
+                        logERR('POST Failed to save event organizer. err=%s', err.message);
                     }
                 }
                 break;
             case 'setDate':
-                console.log('Going to set event date');
+                debug('Going to set event date');
 
                 if (!req.user.isAdmin && !req.user.isEventOrganizer && !req.user.isProgramManager) {
-                    log.WARN('setDate: Permission denied for user=' + req.user.username);
+                    logWARN('setDate: Permission denied for user=%s', req.user.username);
                     r.error = { message: 'permission denied' };
                     break;
                 }
@@ -532,16 +533,15 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     r.result = 'ok';
                     r.event = e;
                 } catch (err) {
-                    log.ERROR('Failed to save new event date. err=' + err);
+                    logERR('POST Failed to save new event date. err=%s');
                 }
                 break;
 
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
         }
     } catch (err) {
-        console.log(err);
-        log.ERROR(err.message);
+        logERR('%s', err.message);
         r.error = { message: err.message };
     }
     res.json(r);
@@ -550,8 +550,9 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
 
 router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.body.cmd;
-    console.log('/event - put');
-    console.log(req.body);
+
+    let debug = debugLib.extend('post');
+    debug('%O', req.body);
 
     const r = { result: 'error', status: 200 };
     r.isAdmin = req.user.isAdmin || req.user.isSuperAdmin;
@@ -565,7 +566,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                         return res.render('message', { title: 'Prístup zamietnutý' });
 
                     let name = req.body.name;
-                    console.log('Going to create event ', name);
+                    debug('Going to create event %s', name);
 
                     let p = await Program.findOneActive({ _id: req.body.programId });
                     if (!p) throw new Error('Program does not exist');
@@ -581,11 +582,11 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                             programId: p.id,
                             invoicingOrg: io.id
                         });
-                        console.log('Event created', e.name, e.id);
+                        debug('Event created name=%s id=%s', e.name, e.id);
                         r.result = 'ok';
                         r.event = e;
                     } catch (er) {
-                        log.ERROR('Failed creating event: ' + name + ' err=' + er.message);
+                        logERR('Failed creating event=%s err=%s', name, er.message);
                         r.error = {};
                         r.error.message = er.message;
                     }
@@ -593,12 +594,12 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                 break;
 
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
         }
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
-        log.ERROR(err.message);
+        logERR('%s', err.message);
     }
     res.json(r);
     res.end();

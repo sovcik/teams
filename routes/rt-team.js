@@ -1,8 +1,8 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 'use strict';
 
-const debugLib = require('debug')('rt-team');
-
-const log = require('../lib/logger');
 const express = require('express');
 const router = express.Router();
 const cel = require('connect-ensure-login');
@@ -11,6 +11,11 @@ const mongoose = require('mongoose');
 const dbTeam = require('../lib/db/Team');
 const libPerm = require('../lib/permissions');
 const fmtLib = require('../lib/fmt');
+
+const debugLib = require('debug')('rt-team');
+const logERR = require('debug')('ERROR:rt-team');
+const logWARN = require('debug')('WARN:rt-team');
+const logINFO = require('debug')('INFO:rt-team');
 
 const Team = mongoose.model('Team');
 const User = mongoose.model('User');
@@ -22,8 +27,8 @@ const Invoice = mongoose.model('Invoice');
 module.exports = router;
 
 router.param('id', async function(req, res, next) {
-    const id = req.params.id;
     const debug = debugLib.extend('param');
+    const id = req.params.id;
 
     debug('Team id=%d', id);
 
@@ -60,7 +65,7 @@ router.param('id', async function(req, res, next) {
         }
         next();
     } catch (err) {
-        log.ERROR(err.message);
+        logERR('%s', err.message);
         debug('Error stack: %O', err.stack);
         res.render('message', { title: 'Tím nenájdený', error: { status: err.message } });
     }
@@ -68,9 +73,9 @@ router.param('id', async function(req, res, next) {
 
 router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.query.cmd;
-    const debug = debugLib.extend('GET /');
+    const debug = debugLib.extend('get/');
 
-    debug('get: %O', req.query);
+    debug('%O', req.query);
 
     var r = { result: 'error', status: 200 };
     try {
@@ -78,15 +83,15 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
             case 'getList':
                 {
                     let act = req.query.active;
-                    log.DEBUG('Going to get list of teams');
+                    debug('Going to get list of teams');
                     let q = {};
                     if (act == 'yes') {
                         q.recordStatus = 'active';
-                        log.DEBUG('Sending only ACTIVE teams');
+                        debug('Sending only ACTIVE teams');
                     }
                     if (act == 'no') {
                         q.recordStatus = 'inactive';
-                        log.DEBUG('Sending only INACTIVE teams');
+                        debug('Sending only INACTIVE teams');
                     }
 
                     const tc = await Team.find(q, { name: 1, foundingOrg: 1, foundingAdr: 1 });
@@ -96,36 +101,37 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                 break;
 
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
         }
     } catch (err) {
         r.error = { message: err.message };
-        log.ERROR(err.message);
+        logERR('%s', err.message);
     }
     res.json(r);
     res.end();
 });
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+    const debug = debugLib.extend('get/id');
     const cmd = req.query.cmd;
-    console.log('/team/:id - get');
+    debug('/team/:id - get');
 
     if (cmd) next();
     else return res.render('team', { team: req.team, user: req.user, fmt: fmtLib });
 });
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+    const debug = debugLib.extend('get/id');
     const cmd = req.query.cmd;
 
-    console.log('/team/:id - get (CMD)');
-    console.log(req.query);
+    debug('/team/:id - get (CMD) qry=%s', req.query);
 
     var r = { result: 'error', status: 200 };
     try {
         switch (cmd) {
             case 'getTeamCoaches':
                 {
-                    console.log('Going to get team coaches');
+                    debug('Going to get team coaches');
                     const tc = await dbTeam.getTeamCoaches(req.user, req.team.id);
                     r.result = 'ok';
                     r.list = tc;
@@ -134,7 +140,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
 
             case 'getTeamMembers':
                 {
-                    console.log('Going to get team members');
+                    debug('Going to get team members');
                     const tm = await dbTeam.getTeamMembers(req.user, req.team.id);
                     r.result = 'ok';
                     r.list = tm;
@@ -142,33 +148,34 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
                 break;
 
             case 'getAdrDetails':
-                console.log('Going to get team address details');
+                debug('Going to get team address details');
                 //const tad = await dbTeam.getTeamDetails(req.user, req.team.id, req);
                 r.result = 'ok';
                 r.details = req.team;
                 break;
 
             case 'getData':
-                console.log('Going to get team details');
+                debug('Going to get team details');
                 //const td = await dbTeam.getTeamDetails(req.user, req.team.id, req);
                 r.result = 'ok';
                 r.team = req.team;
                 break;
 
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
         }
     } catch (err) {
         r.error = { message: err.message };
-        log.ERROR('Error rt-team get/:id err=' + err.message);
+        logERR('Error rt-team get/:id err=%s', err.message);
     }
     res.json(r);
     res.end();
 });
 
 router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/team/:ID/fields - post');
-    console.log(req.body);
+    const debug = debugLib.extend('post/id/fields');
+    debug('/team/:ID/fields - post, body=%O', req.body);
+
     const r = { result: 'error', status: 200 };
 
     // no modifications allowed unless user is team coach or admin
@@ -196,7 +203,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
         }
     } catch (err) {
         r.error = { message: err.message };
-        log.ERROR('Error rt-team post. err=' + err.message);
+        logERR('Error rt-team post. err=%s', err.message);
     }
 
     res.json(r);
@@ -204,8 +211,9 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/team/ID - post');
-    console.log(req.body);
+    const debug = debugLib.extend('post/id');
+    debug('/team/ID - post, body=%O', req.body);
+
     const r = { result: 'error', status: 200 };
 
     // no modifications allowed unless user is team coach or admin
@@ -225,21 +233,21 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
 
     switch (req.body.cmd) {
         case 'saveAdrDetails':
-            log.DEBUG('Going to save team address details');
+            debug('Going to save team address details');
             try {
                 let doc = JSON.parse(req.body.data);
                 await dbTeam.saveTeamDetails(req.user, req.team.id, doc);
                 r.result = 'ok';
             } catch (err) {
                 r.error = { message: err.message };
-                console.log(err);
+                debug(err);
             }
             break;
 
         case 'createTeamMember':
             {
                 let memberName = req.body.name;
-                console.log('Going to create member: ', memberName);
+                debug('Going to create member: ', memberName);
                 try {
                     let dob = new Date(req.body.dob);
                     dob.setHours(dob.getHours() + 12); // Todo: adjust for user's timezone - right now noon should do for Europe/US
@@ -260,12 +268,12 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     r.memberId = m.id;
                 } catch (err) {
                     r.error = { message: err.message };
-                    console.log(err);
+                    debug(err);
                 }
             }
             break;
         case 'removeTeamMember':
-            console.log('Going to remove member: ', req.body.memberId, 'from team', req.team.id);
+            debug('Going to remove member: ', req.body.memberId, 'from team', req.team.id);
             try {
                 let conf = await TeamUser.deleteOne({
                     userId: req.body.memberId,
@@ -276,11 +284,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                 }
             } catch (err) {
                 r.error = { message: err.message };
-                console.log(err);
+                debug(err);
             }
             break;
         case 'addCoach':
-            console.log('Going to add coach to team', req.team.id);
+            debug('Going to add coach to team', req.team.id);
 
             try {
                 let u = await User.findOneActive({ username: req.body.username });
@@ -303,11 +311,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                 r.teamuser = tu;
             } catch (err) {
                 r.error = { message: err.message };
-                log.ERROR('Failed adding team coach. err=' + err);
+                logERR('Failed adding team coach. err=%s', err.message);
             }
             break;
         case 'removeCoach':
-            console.log('Going to remove coach: ', req.body.coachId, 'from team', req.team.id);
+            debug('Going to remove coach: ', req.body.coachId, 'from team', req.team.id);
             try {
                 if (req.body.coachId == req.user._id) throw new Error("User can't remove himself");
                 let cc = await TeamUser.count({ teamId: req.team.id, role: 'coach' });
@@ -317,17 +325,17 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     teamId: req.team.id
                 });
                 if (conf.deletedCount > 0) {
-                    console.log('Coach removed', req.body.coachId);
+                    logINFO('Coach removed %s by user %s', req.body.coachId, req.user._id);
                     r.result = 'ok';
                 }
             } catch (err) {
                 r.error = { message: err.message };
-                console.log(err.message);
+                debug(err.message);
             }
             break;
 
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
             break;
     }
     res.json(r);
@@ -335,8 +343,9 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
 });
 
 router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/team - post');
-    console.log(req.body);
+    const debug = debugLib.extend('post/');
+    debug('/team - post, body=%O', req.body);
+
     const r = { result: 'error', status: 200 };
 
     /*
@@ -355,7 +364,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
             {
                 // permissions for creating a team are not tested as every user can create team
                 let teamName = req.body.name;
-                console.log('Going to create team: ', teamName);
+                debug('Going to create team: %s', teamName);
                 try {
                     let t = await Team.findOneActive({ name: teamName });
                     if (t) {
@@ -367,7 +376,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                         t = await Team.create({
                             name: teamName
                         });
-                        console.log('Team created', t.name, t.id);
+                        logINFO('Team created %s %s', t.name, t.id);
                         await TeamUser.create({
                             userId: c.id,
                             teamId: t.id,
@@ -378,12 +387,12 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     }
                 } catch (err) {
                     r.error = { message: err.message };
-                    log.WARN('Failed creating team for coach ' + req.body.coach + '. err=' + err);
+                    logWARN('Failed creating team for coach %s err=%s', req.body.coach, err);
                 }
             }
             break;
         case 'remove':
-            console.log('Going to remove team', req.body.teamId);
+            debug('Going to remove team %s', req.body.teamId);
             try {
                 let t = await Team.findById(req.body.teamId);
                 if (!t) throw new Error('Team not found');
@@ -415,19 +424,19 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     await t.save();
                 }
 
-                console.log('Team', t._id, 'removed');
+                logINFO('Team %s removed', t._id);
                 r.result = 'ok';
 
                 //todo: notify coaches
             } catch (err) {
                 r.error = { message: err.message };
-                console.log(err.message);
-                log.ERROR('rt-team POST:' + err.message);
+                debug('%s', err.message);
+                logERR('rt-team POST: %s', err.message);
             }
             break;
 
         case 'restore':
-            console.log('Going to restore team', req.body.teamId);
+            debug('Going to restore team %s', req.body.teamId);
             try {
                 let t = await Team.findById(req.body.teamId);
                 if (!t) throw new Error('Team not found');
@@ -437,19 +446,18 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     await t.save();
                 }
 
-                console.log('Team', t._id, 'restored');
+                logINFO('Team %s restored', t._id);
                 r.result = 'ok';
 
                 //todo: notify coaches
             } catch (err) {
                 r.error = { message: err.message };
-                console.log(err.message);
-                log.ERROR('rt-team POST:' + err.message);
+                logERR('rt-team POST: %s', err.message);
             }
             break;
 
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
             break;
     }
     res.json(r);
