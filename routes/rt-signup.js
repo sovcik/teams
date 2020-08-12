@@ -10,11 +10,16 @@ const User = mongoose.models.User;
 
 module.exports = router;
 
-router.get('/', function(req, res, next) {
+router.get('/', async function(req, res, next) {
     const captchaSiteKey = process.env.CAPTCHA_SITEKEY;
+    const email = req.query.email;
     if (req.user) {
         console.log('User already logged in:' + req.user.username);
         return res.redirect('/profile');
+    } else if (email) {
+        const user = await User.find({ username: email });
+        res.json({ result: 'ok', found: user ? 1 : 0 });
+        res.end();
     } else return res.render('signup', { captchaSiteKey: captchaSiteKey });
 });
 
