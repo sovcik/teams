@@ -13,9 +13,13 @@ require('./models');
 
 const favicon = require('serve-favicon'); // favicon
 const logger = require('morgan'); // logging
-const log = require('./lib/logger');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+
+const debugLib = require('debug')('app');
+const logERR = require('debug')('ERROR:app');
+const logWARN = require('debug')('WARN:app');
+const logINFO = require('debug')('INFO:app');
 
 const db = require('./lib/db/common.js');
 const dbSeed = require('./lib/db/seed.js');
@@ -29,7 +33,7 @@ db.init()
     .then(dbSeed.testSeed)
     .then(startAll)
     .catch(function(err) {
-        log.FATAL('Application failed to start: ' + err.message);
+        logERR('Application failed to start: %s', err.message);
     });
 
 function startAll(res) {
