@@ -63,4 +63,6 @@ function startAll(res) {
 
     // configure routes
     require('./routes')(app);
+
+    console.log('Application started.');
 }
