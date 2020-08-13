@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 'use strict';
 
 const mongoose = require('mongoose');
@@ -5,10 +8,15 @@ const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
 const email = require('../lib/email');
-const log = require('../lib/logger');
+
 const libInvoice = require('../lib/invoice');
 const libFmt = require('../lib/fmt');
 const libPerm = require('../lib/permissions');
+
+const debugLib = require('debug')('rt-invoice');
+const logERR = require('debug')('ERROR:rt-invoice');
+const logWARN = require('debug')('WARN:rt-invoice');
+const logINFO = require('debug')('INFO:rt-invoice');
 
 const Invoice = mongoose.models.Invoice;
 const InvoicingOrg = mongoose.models.InvoicingOrg;
@@ -17,6 +25,7 @@ const Team = mongoose.models.Team;
 module.exports = router;
 
 router.param('id', async function(req, res, next) {
+    const debug = debugLib.extend('param');
     const invoiceId = req.params.id;
     let inv;
     const reqq = req;
@@ -33,13 +42,11 @@ router.param('id', async function(req, res, next) {
         reqq.invoice = inv;
         if (!inv) throw new Error('invoice not found');
 
-        log.DEBUG(
-            'Invoice id=' +
-                reqq.invoice.id +
-                ' num=' +
-                reqq.invoice.number +
-                ' iorg=' +
-                reqq.invoice.invoicingOrg
+        debug(
+            'Invoice id=%s num=%s iorg=%s',
+            reqq.invoice.id,
+            reqq.invoice.number,
+            reqq.invoice.invoicingOrg
         );
 
         try {
@@ -49,7 +56,7 @@ router.param('id', async function(req, res, next) {
             //console.log("PERM=",p);
             //console.log("USER=",req.user);
         } catch (err) {
-            log.WARN('Failed fetching user permissions. err=' + err.message);
+            logWARN('Failed fetching user permissions. err=%s', err.message);
         }
 
         next();
@@ -59,7 +66,8 @@ router.param('id', async function(req, res, next) {
 });
 
 router.get('/', async function(req, res, next) {
-    console.log('/invoice/ - get');
+    const debug = debugLib.extend('get/');
+    debug('/invoice/ - get');
 
     if (req.user) req.user.permissions = await libPerm.getUserInvoicePermissions(req.user.id, null);
 
@@ -69,7 +77,9 @@ router.get('/', async function(req, res, next) {
 router.get('/:id', async function(req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
-    console.log('/invoice/ID - get');
+
+    const debug = debugLib.extend('get/id');
+    debug('/invoice/ID - get');
 
     if (cmd) next();
     else {
@@ -93,7 +103,9 @@ router.get('/:id', async function(req, res, next) {
 router.get('/:id/view', async function(req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
-    console.log('/invoice/ID/view - get');
+
+    const debug = debugLib.extend('get/id/view');
+    debug('/invoice/ID/view - get');
 
     if (cmd) next();
     else {
@@ -116,7 +128,9 @@ router.get('/:id/view', async function(req, res, next) {
 router.get('/:id/edit', async function(req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
-    console.log('/invoice/ID/edit - get');
+
+    const debug = debugLib.extend('get/id/edit');
+    debug('/invoice/ID/edit - get');
 
     if (cmd) next();
     else {
@@ -145,8 +159,9 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const isPaid = req.query.isPaid;
     const userId = req.user.id;
 
-    console.log('/invoice - get (with CMD)');
-    console.log(req.query);
+    const debug = debugLib.extend('get+cmd/');
+    debug('/invoice/ID/edit - get+CMD');
+    debug('%O', req.query);
 
     const r = { result: 'error', status: 200, error: {} };
 
@@ -159,6 +174,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
 
         switch (cmd) {
             case 'getList':
+                // eslint-disable-next-line no-case-declarations
                 let q = {};
                 if (teamId) q.team = teamId;
                 if (invType) q.type = invType;
@@ -174,8 +190,9 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     // exclude draft invoices for normal users
                     q.isDraft = false;
 
-                console.log('Going to get list of invoices', q);
+                debug('Going to get list of invoices %s', q);
 
+                // eslint-disable-next-line no-case-declarations
                 const l = await Invoice.find(
                     q,
                     {
@@ -205,13 +222,13 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                 break;
 
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
                 r.error.message = 'unknown command';
         }
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
-        log.ERROR('rt-inv GET cmd:' + err.message);
+        logERR('rt-inv GET cmd err=%s', err.message);
     }
     res.json(r);
     res.end();
@@ -220,8 +237,10 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.query.cmd;
     let team;
-    console.log('/invoice/ID - get (CMD)');
-    console.log(req.query);
+
+    const debug = debugLib.extend('get+cmd/id');
+    debug('/invoice/ID - get (CMD)');
+    debug('%O', req.query);
 
     const r = { result: 'error', status: 200, error: {} };
 
@@ -236,13 +255,13 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
 
         switch (cmd) {
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
                 r.error.message = 'unknown command';
         }
     } catch (err) {
         r.error = {};
         r.error.message = err.message;
-        log.ERROR('rt-inv GET cmd:' + err.message);
+        logERR('rt-inv GET cmd err=%s', err.message);
     }
     res.json(r);
     res.end();
@@ -250,8 +269,11 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
 
 router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.body.cmd;
-    console.log('/invoice - post');
-    console.log(req.body);
+
+    const debug = debugLib.extend('post/');
+    debug('/invoice - post');
+    debug('%O', req.body);
+
     const r = { result: 'error', status: 200 };
 
     const invOrgId = req.body.invOrgId;
@@ -263,7 +285,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     try {
         switch (cmd) {
             case 'create':
-                console.log('Going to create invoice');
+                debug('Going to create invoice');
                 if (!p.isAdmin && !p.isInvoicingOrgManager) {
                     r.error = {};
                     r.error.message = 'permission denied';
@@ -280,35 +302,34 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
 
                     r.result = 'ok';
                     r.invoice = inv;
-                    log.INFO(
-                        'INVOICE created: id=' +
-                            inv.id +
-                            ' no=' +
-                            inv.number +
-                            ' by user=' +
-                            req.user.username
+                    logINFO(
+                        'INVOICE created: id=%s no=%s by user=%s',
+                        inv.id,
+                        inv.number,
+                        req.user.username
                     );
                 } catch (err) {
                     r.error = err;
-                    log.WARN('Failed creating invoice. err=' + err.message);
+                    logWARN('Failed creating invoice. err=%s', err.message);
                 }
 
                 break;
 
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
         }
     } catch (err) {
         r.error = err;
-        log.ERROR('INVOICE POST failed. ' + err.message);
+        logERR('INVOICE POST failed err=%s', err.message);
     }
     res.json(r);
     res.end();
 });
 
 router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/invoice/:ID/fields - post');
-    console.log(req.body);
+    const debug = debugLib.extend('post/id/fields');
+    debug('/invoice/:ID/fields - post');
+    debug('%O', req.body);
     const r = { result: 'error', status: 200 };
 
     // no modifications allowed unless user is billing organization manager or admin
@@ -347,7 +368,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
         }
     } catch (err) {
         r.error = { message: err.message };
-        log.ERROR('Error rt-invoice post. err=' + err.message);
+        logERR('Error rt-invoice post. err=%s', err.message);
     }
 
     res.json(r);
@@ -356,10 +377,12 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
-    console.log('/invoice - post (ID)');
     const invType = req.body.type;
 
-    console.log(req.body);
+    const debug = debugLib.extend('post/id');
+    debug('/invoice - post (ID)');
+    debug('%O', req.body);
+
     const r = { result: 'error', status: 200 };
 
     try {
@@ -375,13 +398,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
 
                     // if specified, use that date otherwise use current date
                     let dp = req.body.paidOn ? new Date(req.body.paidOn) : Date.now();
-                    log.DEBUG(
-                        'Going to set invoice as paid. no=' +
-                            req.invoice.number +
-                            ' id=' +
-                            req.invoice.id +
-                            ' date=' +
-                            dp
+                    logINFO(
+                        'Going to set invoice as paid. no=%s id=%s date=%s',
+                        req.invoice.number,
+                        req.invoice.id,
+                        dp
                     );
 
                     let i = await Invoice.findByIdAndUpdate(
@@ -390,13 +411,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         { new: true }
                     );
                     if (i) {
-                        log.INFO(
-                            'INVOICE paid: no=' +
-                                i.number +
-                                ' id=' +
-                                i.id +
-                                ' by user=' +
-                                req.user.username
+                        logINFO(
+                            'INVOICE paid: no=%s id=%s by user=%s',
+                            i.number,
+                            i.id,
+                            req.user.username
                         );
                         r.result = 'ok';
                         r.invoice = i;
@@ -405,11 +424,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                             i = await Team.populate(i, 'team'); // email requires populating team
                             email.sendInvoicePaid(req.user, i, siteUrl);
                         } catch (er) {
-                            log.WARN(
-                                'Failed sending paid notification for invoice inv=' +
-                                    i.id +
-                                    ' err=' +
-                                    er.message
+                            logWARN(
+                                'Failed sending paid notification for invoice inv=%s err=%s',
+                                i.id,
+                                er.message
                             );
                         }
                     }
@@ -424,14 +442,12 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         !req.user.permissions.isCoach &&
                         !req.user.permissions.isAdmin
                     ) {
-                        console.log('Invoice copy - permission denied');
+                        debug('Invoice copy - permission denied');
                         throw new Error('permission denied');
                     }
 
-                    console.log(
-                        'Going to create new invoice from existing invoice',
-                        req.invoice.id
-                    );
+                    debug('Going to create new invoice from existing invoice %s', req.invoice.id);
+
                     let invNew = await libInvoice.copyInvoice(req.invoice.id, invType);
                     invNew = await Team.populate(invNew, 'team');
                     if (invNew) {
@@ -439,18 +455,16 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         try {
                             req.invoice.save();
                         } catch (err) {
-                            log.WARN(
-                                'Failed to save tax invoice number ' +
-                                    invNew._id +
-                                    ' to invoice ' +
-                                    req.invoice.id
+                            logWARN(
+                                'Failed to save tax invoice number %s to invoice %s'.invNew._id,
+                                req.invoice.id
                             );
                         }
 
                         r.result = 'ok';
                         r.invoice = invNew;
 
-                        log.INFO('INVOICE copied to ' + invNew.id);
+                        logINFO('INVOICE copied to %s', invNew.id);
                         email.sendInvoice(req.user, invNew, siteUrl);
                     }
                 } catch (err) {
@@ -461,19 +475,16 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
 
                 break;
             case 'remove':
-                log.INFO(
-                    'Going to remove invoice #' + req.invoice._id + ' user=' + req.user.username
-                );
+                debug('Going to remove invoice #%s user=%s', req.invoice._id, req.user.username);
                 try {
                     if (
                         !req.user.permissions.isInvoicingOrgManager &&
                         !req.user.permissions.isAdmin
                     ) {
-                        log.WARN(
-                            'Invoice remove - permission denied. user=' +
-                                req.user.username +
-                                ' invoice=' +
-                                req.invoice._id
+                        logWARN(
+                            'Invoice remove - permission denied. user=%s invoice=%s',
+                            req.user.username,
+                            req.invoice._id
                         );
                         throw new Error('permission denied');
                     }
@@ -486,13 +497,11 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     toEml.add(process.env.EMAIL_REPLYTO_BILLING);
 
                     if (d._id) {
-                        log.INFO(
-                            'Invoice removed: #' +
-                                d.number +
-                                ' id=' +
-                                invId +
-                                ' by user=' +
-                                req.user.username
+                        logINFO(
+                            'Invoice removed: #%s id=%s by user=%s',
+                            d.number,
+                            invId,
+                            req.user.username
                         );
                         email.sendMessage(
                             req.user,
@@ -523,13 +532,12 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         !req.user.permissions.isInvoicingOrgManager &&
                         !req.user.permissions.isAdmin
                     ) {
-                        log.WARN(
-                            'Invoice add item - permission denied. user=' +
-                                req.user.username +
-                                ' invoice=' +
-                                req.invoice._id
+                        logWARN(
+                            'Invoice add item - permission denied. user=%s invoice=%s',
+                            req.user.username,
+                            req.invoice._id
                         );
-                        console.log('PERMS=', req.user.permissions);
+                        debug('PERMS=%s', req.user.permissions);
                         throw new Error('permission denied');
                     }
 
@@ -555,18 +563,22 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     };
                     if (req.body.note) itm.note = req.body.note;
 
-                    console.log('ITEM=', itm);
+                    debug('ITEM=%s', itm);
 
                     req.invoice.items.push(itm);
 
                     req.invoice.updateTotal();
 
                     await req.invoice.save();
-                    console.log('Invoice', req.invoice._id, 'item added total=', req.invoice.total);
+                    debug('Invoice %s item added total=', req.invoice._id, req.invoice.total);
                     r.result = 'ok';
                     r.invoice = req.invoice;
                 } catch (err) {
-                    log.WARN('Adding item to invoice=' + req.invoice._id + ' err=' + err.message);
+                    logWARN(
+                        'Adding item failed to invoice=%s err=%s',
+                        req.invoice._id,
+                        err.message
+                    );
                     throw new Error(
                         'Adding item to invoice ' + req.invoice._id + ' err=' + err.message
                     );
@@ -579,11 +591,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         !req.user.permissions.isInvoicingOrgManager &&
                         !req.user.permissions.isAdmin
                     ) {
-                        log.WARN(
-                            'Invoice remove item - permission denied. user=' +
-                                req.user.username +
-                                ' invoice=' +
-                                req.invoice._id
+                        logWARN(
+                            'Invoice remove item - permission denied. user=%s invoice=%s',
+                            req.user.username,
+                            req.invoice._id
                         );
                         throw new Error('permission denied');
                     }
@@ -598,16 +609,17 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         { new: true }
                     );
 
-                    console.log('HERE', inv);
                     inv.updateTotal();
 
                     await inv.save();
-                    console.log('Invoice', inv._id, 'item removed total=', inv.total);
+                    debug('Invoice %s item removed total=%s', inv._id, inv.total);
                     r.result = 'ok';
                     r.invoice = inv;
                 } catch (err) {
-                    log.WARN(
-                        'Removing item from invoice=' + req.invoice._id + ' err=' + err.message
+                    logWARN(
+                        'Removing item failed from invoice=%s err=%s',
+                        req.invoice._id,
+                        err.message
                     );
                     throw new Error(
                         'Removing item from invoice ' + req.invoice.id + ' err=' + err.message
@@ -622,11 +634,10 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         !req.user.permissions.isInvoicingOrgManager &&
                         !req.user.permissions.isAdmin
                     ) {
-                        log.WARN(
-                            'Invoice notify overdue - permission denied. user=' +
-                                req.user.username +
-                                ' invoice=' +
-                                req.invoice._id
+                        logWARN(
+                            'Invoice notify overdue - permission denied. user=%s invoice=%s',
+                            req.user.username,
+                            req.invoice._id
                         );
                         throw new Error('permission denied');
                     }
@@ -678,22 +689,20 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     throw new Error('Invoice confirm - Permission denied');
                 }
                 try {
-                    log.DEBUG('RT:Confirming invoice inv=' + req.invoice.id);
+                    debug('RT:Confirming invoice inv=%s', req.invoice.id);
                     let inv = await libInvoice.confirmInvoice(req.invoice.id);
                     r.result = 'ok';
                     r.invoice = inv;
-                    log.INFO(
-                        'INVOICE confirmed. id=' +
-                            inv._id +
-                            ' no=' +
-                            inv.number +
-                            ' by user=' +
-                            req.user.username
+                    logINFO(
+                        'INVOICE confirmed. id=%s no=%s by user=%s',
+                        inv._id,
+                        inv.number,
+                        req.user.username
                     );
                     email.sendInvoice(req.user, inv, siteUrl);
                 } catch (err) {
                     r.error = err;
-                    log.WARN('Failed confirming invoice. err=' + err.message);
+                    logWARN('Failed confirming invoice. err=%s', err.message);
                 }
                 break;
             case 'renumber':
@@ -701,26 +710,24 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     throw new Error('Invoice items renumber - Permission denied');
                 }
                 try {
-                    log.DEBUG('Renumbering invoice items inv=' + req.invoice.id);
+                    debug('Renumbering invoice items inv=%s', req.invoice.id);
                     req.invoice.renumber();
                     await req.invoice.save();
                     r.result = 'ok';
                     r.invoice = req.invoice;
-                    log.INFO(
-                        'INVOICE items renumbered. id=' +
-                            req.invoice._id +
-                            ' no=' +
-                            req.invoice.number +
-                            ' by user=' +
-                            req.user.username
+                    logINFO(
+                        'INVOICE items renumbered. id=%s no=%s by user=%s',
+                        req.invoice._id,
+                        req.invoice.number,
+                        req.user.username
                     );
                 } catch (err) {
                     r.error = err;
-                    log.WARN('Failed renumbering invoice items. err=' + err.message);
+                    logWARN('Failed renumbering invoice items. err=%s', err.message);
                 }
                 break;
             case 'reloadBillTo':
-                console.log('Reloading invoice bill-to');
+                debug('Reloading invoice bill-to');
                 if (!req.user.permissions.isInvoicingOrgManager && !req.user.permissions.isAdmin) {
                     throw new Error('Invoice reload bill-to - Permission denied');
                 }
@@ -731,28 +738,26 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     req.invoice.billAdr = team.billingAdr;
                     req.invoice.billContact = team.billingContact;
                     await req.invoice.save();
-                    log.INFO(
-                        'INVOICE bill-to reloaded: id=' +
-                            req.invoice.id +
-                            ' no=' +
-                            req.invoice.number +
-                            ' by user=' +
-                            req.user.username
+                    logINFO(
+                        'INVOICE bill-to reloaded: id=%s no=%s by user=%s',
+                        req.invoice.id,
+                        req.invoice.number,
+                        req.user.username
                     );
                     r.result = 'ok';
                     r.invoice = req.invoice;
                 } catch (err) {
                     r.error = err;
-                    log.WARN('Failed reloading invoice bill-to. err=' + err.message);
+                    logWARN('Failed reloading invoice bill-to. err=%s', err.message);
                 }
                 break;
             default:
-                console.log('cmd=unknown');
+                debug('cmd=unknown');
                 break;
         }
     } catch (err) {
         r.error = {};
-        log.ERROR(err.message);
+        logERR('%s', err.message);
         r.error.message = err.message;
     }
     res.json(r);

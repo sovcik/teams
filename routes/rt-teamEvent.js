@@ -1,10 +1,17 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 'use strict';
 
 const mongoose = require('mongoose');
 const cel = require('connect-ensure-login');
 const express = require('express');
 const router = express.Router();
-const log = require('../lib/logger');
+
+const debugLib = require('debug')('rt-teamEvent');
+const logERR = require('debug')('ERROR:rt-teamEvent');
+const logWARN = require('debug')('WARN:rt-teamEvent');
+const logINFO = require('debug')('INFO:rt-teamEvent');
 
 const TeamEvent = mongoose.model('TeamEvent');
 const Team = mongoose.model('Team');
@@ -12,6 +19,7 @@ const Team = mongoose.model('Team');
 module.exports = router;
 
 router.param('id', async function(req, res, next) {
+    const debug = debugLib.extend('param');
     const id = req.params.id;
     let te;
     try {
@@ -19,7 +27,7 @@ router.param('id', async function(req, res, next) {
         if (!te) throw new Error('team-event not found');
 
         req.teamEvent = te;
-        log.DEBUG('TeamEvent id=' + te.id);
+        debug('TeamEvent id=' + te.id);
 
         next();
     } catch (err) {
@@ -28,9 +36,10 @@ router.param('id', async function(req, res, next) {
 });
 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+    const debug = debugLib.extend('get/id');
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
-    console.log('/profile - get');
+    debug('/profile - get');
 
     if (cmd) next();
     else {
@@ -44,18 +53,18 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/team-event - post');
-    console.log(req.body.cmd);
+    const debug = debugLib.extend('post/id');
+    debug('/team-event - post, body=%O', req.body);
+
     const r = { result: 'error', status: 200 };
     const id = req.params.id;
     switch (req.body.cmd) {
         case 'assignNumber':
             {
                 let teamNumber = req.body.teamNumber;
-                console.log(
-                    'Going to assign number=',
+                debug(
+                    'Going to assign team number=%s to teamEvent=%s',
                     teamNumber,
-                    'to teamEvent=',
                     req.teamEvent.id
                 );
                 try {
@@ -63,18 +72,18 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     req.teamEvent.confirmed = Date.now();
                     let te = await req.teamEvent.save();
                     if (te) {
-                        console.log('Number assigned', te.id, te.teamNumber);
+                        debug('Number assigned %s %s', te.id, te.teamNumber);
                         r.result = 'ok';
                         r.teamEvent = te;
                     }
                 } catch (err) {
                     r.error = err;
-                    log.WARN('Failed assigning number to teamEvent=' + id + '. err=' + err);
+                    logWARN('Failed assigning number to teamEvent=%s err=%s', id, err);
                 }
             }
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
             break;
     }
     res.json(r);
@@ -84,21 +93,21 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
 router.get(
     '/',
     /*cel.ensureLoggedIn('/login'), */ async function(req, res, next) {
+        const debug = debugLib.extend('public-get/');
         const cmd = req.query.cmd;
-        console.log('/team-event: get');
-        console.log(req.query);
+        debug('/team-event: get, qry=%O', req.query);
 
         var r = { result: 'error', status: 200 };
         try {
             switch (cmd) {
                 case 'getTeams':
                     {
-                        log.DEBUG('Going to get list of teams');
+                        debug('Going to get list of teams');
                         let q = {};
                         if (req.query.programId) q.programId = req.query.programId;
                         if (req.query.eventId) q.eventId = req.query.eventId;
 
-                        log.DEBUG('Query:' + q.toString());
+                        debug('Query: %s', q.toString());
 
                         r.list = [];
                         const tc = await TeamEvent.find(q);
@@ -122,11 +131,11 @@ router.get(
                     break;
 
                 default:
-                    console.log('cmd=unknown');
+                    debug('cmd=unknown');
             }
         } catch (err) {
             r.error = { message: err.message };
-            log.ERROR(err.message);
+            logERR('%s', err.message);
         }
         res.json(r);
         res.end();

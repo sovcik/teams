@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-async-promise-executor */
+
 'use strict';
 
 const mongoose = require('mongoose');
@@ -5,9 +8,13 @@ const express = require('express');
 const cel = require('connect-ensure-login');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const log = require('../lib/logger');
 const email = require('../lib/email');
 const libFmt = require('../lib/fmt');
+
+const debugLib = require('debug')('rt-profile');
+const logERR = require('debug')('ERROR:rt-profile');
+const logWARN = require('debug')('WARN:rt-profile');
+const logINFO = require('debug')('INFO:rt-profile');
 
 const Team = mongoose.models.Team;
 const User = mongoose.models.User;
@@ -22,6 +29,7 @@ const libUser = require('../lib/user');
 module.exports = router;
 
 router.param('id', async function(req, res, next) {
+    const debug = debugLib.extend('param');
     const id = req.params.id;
     let u;
     try {
@@ -31,7 +39,7 @@ router.param('id', async function(req, res, next) {
         req.profile = u;
         req.profile.id = req.profile._id;
 
-        log.DEBUG('Profile id=' + req.profile.id + ' username=' + req.profile.username);
+        debug('Profile id=%s username=%s', req.profile.id, req.profile.username);
 
         next();
     } catch (err) {
@@ -41,15 +49,17 @@ router.param('id', async function(req, res, next) {
 
 router.get('/', async function(req, res, next) {
     const cmd = req.query.cmd;
-    console.log('/profile - PUBLIC get');
-    console.log(req.query);
+
+    const debug = debugLib.extend('public get/');
+    debug('/profile - PUBLIC get query=%O', req.query);
 
     switch (cmd) {
         case 'resetPwdRequest':
             return res.render('resetPwdRequest');
+            // eslint-disable-next-line no-unreachable
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
     }
 
     next();
@@ -57,13 +67,15 @@ router.get('/', async function(req, res, next) {
 
 router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const cmd = req.query.cmd;
-    console.log('/profile - get');
-    console.log(req.query);
+
+    const debug = debugLib.extend('get/');
+    debug('/profile - get qry=%O', req.query);
+
     if (!cmd) return res.redirect('/profile/' + req.user.id);
     const r = { result: 'error', status: 200 };
     switch (cmd) {
         case 'getList':
-            console.log('Going to get list of users');
+            debug('Going to get list of users');
             try {
                 let opts = {
                     username: true,
@@ -77,15 +89,15 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     r.result = 'ok';
                     r.list = u;
                 } else {
-                    log.WARN('Failed to fetch list of users.');
+                    logWARN('Failed to fetch list of users.');
                 }
             } catch (err) {
-                log.WARN('Failed to fetch list of users. err=' + err);
+                logWARN('Failed to fetch list of users. err=%s', err);
                 r.error = err;
             }
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
     }
     res.json(r);
     res.end();
@@ -94,19 +106,23 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
 router.get('/:id', async function(req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
-    console.log('/profile/:id - PUBLIC get');
+
+    const debug = debugLib.extend('public get/id');
+    debug('/profile/:id - PUBLIC get');
     var nextRouter = true;
 
     switch (cmd) {
         case 'resetPwd':
+            // eslint-disable-next-line no-case-declarations
             let otc = req.query.otc;
 
+            // eslint-disable-next-line no-case-declarations
             let ot = await OneTime.findById(otc);
             if (!ot || !ot.active)
                 throw new Error('onetime code not found, expired or already used');
             if (ot.type !== 'rstpwd') throw new Error('wrong onetime code type specified');
 
-            log.INFO('OneTime used: id=' + otc + ' type=' + ot.type);
+            logINFO('OneTime used: id=%s type=%s', otc, ot.type);
 
             res.render('resetPwd', { otc: otc, ot: ot, profile: req.profile, fmt: libFmt });
 
@@ -120,7 +136,9 @@ router.get('/:id', async function(req, res, next) {
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
-    console.log('/profile/:id - get');
+
+    const debug = debugLib.extend('get/id');
+    debug('/profile/:id - get');
 
     if (cmd) next();
     else {
@@ -128,22 +146,22 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
             let pm = await Program.findOne({ managers: req.profile.id });
             if (pm) {
                 req.profile.isProgramManager = true;
-                console.log('Profile is program manager');
-            } else console.log('Profile is NOT program manager');
+                debug('Profile is program manager');
+            } else debug('Profile is NOT program manager');
 
             let em = await Event.findOne({ managers: req.profile.id, recordStatus: 'active' });
             if (em) {
                 req.profile.isEventOrganizer = true;
-                console.log('Profile is event manager');
-            } else console.log('Profile is NOT event manager');
+                debug('Profile is event manager');
+            } else debug('Profile is NOT event manager');
 
             let tm = await TeamUser.findOne({ userId: req.profile.id, role: 'coach' });
             if (tm) {
                 req.profile.isCoach = true;
-                console.log('Profile is coach');
-            } else console.log('Profile is NOT coach');
+                debug('Profile is coach');
+            } else debug('Profile is NOT coach');
         } catch (err) {
-            log.WARN('Failed fetching program data for user profile. ' + err);
+            logWARN('Failed fetching program data for user profile. err=%s', err);
         }
         res.render('profile', { profile: req.profile, user: req.user, fmt: libFmt });
     }
@@ -152,12 +170,14 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
 router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const userId = req.params.id;
     const cmd = req.query.cmd;
-    console.log('/profile/:id - get');
-    console.log(req.query);
+
+    const debug = debugLib.extend('get+cmd/id');
+    debug('/profile/:id - get qry=%O', req.query);
+
     const r = { result: 'error', status: 200 };
     switch (cmd) {
         case 'getFields':
-            log.DEBUG('Going to get profile fields');
+            debug('Going to get profile fields');
             try {
                 const u = await User.findById(req.profile.id, {
                     username: 1,
@@ -168,46 +188,48 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
                 r.result = 'ok';
                 r.fields = u;
             } catch (err) {
-                log.WARN('Failed to fetch profile fields. err=' + err);
+                logWARN('Failed to fetch profile fields. err=%s', err);
                 r.error = err;
             }
             break;
         case 'getCoachTeams':
-            console.log('Going to get Coach teams');
+            debug('Going to get Coach teams');
             try {
                 const ut = await dbUser.getCoachTeams(req.user.id, userId);
                 r.result = 'ok';
                 r.list = ut;
             } catch (err) {
-                log.ERROR("Failed to fetch coach's teams. err=" + err);
+                logERR("Failed to fetch coach's teams. err=%s", err.message);
                 r.error = err;
             }
             break;
 
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
     }
     res.json(r);
     res.end();
 });
 
 router.post('/', async function(req, res, next) {
-    console.log('/profile - PUBLIC post');
     var cmd = req.body.cmd;
     const siteUrl = req.protocol + '://' + req.get('host');
     var nextRouter = true;
-    console.log(req.body);
 
-    console.log('cmd=' + cmd);
+    const debug = debugLib.extend('public post/');
+    debug('/profile - PUBLIC post body=%O', req.body);
+    debug('cmd=' + cmd);
+
     switch (cmd) {
         case 'resetPwdRequest':
+            // eslint-disable-next-line no-case-declarations
             let uname = req.body.loginName;
-            console.log(uname);
+            debug('uname=%s', uname);
             try {
                 let u = await User.findOneActive({ username: uname });
                 if (!u) u = await User.findOneActive({ email: uname });
                 if (u) {
-                    console.log('pwdReset user=', u.username);
+                    debug('pwdReset user=%s', u.username);
                     let ot = await OneTime.create({
                         type: 'rstpwd',
                         user: {
@@ -230,7 +252,7 @@ router.post('/', async function(req, res, next) {
                     }
                 });
             } catch (err) {
-                log.WARN('Failed to request password reset err' + err.message);
+                logWARN('Failed to request password reset err=%s', err.message);
             }
     }
 
@@ -238,12 +260,13 @@ router.post('/', async function(req, res, next) {
 });
 
 router.post('/:id', async function(req, res, next) {
-    console.log('/profile/:id - PUBLIC post');
+    const debug = debugLib.extend('public post/id');
+    debug('/profile/:id - PUBLIC post body=%O', req.body);
+
     var cmd = req.body.cmd;
     var otc = req.body.otc;
     const siteUrl = req.protocol + '://' + req.get('host');
     var nextRouter = true;
-    console.log(req.body);
 
     switch (cmd) {
         case 'resetPwd':
@@ -274,7 +297,7 @@ router.post('/:id', async function(req, res, next) {
                 });
                 nextRouter = false;
             } catch (err) {
-                log.WARN('Password reset failed. err=' + err.message);
+                logWARN('Password reset failed. err=%s', err.message);
                 res.render('message', { title: 'Chyba', error: err });
             }
     }
@@ -283,8 +306,9 @@ router.post('/:id', async function(req, res, next) {
 });
 
 router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
-    console.log('/profile/:id - post');
-    console.log(req.body.cmd);
+    const debug = debugLib.extend('post/id');
+    debug('/profile/:id - post body=%O', req.body);
+
     const r = { result: 'error', status: 200 };
     const id = req.params.id;
     const siteUrl = req.protocol + '://' + req.get('host');
@@ -292,15 +316,15 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
 
     switch (req.body.cmd) {
         case 'saveFields':
-            log.DEBUG('Going to save profile fields');
+            debug('Going to save profile fields');
             try {
                 let doc = JSON.parse(req.body.data);
-                log.TRACE('DOCUMENT=' + doc);
+                debug('DOCUMENT=%s', doc);
                 let user = await libUser.saveFields(req.user.id, req.profile.id, doc, siteUrl);
                 r.result = 'ok';
             } catch (err) {
                 r.error = { message: err.message };
-                log.ERROR('Error saving profile fields. err=' + err);
+                logERR('Error saving profile fields. err=%s', err.message);
             }
             break;
         case 'changePassword':
@@ -318,15 +342,15 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                 if (!user) throw new Error('Error changing password');
                 r.result = 'ok';
             } catch (err) {
-                log.WARN('Error changing password for user ' + id + ' err=' + err);
+                logWARN('Error changing password for user %s err=%s', id, err);
                 r.error = { message: err.message };
             }
             break;
         case 'setAdmin':
-            log.DEBUG('Going to setAdmin user ' + id);
+            debug('Going to setAdmin user ', id);
             if (!req.user.isSuperAdmin) {
                 r.error = { message: 'Permission denied' };
-                log.CRIT('setAdmin denied for user ' + req.user.username);
+                logWARN('setAdmin denied for user %s', req.user.username);
             } else {
                 try {
                     let flgAdmin = req.body.val == 1;
@@ -336,22 +360,20 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         { $set: { isAdmin: flgAdmin } },
                         { new: true }
                     );
-                    log.INFO(
-                        'User ' +
-                            user.username +
-                            (flgAdmin ? ' made' : ' revoked') +
-                            'admin by ' +
-                            req.user.username
+                    logINFO(
+                        'User %s' + (flgAdmin ? ' made' : ' revoked') + 'admin by %s',
+                        user.username,
+                        req.user.username
                     );
                     r.result = 'ok';
                 } catch (err) {
-                    log.WARN('Error making admin user ' + id + ' err=' + err);
+                    logWARN('Error making admin user %s err=%s', id, err);
                     r.error = { message: err.message };
                 }
             }
             break;
         case 'setActive':
-            log.DEBUG('Going to setActive user ' + id);
+            debug('Going to setActive user %s', id);
             if (!req.user.isAdmin && !req.user.isSuperAdmin) {
                 r.error = { message: 'Permission denied' };
             } else {
@@ -363,22 +385,20 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         { $set: { recordStatus: flgActive ? 'active' : 'inactive' } },
                         { new: true }
                     );
-                    log.INFO(
-                        'User ' +
-                            user.username +
-                            (flgActive ? ' activated' : ' deactivated') +
-                            ' by ' +
-                            req.user.username
+                    logINFO(
+                        'User %s ' + (flgActive ? ' activated' : ' deactivated') + ' by %s',
+                        user.username,
+                        req.user.username
                     );
                     r.result = 'ok';
                 } catch (err) {
-                    log.WARN('Error while setActive user=' + id + ' err=' + err);
+                    logWARN('Error while setActive user=%s err=%s', id, err);
                     r.error = { message: err.message };
                 }
             }
             break;
         default:
-            console.log('cmd=unknown');
+            debug('cmd=unknown');
             break;
     }
     res.json(r);
