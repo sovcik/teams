@@ -42,7 +42,7 @@ function startAll(res) {
     app.set('view engine', 'pug');
 
     app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-    app.use(logger('dev'));
+    app.use(logger('tiny'));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(cookieParser());
@@ -63,4 +63,6 @@ function startAll(res) {
 
     // configure routes
     require('./routes')(app);
+
+    console.log('Application started.');
 }
