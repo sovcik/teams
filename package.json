@@ -3,7 +3,8 @@
     "version": "1.2.0",
     "private": true,
     "scripts": {
-        "start": "node ./bin/www",
+        "start": "npm run build:fe && node ./bin/www",
+        "build:fe": "bash ./frontend/build_fe.sh",
         "dev": "nodemon -e js,pug,css,json ./bin/www"
     },
     "engines": {
@@ -35,7 +36,6 @@
         "morgan": "^1.10"
     },
     "devDependencies": {
-        "nodemon": "^2.0.4",
         "eslint": "^7.6.0",
         "eslint-config-airbnb": "^18.1.0",
         "eslint-config-prettier": "^6.11.0",
@@ -46,6 +46,7 @@
         "eslint-plugin-prettier": "^3.1.3",
         "eslint-plugin-promise": "^4.2.0",
         "eslint-plugin-standard": "^4.0.1",
+        "nodemon": "^2.0.4",
         "prettier": "^2.0.1"
     }
 }
