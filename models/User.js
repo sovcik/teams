@@ -8,7 +8,7 @@ mongoose.Promise = require('bluebird');
 const util = require('../lib/util');
 
 const validateEmail = function (email) {
-    const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{1,20})+$/;
+    const re = /^\w+([\.\-\+]?\w+)*@\w+([\.-]?\w+)*(\.\w{1,20})+$/;
     return !email || re.test(email);
 };
 
