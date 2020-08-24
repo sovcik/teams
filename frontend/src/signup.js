@@ -1,24 +1,30 @@
 'use strict';
 
-var signupView = {};
+var viewSignup = {};
 
-signupView.init = function () {
+viewSignup.init = function () {
     console.log('/signup - Initializing');
 
-    $('#frmSignup').on('submit', signupView.validateSignupForm);
+    $('#frmSignup').on('submit', viewSignup.validateSignupForm);
 
     console.log('/signup - Initializing completed');
 };
 
-signupView.validateSignupForm = function () {
+viewSignup.validateSignupForm = function () {
     console.log('Validating form');
     const lname = $('#userName').val().trim();
 
-    if (!signupView.validateLogin(lname)) {
+    /*    
+    // this won't work - it requires async/await call
+    var userValid = viewSignup.validateLogin(lname);
+    console.log('user valid = ', lname, userValid);
+
+    if (!userValid) {
         $('#userNameGrp').addClass('has-error');
-        alert('Prihlasovacie meno sa už používa.');
+        alert("Prihlasovacie meno '" + lname + "' sa už používa.");
         return false;
     }
+*/
 
     if (lname.length < 5) {
         $('#userNameGrp').addClass('has-error');
@@ -42,11 +48,12 @@ signupView.validateSignupForm = function () {
     return true; // return false to cancel form action
 };
 
-signupView.validateLogin = function (loginName) {
+viewSignup.validateLogin = function (loginName) {
     $.get(libCommon.getNoCache('/signup?email=' + loginName))
         .done(function (res) {
             console.log('validateLogin: Server returned', res);
             if (res.result == 'ok') {
+                console.log('User valid = ', res.found != 1);
                 return res.found != 1;
             } else {
                 console.log('Error checking login name');

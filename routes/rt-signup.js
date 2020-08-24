@@ -27,7 +27,7 @@ router.get('/', async function (req, res, next) {
     } else if (email) {
         const user = await User.findOneActive({ username: email });
         debug('User %s %s found.', email, user ? '' : 'not');
-        res.json({ result: 'ok', found: user ? 1 : 0, username: email, user: user });
+        res.json({ result: 'ok', found: user ? 1 : 0, username: email });
         res.end();
     } else return res.render('signup', { captchaSiteKey: captchaSiteKey });
 });
@@ -76,7 +76,11 @@ router.post('/', async function (req, res, next) {
         const h = await bcrypt.hash(req.body.password, s);
         const u = await User.findOneActive({ username: req.body.userName });
 
-        if (u) return res.render('message', { title: 'Užívateľ už existuje', error: {} });
+        if (u)
+            return res.render('message', {
+                title: "Užívateľ '" + req.body.userName + "' už existuje",
+                error: {},
+            });
 
         const nu = {
             username: req.body.userName,
