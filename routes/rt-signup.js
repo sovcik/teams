@@ -25,7 +25,7 @@ router.get('/', async function (req, res, next) {
         debug('User already logged in: %s', req.user.username);
         return res.redirect('/profile');
     } else if (email) {
-        const user = await User.find({ username: email });
+        const user = await User.findOneActive({ username: email });
         debug('User %s %s found.', email, user ? '' : 'not');
         res.json({ result: 'ok', found: user ? 1 : 0, username: email, user: user });
         res.end();
