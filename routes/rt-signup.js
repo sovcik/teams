@@ -17,21 +17,22 @@ const User = mongoose.models.User;
 
 module.exports = router;
 
-router.get('/', async function(req, res, next) {
+router.get('/', async function (req, res, next) {
     const debug = debugLib.extend('public-get/');
     const captchaSiteKey = process.env.CAPTCHA_SITEKEY;
     const email = req.query.email;
     if (req.user) {
-        debug('User already logged in:' + req.user.username);
+        debug('User already logged in: %s', req.user.username);
         return res.redirect('/profile');
     } else if (email) {
         const user = await User.find({ username: email });
-        res.json({ result: 'ok', found: user ? 1 : 0 });
+        debug('User %s %s found.', email, user ? '' : 'not');
+        res.json({ result: 'ok', found: user ? 1 : 0, username: email, user: user });
         res.end();
     } else return res.render('signup', { captchaSiteKey: captchaSiteKey });
 });
 
-router.post('/', async function(req, res, next) {
+router.post('/', async function (req, res, next) {
     const debug = debugLib.extend('public-post/');
     const siteUrl = req.protocol + '://' + req.get('host');
     //const uv = new mongoose.model('UserVerify');
@@ -52,7 +53,7 @@ router.post('/', async function(req, res, next) {
         url: recapUrl,
         method: 'POST',
         body: {},
-        json: true
+        json: true,
     };
 
     // Start the request
@@ -65,8 +66,8 @@ router.post('/', async function(req, res, next) {
             title: 'Nie ste človek?',
             error: {
                 message:
-                    'Pravdepodobne ste neodpovedali správne na otázky, ktorými systém overuje, či ste skutočne človek. Skúste znovu.'
-            }
+                    'Pravdepodobne ste neodpovedali správne na otázky, ktorými systém overuje, či ste skutočne človek. Skúste znovu.',
+            },
         });
     }
 
@@ -77,13 +78,17 @@ router.post('/', async function(req, res, next) {
 
         if (u) return res.render('message', { title: 'Užívateľ už existuje', error: {} });
 
-        const user = await User.create({
+        const nu = {
             username: req.body.userName,
             passwordHash: h,
             salt: s,
             fullName: req.body.fullName,
-            email: req.body.email
-        });
+            email: req.body.email,
+        };
+
+        debug('Going to create user: %O', nu);
+
+        const user = await User.create(nu);
 
         logINFO('User created: username=%s id=%s', user.username, user.id);
         email.sendSignupConfirmation(user, siteUrl);
@@ -93,10 +98,11 @@ router.post('/', async function(req, res, next) {
             link: {
                 description: 'Pre pokračovanie kliknite na',
                 url: '/login',
-                text: 'tento link'
-            }
+                text: 'tento link',
+            },
         });
     } catch (err) {
+        debug('Error: %O', err);
         return res.render('message', { title: 'Nepodarilo sa vytvoriť účet', error: err });
     }
 });

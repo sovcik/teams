@@ -1,7 +1,6 @@
 extends includes/layout_web
 
 block content
-    script(src='/javascripts/signup.js')
     style.
         .pad {
             padding-left: 0;
@@ -40,4 +39,4 @@ block content
                 div(class="col-sm-8")
                     button(type="submit" class="btn btn-default") Vytvoriť
     script.
-        initSignup();
+        signupView.init();

@@ -6,13 +6,14 @@ const TeamEventSchema = new mongoose.Schema(
         eventId: { type: String, required: true },
         teamId: { type: String, required: true },
         programId: { type: String, required: true },
-        registeredOn: { type: Date, required: true },
+        registeredOn: { type: Date }, // date when team has confirmed their registration
+        participatedOn: { type: Date }, // date team participated at the event - no date = team, did not arrive
         eventDate: { type: Date },
         teamNumber: { type: String },
-        confirmed: { type: Date }
+        confirmed: { type: Date },
     },
     {
-        usePushEach: true
+        usePushEach: true,
     }
 );
 

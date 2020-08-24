@@ -5,6 +5,7 @@ const statusPlugin = require('./plugins/status-plugin');
 const AddressSchema = require('./Address');
 const OrgSchema = require('./Organization');
 const ContactSchema = require('./Contact');
+const ResultSchema = require('./Result');
 
 const EventSchema = new mongoose.Schema(
     {
@@ -20,10 +21,13 @@ const EventSchema = new mongoose.Schema(
         organizerAdr: AddressSchema,
         organizerContact: ContactSchema,
         message: { type: String, required: false },
-        managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+        managers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        referees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // robot game referrees
+        judges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // judges
+        results: [{ type: ResultSchema }],
     },
     {
-        usePushEach: true
+        usePushEach: true,
     }
 );
 
@@ -31,12 +35,12 @@ const EventSchema = new mongoose.Schema(
 EventSchema.virtual('teams', {
     ref: 'TeamEvent',
     localField: '_id',
-    foreignField: 'teamId'
+    foreignField: 'teamId',
 });
 
 EventSchema.plugin(statusPlugin);
 
-EventSchema.statics.testData = function(rec, id) {
+EventSchema.statics.testData = function (rec, id) {
     if (!id) id = '';
     rec.name = 'Event ' + id;
     rec.startDate = new Date();

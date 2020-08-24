@@ -7,8 +7,8 @@ const Schema = mongoose.Schema;
 mongoose.Promise = require('bluebird');
 const util = require('../lib/util');
 
-const validateEmail = function(email) {
-    const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,20})+$/;
+const validateEmail = function (email) {
+    const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{1,20})+$/;
     return !email || re.test(email);
 };
 
@@ -21,8 +21,8 @@ const UserSchema = new Schema(
             index: true,
             minLength: [
                 5,
-                'Meno používateľa je príliš krátke. Meno musí mať aspoň `{MINLENGTH}` znakov.'
-            ]
+                'Meno používateľa je príliš krátke. Meno musí mať aspoň `{MINLENGTH}` znakov.',
+            ],
         },
         fullName: { type: String, required: true },
         email: {
@@ -30,7 +30,7 @@ const UserSchema = new Schema(
             validate: [validateEmail, 'Zadaná email adresa je neplatná.'],
             trim: true,
             lowercase: true,
-            index: true
+            index: true,
         },
         phone: { type: String },
         dateOfBirth: { type: Date },
@@ -39,16 +39,16 @@ const UserSchema = new Schema(
         isAdmin: { type: Boolean, default: false },
         isSuperAdmin: { type: Boolean, default: false },
         dpaAccepted: { type: Date }, // data processing agreement acceptance date
-        locales: { type: String, default: 'sk-SK' }
+        locales: { type: String, default: 'sk-SK' },
     },
     {
-        usePushEach: true
+        usePushEach: true,
     }
 );
 
 // helper function handling hash creation
-UserSchema.statics.addNew = function(username, email, password, callback) {
-    util.createPasswordHash(password, function(err, salt, hash) {
+UserSchema.statics.addNew = function (username, email, password, callback) {
+    util.createPasswordHash(password, function (err, salt, hash) {
         if (err) return callback(err, this);
         mongoose.models.User.create(
             {
@@ -56,9 +56,9 @@ UserSchema.statics.addNew = function(username, email, password, callback) {
                 email: email,
                 salt: salt,
                 passwordHash: hash,
-                fullName: username
+                fullName: username,
             },
-            function(err, usr) {
+            function (err, usr) {
                 if (err) return callback(err, usr);
                 return callback(null, usr);
             }

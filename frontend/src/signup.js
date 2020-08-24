@@ -1,20 +1,20 @@
 'use strict';
 
-function initSignup() {
+var signupView = {};
+
+signupView.init = function () {
     console.log('/signup - Initializing');
 
-    $('#frmSignup').on('submit', validateSignupForm);
+    $('#frmSignup').on('submit', signupView.validateSignupForm);
 
     console.log('/signup - Initializing completed');
-}
+};
 
-function validateSignupForm() {
+signupView.validateSignupForm = function () {
     console.log('Validating form');
-    const lname = $('#userName')
-        .val()
-        .trim();
+    const lname = $('#userName').val().trim();
 
-    if (!validateLogin(lname)) {
+    if (!signupView.validateLogin(lname)) {
         $('#userNameGrp').addClass('has-error');
         alert('Prihlasovacie meno sa už používa.');
         return false;
@@ -26,11 +26,7 @@ function validateSignupForm() {
         return false;
     } else $('#userNameGrp').removeClass('has-error');
 
-    if (
-        $('#fullName')
-            .val()
-            .trim().length == 0
-    ) {
+    if ($('#fullName').val().trim().length == 0) {
         $('#fullNameGrp').addClass('has-error');
         alert('Meno a priezvisko nesmie byť prázdne.');
         return false;
@@ -44,11 +40,11 @@ function validateSignupForm() {
 
     console.log('Form OK');
     return true; // return false to cancel form action
-}
+};
 
-function validateLogin(loginName) {
+signupView.validateLogin = function (loginName) {
     $.get(libCommon.getNoCache('/signup?email=' + loginName))
-        .done(function(res) {
+        .done(function (res) {
             console.log('validateLogin: Server returned', res);
             if (res.result == 'ok') {
                 return res.found != 1;
@@ -56,8 +52,8 @@ function validateLogin(loginName) {
                 console.log('Error checking login name');
             }
         })
-        .fail(function(err) {
+        .fail(function (err) {
             console.log('Loginname check failed', err);
         });
     return false;
-}
+};
