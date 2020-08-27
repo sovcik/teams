@@ -25,7 +25,7 @@ const User = mongoose.models.User;
 
 module.exports = router;
 
-router.param('id', async function(req, res, next) {
+router.param('id', async function (req, res, next) {
     const id = req.params.id;
 
     let debug = debugLib.extend('param/id');
@@ -48,14 +48,14 @@ router.param('id', async function(req, res, next) {
                     isEventOrganizer: false,
                     isProgramManager: false,
                     isInvoicingOrgManager: false,
-                    locales: libFmt.defaultLocales
+                    locales: libFmt.defaultLocales,
                 };
             }
             r.teams = [];
             let tmse = await TeamEvent.find({ eventId: r.id });
             let tms = await Team.populate(tmse, 'teamId');
-            tms.forEach(t => r.teams.push({ id: t.teamId.id, name: t.teamId.name }));
-            r.teams.sort(function(a, b) {
+            tms.forEach((t) => r.teams.push({ id: t.teamId.id, name: t.teamId.name }));
+            r.teams.sort(function (a, b) {
                 return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
             });
 
@@ -66,21 +66,25 @@ router.param('id', async function(req, res, next) {
         logERR('param err=%s', err.message);
         res.render('message', {
             title: 'Stretnutie/Turnaj nenájdený',
-            error: { status: err.message }
+            error: { status: err.message },
         });
     }
 });
 
-router.get('/:id', async function(req, res, next) {
+router.get('/:id', async function (req, res, next) {
     const cmd = req.query.cmd;
     let debug = debugLib.extend('get/id');
     debug('/event/:id - get');
 
     if (cmd) next();
-    else res.render('event', { event: req.event, user: req.user, fmt: libFmt });
+    else {
+        req.event = await Invoice.populate(req.event, 'invoiceTemplate');
+        console.log('Event', req.event);
+        res.render('event', { event: req.event, user: req.user, fmt: libFmt });
+    }
 });
 
-router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     const eventId = req.params.id;
     let debug = debugLib.extend('get/id+cmd');
@@ -126,7 +130,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
                     debug('Going to get list of event organizers');
                     let e = await User.populate(req.event, {
                         path: 'managers',
-                        select: { fullName: 1 }
+                        select: { fullName: 1 },
                     });
                     r.list = e.managers;
                     r.result = 'ok';
@@ -170,7 +174,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
 
 router.get(
     '/',
-    /*cel.ensureLoggedIn('/login'), */ async function(req, res, next) {
+    /*cel.ensureLoggedIn('/login'), */ async function (req, res, next) {
         const cmd = req.query.cmd;
         const progId = req.query.program;
         const evtOrgId = req.query.eo;
@@ -206,11 +210,11 @@ router.get(
                             name: 1,
                             startDate: 1,
                             endDate: 1,
-                            regEndDate: 1
+                            regEndDate: 1,
                         });
                         r.result = 'ok';
                         r.list = p;
-                        r.list.sort(function(a, b) {
+                        r.list.sort(function (a, b) {
                             return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
                         });
                     }
@@ -225,12 +229,12 @@ router.get(
                                 { recordStatus: 'active', programId: t.programId },
                                 {
                                     name: true,
-                                    id: true
+                                    id: true,
                                 }
                             );
                             r.result = 'ok';
                             r.list = p;
-                            r.list.sort(function(a, b) {
+                            r.list.sort(function (a, b) {
                                 return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
                             });
                         } else {
@@ -250,7 +254,7 @@ router.get(
     }
 );
 
-router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     let debug = debugLib.extend('post/id/fields');
     debug('/event/:ID/fields - post');
     debug('%O', req.body);
@@ -296,7 +300,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
     res.end();
 });
 
-router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.body.cmd;
 
@@ -320,7 +324,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     let qr = {
                         teamId: req.body.teamId,
                         eventId: req.body.eventId,
-                        $or: [{ eventDate: { $gte: today } }, { eventDate: null }]
+                        $or: [{ eventDate: { $gte: today } }, { eventDate: null }],
                     };
                     let tpr = await TeamEvent.findOne(qr); // find all ACTIVE events from the same program team is already registered for
                     if (tpr) {
@@ -355,7 +359,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     let q = {
                         teamId: t._id,
                         programId: e.programId,
-                        $or: [{ eventDate: { $gte: today } }, { eventDate: null }]
+                        $or: [{ eventDate: { $gte: today } }, { eventDate: null }],
                     };
                     let tp = await TeamEvent.findOne(q); // find all ACTIVE events from the same program team is already registered for
                     if (tp) {
@@ -400,7 +404,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                             eventId: e.id,
                             programId: e.programId,
                             registeredOn: Date.now(),
-                            eventDate: e.startDate
+                            eventDate: e.startDate,
                         });
                     } catch (er) {
                         logERR(
@@ -420,10 +424,22 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         let inv;
                         try {
                             debug('Going to create invoice team=%s event=%s', t.id, e.id);
-                            inv = await Invoice.findOne({
-                                invoicingOrg: e.invoicingOrg,
-                                type: 'T'
-                            }); // find invoice template used by invoicing org
+                            if (req.event.invoiceTemplate) {
+                                debug(
+                                    'Trying event specific template id=%s',
+                                    req.event.invoiceTemplate
+                                );
+                                inv = await Invoice.findOne({
+                                    _id: req.event.invoiceTemplate,
+                                });
+                            }
+                            if (!inv) {
+                                debug('No event specific template found, trying any template');
+                                inv = await Invoice.findOne({
+                                    invoicingOrg: e.invoicingOrg,
+                                    type: 'T',
+                                }); // find invoice template used by invoicing org
+                            }
                             inv = await libInvoice.createInvoice(
                                 e.invoicingOrg,
                                 null, // null means 'use settings'
@@ -548,7 +564,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
     res.end();
 });
 
-router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.body.cmd;
 
     let debug = debugLib.extend('post');
@@ -580,7 +596,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                         e = await Event.create({
                             name: name,
                             programId: p.id,
-                            invoicingOrg: io.id
+                            invoicingOrg: io.id,
                         });
                         debug('Event created name=%s id=%s', e.name, e.id);
                         r.result = 'ok';

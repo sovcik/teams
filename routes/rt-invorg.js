@@ -22,7 +22,7 @@ const User = mongoose.models.User;
 
 module.exports = router;
 
-router.param('id', async function(req, res, next) {
+router.param('id', async function (req, res, next) {
     const id = req.params.id;
     let r;
 
@@ -39,7 +39,7 @@ router.param('id', async function(req, res, next) {
                 req.user = {
                     isAdmin: false,
                     isInvoicingOrgManager: false,
-                    locales: libFmt.defaultLocales
+                    locales: libFmt.defaultLocales,
                 };
 
             debug('Invoicing org id=%s name=%s', r.id, r.org.name);
@@ -48,12 +48,12 @@ router.param('id', async function(req, res, next) {
     } catch (err) {
         res.render('message', {
             title: 'Fakturujúca organizácia nenájdená',
-            error: { status: err.message }
+            error: { status: err.message },
         });
     }
 });
 
-router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
 
     const debug = debugLib.extend('get/id');
@@ -80,7 +80,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
     }
 });
 
-router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     const debug = debugLib.extend('get+cmd/id');
     debug('query %O', req.query);
@@ -111,7 +111,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
     res.end();
 });
 
-router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     const iom = req.query.iom;
     const active = req.query.active;
@@ -132,7 +132,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
             try {
                 if (iom) q.managers = new mongoose.Types.ObjectId(iom);
                 p = await InvoicingOrg.find(q, { org: true, adr: true }, { lean: 1 });
-                p.forEach(function(e) {
+                p.forEach(function (e) {
                     e.name = e.org.name;
                 }); // add name field so result can be used in generic LoadList method
             } catch (err) {
@@ -148,7 +148,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     res.end();
 });
 
-router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const debug = debugLib.extend('post/id/fields');
     debug('/invorg/:ID/fields - post');
     debug('%O', req.body);
@@ -198,7 +198,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
     res.end();
 });
 
-router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const debug = debugLib.extend('post/id');
     debug('/invorg - post (ID)');
 
@@ -233,6 +233,30 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     logERR('Failed to save organization manager. err=%s', err.message);
                 }
                 break;
+            case 'createTemplate':
+                if (!req.user.isAdmin && !req.user.isInvoicingOrgManager) {
+                    logWARN('addManager: Permission denied for user=%s', req.user.username);
+                    r.error = { message: 'permission denied' };
+                }
+                try {
+                    const tname = req.body.tname || 'Not specified';
+                    debug(
+                        'Going to create invoice template for InvOrg=%s name=%s',
+                        req.iorg._id,
+                        tname
+                    );
+                    // create default invoice template for newly created invoicing org
+                    const it = await libInvoice.createTemplateInvoice(req.iorg._id, tname);
+                    debug('Invoice template created id=%O', it);
+                    r.result = 'ok';
+                    r.tmpl = it;
+                } catch (err) {
+                    r.error = {};
+                    r.error.message = err.message;
+                    logERR('rt-invorg POST err=%s', err.message);
+                }
+
+                break;
             default:
                 debug('cmd=unknown');
                 break;
@@ -245,7 +269,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
     res.end();
 });
 
-router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const debug = debugLib.extend('post/');
     debug('/invorg - post body=%O', req.body);
 
@@ -268,7 +292,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     r.result = 'ok';
                 }
                 // create default invoice template for newly created invoicing org
-                await libInvoice.createTemplateInvoice(i.id);
+                await libInvoice.createTemplateInvoice(i.id, 'Default');
             } catch (err) {
                 r.error = {};
                 r.error.message = err.message;

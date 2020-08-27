@@ -6,7 +6,7 @@ viewInvOrg.filterPaidStatus = 'A';
 viewInvOrg.filterInvType = 'A';
 viewInvOrg.filterInvYear = new Date().getFullYear().toString();
 
-viewInvOrg.init = function(invOrgId, u) {
+viewInvOrg.init = function (invOrgId, u) {
     console.log('Initializing Invoicing Org');
     viewInvOrg.user = JSON.parse(u);
     moment.locale(viewInvOrg.user.locales.substr(0, 2));
@@ -15,8 +15,8 @@ viewInvOrg.init = function(invOrgId, u) {
         source: [
             { value: 1, text: 'Dni splatnosti' },
             { value: 2, text: 'Dátum splatnosti' },
-            { value: 3, text: 'min(dni,dátum)' }
-        ]
+            { value: 3, text: 'min(dni,dátum)' },
+        ],
     });
 
     $('.editable').editable();
@@ -30,58 +30,90 @@ viewInvOrg.init = function(invOrgId, u) {
     viewInvOrg.loadInvoices(invOrgId);
     viewInvOrg.loadTemplates(invOrgId);
 
-    $('#filterPaidStatus').on('change', function(ev) {
+    $('#filterPaidStatus').on('change', function (ev) {
         viewInvOrg.filterPaidStatus = ev.target.value;
         console.log(viewInvOrg.filterPaidStatus);
         viewInvOrg.loadInvoices(invOrgId);
     });
 
-    $('#filterInvType').on('change', function(ev) {
+    $('#filterInvType').on('change', function (ev) {
         viewInvOrg.filterInvType = ev.target.value;
         console.log(viewInvOrg.filterInvType);
         viewInvOrg.loadInvoices(invOrgId);
     });
 
-    $('#filterInvYear').on('change', function(ev) {
+    $('#filterInvYear').on('change', function (ev) {
         viewInvOrg.filterInvYear = ev.target.value;
         console.log(viewInvOrg.filterInvYear);
         viewInvOrg.loadInvoices(invOrgId);
     });
 
-    $('#addManager').on('click', function(ev) {
+    $('#addInvTemplate').on('click', function (ev) {
+        libModals.editValue(
+            'Vytvor šablónu faktúry',
+            'Názov šablóny',
+            'názov šablóny',
+            'text',
+            '',
+            function (browserEvent, tname, onSuccess, onError) {
+                if (typeof onSuccess !== 'function')
+                    onSuccess = function (u) {
+                        return true;
+                    };
+                if (typeof onError !== 'function')
+                    onError = function (msg) {
+                        console.log('ERROR: ', msg);
+                    };
+
+                libInvOrg.createInvTemplate(invOrgId, tname, function (res, err) {
+                    if (err) return onError(err.message);
+                    onSuccess(res);
+                });
+            },
+            function (res) {
+                console.log('new invoice template created');
+                viewInvOrg.loadTemplates(invOrgId);
+            },
+            function (msg) {
+                alert('Chyba pri vytváraní šablóny faktúry.\n\n' + msg);
+            }
+        );
+    });
+
+    $('#addManager').on('click', function (ev) {
         libModals.editValue(
             'Pridaj manažéra',
             'Používateľ',
             'prihlasovacie meno používateľa',
             'text',
             '',
-            function(browserEvent, username, onSuccess, onError) {
+            function (browserEvent, username, onSuccess, onError) {
                 if (typeof onSuccess !== 'function')
-                    onSuccess = function(u) {
+                    onSuccess = function (u) {
                         return true;
                     };
                 if (typeof onError !== 'function')
-                    onError = function(msg) {
+                    onError = function (msg) {
                         console.log('ERROR: ', msg);
                     };
 
-                libInvOrg.addManager(invOrgId, username, function(res, err) {
+                libInvOrg.createInvTemplate(invOrgId, username, function (res, err) {
                     if (err) return onError(err.message);
                     onSuccess(res);
                 });
             },
-            function(res) {
+            function (res) {
                 console.log('new invorg manager added');
                 viewInvOrg.loadManagers(invOrgId);
             },
-            function(msg) {
+            function (msg) {
                 alert('Chyba pri pridávaní manažéra organizácie.\n\n' + msg);
             }
         );
     });
 };
 
-viewInvOrg.loadInvoices = function(invOrgId) {
+viewInvOrg.loadInvoices = function (invOrgId) {
     var site =
         location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
     console.log('Loading invoices');
@@ -95,7 +127,7 @@ viewInvOrg.loadInvoices = function(invOrgId) {
 
     q += '&year=' + viewInvOrg.filterInvYear;
 
-    $.get(libCommon.getNoCache('/invoice?cmd=getList' + q), function(res) {
+    $.get(libCommon.getNoCache('/invoice?cmd=getList' + q), function (res) {
         console.log('Server returned invoices', res);
         if (res.result === 'ok') {
             console.log('List of', res.list.length, 'records');
@@ -111,7 +143,7 @@ viewInvOrg.loadInvoices = function(invOrgId) {
                     .append($('<th>').append('Zaplatená'));
                 t.append(c);
 
-                res.list.forEach(function(item) {
+                res.list.forEach(function (item) {
                     c = $('<tr>')
                         .append(
                             $('<td>').append(
@@ -158,7 +190,7 @@ viewInvOrg.loadInvoices = function(invOrgId) {
                     t.append(c);
                 });
                 $('#allInvoices>tr:odd').addClass('bg-info');
-                libInvoice.initInvoiceButtons(function() {
+                libInvoice.initInvoiceButtons(function () {
                     viewInvOrg.loadInvoices(invOrgId);
                 });
             } else {
@@ -170,7 +202,7 @@ viewInvOrg.loadInvoices = function(invOrgId) {
     });
 };
 
-viewInvOrg.loadTemplates = function(invOrgId) {
+viewInvOrg.loadTemplates = function (invOrgId) {
     var site =
         location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
     console.log('Loading invoice templates');
@@ -178,21 +210,26 @@ viewInvOrg.loadTemplates = function(invOrgId) {
     var ti = $('#InvTemplates>*'); // all children of specified element
     var q = '&invOrg=' + invOrgId + '&type=T';
 
-    $.get(libCommon.getNoCache('/invoice?cmd=getList' + q), function(res) {
-        console.log('Server returned invoices', res);
+    $.get(libCommon.getNoCache('/invoice?cmd=getList' + q), function (res) {
+        console.log('Server returned templates', res);
         if (res.result === 'ok') {
             console.log('List of', res.list.length, 'records');
             ti.remove();
             if (res.list.length > 0) {
                 console.log('Found ', res.list.length, 'records');
 
-                res.list.forEach(function(item) {
-                    var c = $('<tr>').append(
-                        $('<td>').append(
-                            $('<a href="/invoice/' + item._id + '">').append(item.number)
-                        )
+                res.list.forEach(function (item) {
+                    var c = $('<div>').append(
+                        $(
+                            '<span id="rem+' + item._id + '" class="glyphicon glyphicon-remove"/>'
+                        ).on('click', function (ev) {
+                            console.log('Removing template', item._id);
+                            libInvoice.remove(item._id, function () {
+                                viewInvOrg.loadTemplates(invOrgId);
+                            });
+                        }),
+                        $('<a href="/invoice/' + item._id + '">').append('  ' + item.number)
                     );
-
                     t.append(c);
                 });
             } else {
@@ -204,19 +241,19 @@ viewInvOrg.loadTemplates = function(invOrgId) {
     });
 };
 
-viewInvOrg.loadManagers = function(iorgId) {
+viewInvOrg.loadManagers = function (iorgId) {
     var site =
         location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
     console.log('Loading invorg managers');
     var t = $('#iomsList');
     t.empty();
-    $.get('/invorg/' + iorgId + '?cmd=getManagers', function(res) {
+    $.get('/invorg/' + iorgId + '?cmd=getManagers', function (res) {
         console.log('Server returned managers', res);
         if (res.result === 'ok') {
             t.empty();
             if (res.list.length > 0) {
                 console.log('Found ', res.list.length, 'records');
-                res.list.forEach(function(item) {
+                res.list.forEach(function (item) {
                     if (item.fullName) {
                         var c = $(
                             '<a href="' +
