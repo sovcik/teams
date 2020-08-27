@@ -24,7 +24,7 @@ const Team = mongoose.models.Team;
 
 module.exports = router;
 
-router.param('id', async function(req, res, next) {
+router.param('id', async function (req, res, next) {
     const debug = debugLib.extend('param');
     const invoiceId = req.params.id;
     let inv;
@@ -34,7 +34,7 @@ router.param('id', async function(req, res, next) {
         reqq.user = {
             isAdmin: false,
             isInvoicingManager: false,
-            locales: libFmt.defaultLocales
+            locales: libFmt.defaultLocales,
         };
 
     try {
@@ -65,7 +65,7 @@ router.param('id', async function(req, res, next) {
     }
 });
 
-router.get('/', async function(req, res, next) {
+router.get('/', async function (req, res, next) {
     const debug = debugLib.extend('get/');
     debug('/invoice/ - get');
 
@@ -74,7 +74,7 @@ router.get('/', async function(req, res, next) {
     next();
 });
 
-router.get('/:id', async function(req, res, next) {
+router.get('/:id', async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
 
@@ -95,12 +95,12 @@ router.get('/:id', async function(req, res, next) {
                 req.invoice.number +
                 ' (' +
                 (!req.invoice.team ? '---' : req.invoice.team.name) +
-                ')'
+                ')',
         });
     }
 });
 
-router.get('/:id/view', async function(req, res, next) {
+router.get('/:id/view', async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
 
@@ -120,12 +120,12 @@ router.get('/:id/view', async function(req, res, next) {
                 req.invoice.number +
                 ' (' +
                 (!req.invoice.team ? '---' : req.invoice.team.name) +
-                ')'
+                ')',
         });
     }
 });
 
-router.get('/:id/edit', async function(req, res, next) {
+router.get('/:id/edit', async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
 
@@ -145,12 +145,12 @@ router.get('/:id/edit', async function(req, res, next) {
                 req.invoice.number +
                 ' (' +
                 (!req.invoice.team ? '---' : req.invoice.team.name) +
-                ')'
+                ')',
         });
     }
 });
 
-router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     const teamId = req.query.teamId;
     const invType = req.query.type;
@@ -160,7 +160,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     const userId = req.user.id;
 
     const debug = debugLib.extend('get+cmd/');
-    debug('/invoice/ID/edit - get+CMD');
+    debug('/invoice/ - get+CMD');
     debug('%O', req.query);
 
     const r = { result: 'error', status: 200, error: {} };
@@ -183,7 +183,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                 if (invYear)
                     q.issuedOn = {
                         $gte: invYear + '-01-01T00:00:00',
-                        $lte: invYear + '-12-31T23:59:59'
+                        $lte: invYear + '-12-31T23:59:59',
                     };
 
                 if (!p.isAdmin && !p.isInvoicingOrgManager)
@@ -198,6 +198,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                     {
                         team: true,
                         number: true,
+                        name: true,
                         type: true,
                         issuedOn: true,
                         dueOn: true,
@@ -207,13 +208,13 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
                         billAdr: true,
                         total: true,
                         currency: true,
-                        isDraft: true
+                        isDraft: true,
                     },
                     {
                         sort: {
                             issuedOn: -1,
-                            number: -1
-                        }
+                            number: -1,
+                        },
                     }
                 );
                 r.result = 'ok';
@@ -234,7 +235,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     res.end();
 });
 
-router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
     let team;
 
@@ -267,7 +268,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
     res.end();
 });
 
-router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.body.cmd;
 
     const debug = debugLib.extend('post/');
@@ -326,7 +327,7 @@ router.post('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     res.end();
 });
 
-router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const debug = debugLib.extend('post/id/fields');
     debug('/invoice/:ID/fields - post');
     debug('%O', req.body);
@@ -375,7 +376,7 @@ router.post('/:id/fields', cel.ensureLoggedIn('/login'), async function(req, res
     res.end();
 });
 
-router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const invType = req.body.type;
 
@@ -549,7 +550,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                     let maxLineNo = parseInt(req.body.itemNo ? req.body.itemNo : 0);
                     if (maxLineNo == 0) {
                         req.invoice.items.forEach(
-                            i => (maxLineNo = maxLineNo < i.itemNo ? i.itemNo : maxLineNo)
+                            (i) => (maxLineNo = maxLineNo < i.itemNo ? i.itemNo : maxLineNo)
                         );
                         maxLineNo++;
                     }
@@ -559,7 +560,7 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next)
                         text: req.body.text,
                         unit: req.body.unit ? req.body.unit : '',
                         qty: qty,
-                        unitPrice: value
+                        unitPrice: value,
                     };
                     if (req.body.note) itm.note = req.body.note;
 

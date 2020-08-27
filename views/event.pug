@@ -32,10 +32,6 @@ block content
                     if event.address.addrLine3
                         =", " + event.address.addrLine3
                     h4 #{event.address.postCode}, #{event.address.city}
-            if user.isAdmin || user.isEventOrganizer
-                h5
-                h5 Fakturujúca organizácia
-                h5 #{event.invoicingOrg.org.name}, #{event.invoicingOrg.adr.city}
 
             if user && (user.isAdmin || user.isEventOrganizer)
                 div(class='form-group')
@@ -75,6 +71,16 @@ block content
             div(class='panel-heading') Doplňujúce inštrukcie
             div(class='panel-body')
                 p #{event.instructions}
+
+    if user.isAdmin || user.isEventOrganizer
+        div(class="panel panel-primary")
+            div(class='panel-heading') Fakturujúca organizácia
+            div(class='panel-body')
+                h5 #{event.invoicingOrg.org.name}, #{event.invoicingOrg.adr.city}
+                input(type='hidden' id='invOrgId' value=event.invoicingOrg._id )
+                br
+                h5 Šablóna faktúry
+                a(id='invoiceTemplate' data-name='invoiceTemplate' data-mode='inline' data-type='select' data-value=event.invoiceTemplate&&event.invoiceTemplate._id data-pk=event._id data-url='/event/' + event._id + '/fields' class='form-control' href='#') #{event.invoiceTemplate&&event.invoiceTemplate.number}
 
     div(class="panel panel-primary")
         div(class='panel-heading') Organizátori
