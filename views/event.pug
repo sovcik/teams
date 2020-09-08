@@ -41,7 +41,6 @@ block content
 
     div(class="panel-footer")
             if user.isAdmin || user.isEventOrganizer || user.isProgramManager
-                button(id='addOrganizer' type='button' class='btn btn-default') Pridaj organizátora
                 button(id='exportData' type="button" class="btn btn-default") Export dát
 
     div(id='modalDlgs')
@@ -72,6 +71,36 @@ block content
             div(class='panel-body')
                 p #{event.instructions}
 
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Prihlásené tímy
+        div(class='panel-body')
+            div(id="allTeams")
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Organizátori
+        div(class='panel-body')
+            div(id='eorgsList' class='container-fluid')
+        div(class="panel-footer")
+            if user.isAdmin || user.isEventOrganizer || user.isProgramManager
+                button(id='addOrganizer' type='button' class='btn btn-default') Pridaj organizátora
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Porotcovia
+        div(class='panel-body')
+            div(id='judgeList' class='container-fluid')
+        div(class="panel-footer")
+            if user.isAdmin || user.isEventOrganizer || user.isProgramManager
+                button(id='addJudge' type='button' class='btn btn-default') Pridaj porotcu
+
+    div(class="panel panel-primary")
+        div(class='panel-heading') Rozhodcovia
+        div(class='panel-body')
+            div(id='refereeList' class='container-fluid')
+        div(class="panel-footer")
+            if user.isAdmin || user.isEventOrganizer || user.isProgramManager
+                button(id='addReferee' type='button' class='btn btn-default') Pridaj rozhodcu
+
     if user.isAdmin || user.isEventOrganizer
         div(class="panel panel-primary")
             div(class='panel-heading') Fakturujúca organizácia
@@ -82,15 +111,6 @@ block content
                 h5 Šablóna faktúry
                 a(id='invoiceTemplate' data-name='invoiceTemplate' data-mode='inline' data-type='select' data-value=event.invoiceTemplate&&event.invoiceTemplate._id data-pk=event._id data-url='/event/' + event._id + '/fields' class='form-control' href='#') #{event.invoiceTemplate&&event.invoiceTemplate.number}
 
-    div(class="panel panel-primary")
-        div(class='panel-heading') Organizátori
-        div(class='panel-body')
-            div(id='eorgsList' class='container-fluid')
-
-    div(class="panel panel-primary")
-        div(class='panel-heading') Prihlásené tímy
-        div(class='panel-body')
-            div(id="allTeams")
 
     script.
         var u = '{ "locales": "#{user.locales ? user.locales : fmt.defaultLocales}" ,'

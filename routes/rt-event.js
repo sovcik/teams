@@ -125,7 +125,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                     r.result = 'ok';
                 }
                 break;
-            case 'getOrganizers':
+            case 'getManagers':
                 {
                     debug('Going to get list of event organizers');
                     let e = await User.populate(req.event, {
@@ -136,6 +136,29 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                     r.result = 'ok';
                 }
                 break;
+            case 'getJudges':
+                {
+                    debug('Going to get list of event judges');
+                    let e = await User.populate(req.event, {
+                        path: 'judges',
+                        select: { fullName: 1 },
+                    });
+                    r.list = e.judges;
+                    r.result = 'ok';
+                }
+                break;
+            case 'getReferees':
+                {
+                    debug('Going to get list of event referees');
+                    let e = await User.populate(req.event, {
+                        path: 'referees',
+                        select: { fullName: 1 },
+                    });
+                    r.list = e.referees;
+                    r.result = 'ok';
+                }
+                break;
+
             case 'export':
                 if (!req.user.isAdmin && !req.user.isEventOrganizer) {
                     r.error = { message: 'permission denied' };
@@ -241,6 +264,8 @@ router.get(
                             throw new Error('Team not found');
                         }
                     }
+                    break;
+                case 'isJudge':
                     break;
                 default:
                     if (cmd) debug('cmd=unknown');
@@ -490,34 +515,54 @@ router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next
                     r.teamEvent = te;
                 }
                 break;
-            case 'addOrganizer':
+            case 'addRole':
                 {
-                    debug('Going to add organizer for an event');
+                    const _username = req.body.username;
+                    const _role = req.body.role;
+
+                    debug("Going to add user '%s' to role '%s'for an event", _username, _role);
 
                     if (
                         !req.user.isAdmin &&
                         !req.user.isEventOrganizer &&
                         !req.user.isProgramManager
                     ) {
-                        logWARN('addOrganizer: Permission denied for user=%s', req.user.username);
+                        logWARN('addRole: Permission denied for user=%s', req.user.username);
                         r.error = { message: 'permission denied' };
                         break;
                     }
 
-                    let u = await User.findOneActive({ username: req.body.username });
-                    if (!u) throw new Error('User not found ' + req.body.username);
+                    let u = await User.findOneActive({
+                        $or: [{ username: _username }, { email: _username }],
+                    });
+                    if (!u) throw new Error('User not found ' + _username);
+
+                    let rq;
+                    switch (_role) {
+                        case 'manager':
+                            rq = { managers: u._id };
+                            break;
+                        case 'judge':
+                            rq = { judges: u._id };
+                            break;
+                        case 'referee':
+                            rq = { referees: u._id };
+                            break;
+                        default:
+                            throw new Error('Role not found ' + _role);
+                    }
 
                     try {
                         let e = await Event.findOneAndUpdate(
                             { _id: req.event._id },
-                            { $addToSet: { managers: u._id } }
+                            { $addToSet: rq }
                         );
                         if (!e) throw new Error('Failed to update event=' + req.event._id);
 
                         r.result = 'ok';
                         r.event = e;
                     } catch (err) {
-                        logERR('POST Failed to save event organizer. err=%s', err.message);
+                        logERR('POST Failed to update event role. err=%s', err.message);
                     }
                 }
                 break;

@@ -8,7 +8,11 @@ viewEvent.init = function (evId, u) {
     console.log('locales=', viewEvent.user.locales);
 
     viewEvent.loadRegisteredTeams(evId);
-    viewEvent.loadOrganizers(evId);
+
+    viewEvent.loadRoles(evId, 'managers');
+    viewEvent.loadRoles(evId, 'judges');
+    viewEvent.loadRoles(evId, 'referees');
+
     var ioid = $('#invOrgId').val();
     viewEvent.loadInvoiceTemplates(evId, ioid);
 
@@ -69,17 +73,73 @@ viewEvent.init = function (evId, u) {
                         console.log('ERROR: ', msg);
                     };
 
-                libEvent.addOrganizer(evId, username, function (res, err) {
+                libEvent.addRole(evId, username, 'manager', function (res, err) {
                     if (err) return onError(err.message);
                     onSuccess(res);
                 });
             },
             function (res) {
                 console.log('event organizer added');
-                viewEvent.loadOrganizers(evId);
+                viewEvent.loadRoles(evId, 'managers');
             },
             function (msg) {
                 alert('Chyba pri pridávaní organizátora.\n\n' + msg);
+            }
+        );
+    });
+
+    $('#addJudge').on('click', function (ev) {
+        libModals.selectUserDialog(
+            'Pridaj porotcu',
+            function (browserEvent, username, onSuccess, onError) {
+                if (typeof onSuccess !== 'function')
+                    onSuccess = function (u) {
+                        return true;
+                    };
+                if (typeof onError !== 'function')
+                    onError = function (msg) {
+                        console.log('ERROR: ', msg);
+                    };
+
+                libEvent.addRole(evId, username, 'judge', function (res, err) {
+                    if (err) return onError(err.message);
+                    onSuccess(res);
+                });
+            },
+            function (res) {
+                console.log('event judge added');
+                viewEvent.loadRoles(evId, 'judges');
+            },
+            function (msg) {
+                alert('Chyba pri pridávaní porotcu.\n\n' + msg);
+            }
+        );
+    });
+
+    $('#addReferee').on('click', function (ev) {
+        libModals.selectUserDialog(
+            'Pridaj rozhodcu',
+            function (browserEvent, username, onSuccess, onError) {
+                if (typeof onSuccess !== 'function')
+                    onSuccess = function (u) {
+                        return true;
+                    };
+                if (typeof onError !== 'function')
+                    onError = function (msg) {
+                        console.log('ERROR: ', msg);
+                    };
+
+                libEvent.addRole(evId, username, 'referee', function (res, err) {
+                    if (err) return onError(err.message);
+                    onSuccess(res);
+                });
+            },
+            function (res) {
+                console.log('event referee added');
+                viewEvent.loadRoles(evId, 'referees');
+            },
+            function (msg) {
+                alert('Chyba pri pridávaní rozhodcu.\n\n' + msg);
             }
         );
     });
@@ -253,14 +313,29 @@ viewEvent.assignTeamNumber = function (teamEventId, teamNum, cb) {
     });
 };
 
-viewEvent.loadOrganizers = function (resId) {
+viewEvent.loadRoles = function (resId, role) {
     var site =
         location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
-    console.log('Loading event organizers');
-    var t = $('#eorgsList');
+    console.log('Loading event role', role);
+    var t;
+    var cmd;
+    switch (role) {
+        case 'managers':
+            t = $('#eorgsList');
+            cmd = 'getManagers';
+            break;
+        case 'referees':
+            t = $('#refereeList');
+            cmd = 'getReferees';
+            break;
+        case 'judges':
+            t = $('#judgeList');
+            cmd = 'getJudges';
+            break;
+    }
     t.empty();
-    $.get(libCommon.getNoCache('/event/' + resId + '?cmd=getOrganizers'), function (res) {
-        console.log('Server returned organizers', res);
+    $.get(libCommon.getNoCache('/event/' + resId + '?cmd=' + cmd), function (res) {
+        console.log('Server returned role', role, res);
         if (res.result === 'ok') {
             console.log('List of', res.list.length, 'records');
             t.empty();
@@ -280,7 +355,7 @@ viewEvent.loadOrganizers = function (resId) {
                     }
                 });
             } else {
-                t.text('Žiadni organizátori');
+                t.text('Žiadni');
             }
         } else {
             console.log('Server returned ERROR');
