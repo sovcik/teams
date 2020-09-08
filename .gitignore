@@ -65,3 +65,5 @@ typings/
 # Folder containing files for runnig instance
 run
 public/javascripts/fe.js
+
+dist/*
