@@ -199,9 +199,6 @@ router.get(
     '/',
     /*cel.ensureLoggedIn('/login'), */ async function (req, res, next) {
         const cmd = req.query.cmd;
-        const progId = req.query.program;
-        const evtOrgId = req.query.eo;
-        const onlyActive = req.query.active;
 
         let debug = debugLib.extend('get/cmd');
         debug('/event - get (CMD)');
@@ -218,16 +215,25 @@ router.get(
             switch (cmd) {
                 case 'getList':
                     {
-                        debug('Going to get list of events');
+                        debug('Going to get list of events query=%O', req.query);
+                        const progId = req.query.program;
+                        const evtOrgId = req.query.eo;
+                        const onlyActive = req.query.active;
+                        const judgeId = req.query.judge;
+                        const refereeId = req.query.referee;
+
                         let q = { recordStatus: 'active' };
                         if (progId) q.programId = progId;
                         if (evtOrgId) q.managers = evtOrgId;
+                        if (judgeId) q.judges = judgeId;
+                        if (refereeId) q.referees = refereeId;
                         if (onlyActive == 1) {
                             q.recordStatus = 'active';
                             if (!r.isAdmin)
                                 // admin will see all events - even past ones
-                                q.$or = [{ regEndDate: null }, { regEndDate: { $gte: today } }]; // start-date not specified or greater then today
+                                q.$or = [{ endDate: null }, { endDate: { $gte: today } }]; // start-date not specified or greater then today
                         }
+                        debug('Query %O', q);
                         const p = await Event.find(q, {
                             id: 1,
                             name: 1,
@@ -237,9 +243,7 @@ router.get(
                         });
                         r.result = 'ok';
                         r.list = p;
-                        r.list.sort(function (a, b) {
-                            return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
-                        });
+                        debug('Result %O', p);
                     }
                     break;
 

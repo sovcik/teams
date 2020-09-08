@@ -2,61 +2,61 @@
 
 var viewProfile = {};
 
-viewProfile.init = function(profId, u) {
+viewProfile.init = function (profId, u) {
     console.log('/profile - Initializing');
     viewProfile.user = JSON.parse(u);
     var profileId = getResourceId(location.href);
 
-    $('.createTeamBtn').on('click', function(ev) {
+    $('.createTeamBtn').on('click', function (ev) {
         viewProfile.createNewTeam(this.id.substr(3));
     });
 
-    $('.changePwdBtn').on('click', function(ev) {
+    $('.changePwdBtn').on('click', function (ev) {
         viewProfile.changePassword(this.id.substr(3));
     });
 
-    $('#btnMakeAdmin').on('click', function(ev) {
-        libProfile.setAdmin(true, profileId, function(res, err) {
+    $('#btnMakeAdmin').on('click', function (ev) {
+        libProfile.setAdmin(true, profileId, function (res, err) {
             if (err) alert('Nepodarilo sa označiť admina.\n\n' + err.message);
             else location.reload();
         });
     });
 
-    $('#btnSuspAdmin').on('click', function(ev) {
-        libProfile.setAdmin(false, profileId, function(res, err) {
+    $('#btnSuspAdmin').on('click', function (ev) {
+        libProfile.setAdmin(false, profileId, function (res, err) {
             if (err) alert('Nepodarilo sa zrušiť admina.\n\n' + err.message);
             else location.reload();
         });
     });
 
-    $('#btnSuspendProfile').on('click', function(ev) {
-        libProfile.setActive(false, profileId, function(res, err) {
+    $('#btnSuspendProfile').on('click', function (ev) {
+        libProfile.setActive(false, profileId, function (res, err) {
             if (err) alert('Nepodarilo sa suspendovať profil.\n\n' + err.message);
             else location.reload();
         });
     });
 
-    $('#btnActivateProfile').on('click', function(ev) {
-        libProfile.setActive(true, profileId, function(res, err) {
+    $('#btnActivateProfile').on('click', function (ev) {
+        libProfile.setActive(true, profileId, function (res, err) {
             if (err) alert('Nepodarilo sa aktivovať profil.\n\n' + err.message);
             else location.reload();
         });
     });
 
-    $('#btnEditProfile').on('click', function(event) {
+    $('#btnEditProfile').on('click', function (event) {
         var fields = [
             { id: 'username', label: 'Prihlasovacie meno', type: 'text', required: 1 },
             { id: 'fullName', label: 'Celé meno', type: 'text', required: 1 },
             { id: 'email', label: 'e-mail', type: 'email', required: 1 },
-            { id: 'phone', label: 'Telefón', type: 'text', placeholder: 'telefónne číslo' }
+            { id: 'phone', label: 'Telefón', type: 'text', placeholder: 'telefónne číslo' },
         ];
 
-        viewProfile.loadProfileFields(profileId, fields, function(res, err) {
+        viewProfile.loadProfileFields(profileId, fields, function (res, err) {
             libModals.multiFieldDialog(
                 'Profil užívateľa',
                 '',
                 res,
-                function(flds, cb) {
+                function (flds, cb) {
                     viewProfile.saveProfileFields(flds, profileId, cb);
                 },
                 function cb(res, err) {
@@ -76,13 +76,13 @@ viewProfile.init = function(profId, u) {
     // load list of programs available for newly created team
     //libCommon.loadList($('#newTeamProgram'),"/program?cmd=getList");
     viewProfile.loadMyPrograms(profileId);
-    viewProfile.loadMyEvents(profileId);
+    viewProfile.loadEventLists(profileId);
     viewProfile.loadMyOrgs(profileId);
 
     console.log('/profile - Initializing completed');
 };
 
-viewProfile.saveProfileFields = function(fields, profileId, cb) {
+viewProfile.saveProfileFields = function (fields, profileId, cb) {
     console.log('Saving profile fields');
     if (typeof cb !== 'function') cb = libCommon.noop();
 
@@ -98,10 +98,10 @@ viewProfile.saveProfileFields = function(fields, profileId, cb) {
         dataType: 'json',
         data: {
             cmd: 'saveFields',
-            data: JSON.stringify(doc)
-        }
+            data: JSON.stringify(doc),
+        },
     })
-        .done(function(res) {
+        .done(function (res) {
             console.log('saveProfileFields: Server returned', res);
             if (res.result == 'ok') {
                 console.log('Fields saved');
@@ -111,16 +111,16 @@ viewProfile.saveProfileFields = function(fields, profileId, cb) {
                 cb(res, { message: 'Zadané údaje sa nepodarilo uložiť.\n' + res.error.message });
             }
         })
-        .fail(function(err) {
+        .fail(function (err) {
             console.log('Save failed', err);
             cb(null, { message: 'Zadané údaje sa nepodarilo uložiť.\n' + err.message });
         });
 };
 
-viewProfile.loadProfileFields = function(profileId, fields, cb) {
+viewProfile.loadProfileFields = function (profileId, fields, cb) {
     console.log('Loading profile fields');
     $.get(libCommon.getNoCache('/profile/' + profileId + '?cmd=getFields'))
-        .done(function(res) {
+        .done(function (res) {
             console.log('loadProfileFields: Server returned', res);
             if (res.result == 'ok') {
                 for (var i = 0; i < fields.length; i++) {
@@ -133,25 +133,25 @@ viewProfile.loadProfileFields = function(profileId, fields, cb) {
                 console.log('Error while loading fields');
             }
         })
-        .fail(function(err) {
+        .fail(function (err) {
             console.log('Load failed', err);
         });
 };
 
-viewProfile.loadCoachOfTeams = function() {
+viewProfile.loadCoachOfTeams = function () {
     var site =
         location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
     var coachId = getResourceId(location.href);
     console.log('Loading coach teams. Coach = ', coachId);
     var t = $('#coachTeamsList');
     t.empty();
-    $.get(libCommon.getNoCache('/profile/' + coachId + '?cmd=getCoachTeams'), function(res) {
+    $.get(libCommon.getNoCache('/profile/' + coachId + '?cmd=getCoachTeams'), function (res) {
         console.log('Server returned teams', res);
         if (res.result === 'ok') {
             t.empty();
             if (res.list.length > 0) {
                 console.log('Found ', res.list.length, 'records');
-                res.list.forEach(function(item) {
+                res.list.forEach(function (item) {
                     var c = $(
                         '<a href="' +
                             site +
@@ -171,13 +171,13 @@ viewProfile.loadCoachOfTeams = function() {
     });
 };
 
-viewProfile.loadMemberOfTeams = function() {
+viewProfile.loadMemberOfTeams = function () {
     var site =
         location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
     console.log("Loading user's teams is not implemented yet");
 };
 
-viewProfile.loadMyOrgs = function() {
+viewProfile.loadMyOrgs = function () {
     var profileId = getResourceId(location.href);
     var selDiv = $('#myOrgs');
     var selList = $('#myOrgsData');
@@ -185,17 +185,17 @@ viewProfile.loadMyOrgs = function() {
         // profile is not of program manager
         return;
     console.log('Loading organizations profile manages');
-    $.get(libCommon.getNoCache('/invorg?cmd=getList&iom=' + profileId), function(res) {
+    $.get(libCommon.getNoCache('/invorg?cmd=getList&iom=' + profileId), function (res) {
         console.log('Server returned my orgs', res);
         if (res.result === 'ok') {
             // sort programs by name
-            res.list.sort(function(a, b) {
+            res.list.sort(function (a, b) {
                 return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
             });
             selList.empty();
             if (res.list.length > 0) {
                 console.log('Found ', res.list.length, 'records');
-                res.list.forEach(function(item) {
+                res.list.forEach(function (item) {
                     var c = $(
                         '<a href="/invorg/' + item._id + '" class="list-group-item" >'
                     ).append(item.name);
@@ -211,24 +211,24 @@ viewProfile.loadMyOrgs = function() {
     });
 };
 
-viewProfile.loadMyPrograms = function() {
+viewProfile.loadMyPrograms = function () {
     var profileId = getResourceId(location.href);
     var selProg = $('#myPrograms');
     if (null === document.getElementById('myPrograms'))
         // profile is not of program manager
         return;
     console.log('Loading programs profile manages');
-    $.get(libCommon.getNoCache('/program?cmd=getList&pm=' + profileId), function(res) {
+    $.get(libCommon.getNoCache('/program?cmd=getList&pm=' + profileId), function (res) {
         console.log('Server returned my programs', res);
         if (res.result === 'ok') {
             // sort programs by name
-            res.list.sort(function(a, b) {
+            res.list.sort(function (a, b) {
                 return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
             });
             selProg.empty();
             if (res.list.length > 0) {
                 console.log('Found ', res.list.length, 'records');
-                res.list.forEach(function(item) {
+                res.list.forEach(function (item) {
                     var c = $(
                         '<a href="/program/' + item._id + '" class="list-group-item" >'
                     ).append(item.name);
@@ -243,31 +243,34 @@ viewProfile.loadMyPrograms = function() {
     });
 };
 
-viewProfile.loadMyEvents = function() {
-    var profileId = getResourceId(location.href);
-    var selProg = $('#myEvents');
-    if (null === document.getElementById('myEvents'))
-        // profile is not of program manager
-        return;
+viewProfile.loadEventLists = function (userId) {
+    viewProfile.loadMyEvents(userId);
+    viewProfile.loadEventsJudge(userId);
+    viewProfile.loadEventsReferee(userId);
+};
+
+viewProfile.loadMyEvents = function (userId) {
+    var t = $('#eventsManager');
+    if (t === null) return;
     console.log('Loading events profile manages');
-    $.get(libCommon.getNoCache('/event?cmd=getList&eo=' + profileId), function(res) {
+    $.get(libCommon.getNoCache('/event?cmd=getList&eo=' + userId), function (res) {
         console.log('Server returned my events', res);
         if (res.result === 'ok') {
             // sort programs by name
-            res.list.sort(function(a, b) {
+            res.list.sort(function (a, b) {
                 return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
             });
-            selProg.empty();
+            t.empty();
             if (res.list.length > 0) {
                 console.log('Found ', res.list.length, 'records');
-                res.list.forEach(function(item) {
+                res.list.forEach(function (item) {
                     var c = $('<a href="/event/' + item._id + '" class="list-group-item" >').append(
                         item.name
                     );
-                    selProg.append(c);
+                    t.append(c);
                 });
             } else {
-                selProg.text('Žiadne stretnutia/turnaje');
+                t.text('Žiadne stretnutia/turnaje');
             }
         } else {
             console.log('Server returned ERROR');
@@ -275,7 +278,63 @@ viewProfile.loadMyEvents = function() {
     });
 };
 
-viewProfile.createNewTeam = function(coachId) {
+viewProfile.loadEventsJudge = function (userId) {
+    var t = $('#eventsJudge');
+    if (t === null) return;
+    console.log('Loading events user judges');
+    $.get(libCommon.getNoCache('/event?cmd=getList&judge=' + userId), function (res) {
+        console.log('Server returned judge events', res);
+        if (res.result === 'ok') {
+            res.list.sort(function (a, b) {
+                return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
+            });
+            t.empty();
+            if (res.list.length > 0) {
+                console.log('Found ', res.list.length, 'records');
+                res.list.forEach(function (item) {
+                    var c = $('<a href="/event/' + item._id + '" class="list-group-item" >').append(
+                        item.name
+                    );
+                    t.append(c);
+                });
+            } else {
+                t.text('Žiadne stretnutia/turnaje');
+            }
+        } else {
+            console.log('Server returned ERROR');
+        }
+    });
+};
+
+viewProfile.loadEventsReferee = function (userId) {
+    var t = $('#eventsReferee');
+    if (t === null) return;
+    console.log('Loading events user is referee');
+    $.get(libCommon.getNoCache('/event?cmd=getList&referee=' + userId), function (res) {
+        console.log('Server returned referee events', res);
+        if (res.result === 'ok') {
+            res.list.sort(function (a, b) {
+                return a.name > b.name ? 1 : b.name > a.name ? -1 : 0;
+            });
+            t.empty();
+            if (res.list.length > 0) {
+                console.log('Found ', res.list.length, 'records');
+                res.list.forEach(function (item) {
+                    var c = $('<a href="/event/' + item._id + '" class="list-group-item" >').append(
+                        item.name
+                    );
+                    t.append(c);
+                });
+            } else {
+                t.text('Žiadne stretnutia/turnaje');
+            }
+        } else {
+            console.log('Server returned ERROR');
+        }
+    });
+};
+
+viewProfile.createNewTeam = function (coachId) {
     //var coachId = getResourceId(location.href);
     var selTeamNameGrp = $('#newTeamName');
     var selTeamName = $('#newTeamName > input:first');
@@ -283,7 +342,9 @@ viewProfile.createNewTeam = function(coachId) {
     var selStatus = $('#teamCreateStatus');
     if (selTeamName.val().trim() != '' && selTeamName.val().trim().length >= 5) {
         console.log('Posting request to create new team');
-        $.post('/team/', { cmd: 'create', name: selTeamName.val(), coach: coachId }, function(res) {
+        $.post('/team/', { cmd: 'create', name: selTeamName.val(), coach: coachId }, function (
+            res
+        ) {
             console.log('createTeam: Server returned', res);
             if (res.result == 'ok') {
                 console.log('Team created');
@@ -298,7 +359,7 @@ viewProfile.createNewTeam = function(coachId) {
                 selTeamNameGrp.addClass('has-error');
                 selTeamNameGrp.find('span').addClass('glyphicon-warning-sign');
             }
-        }).fail(function() {
+        }).fail(function () {
             console.log('Team creation failed');
             alert('Nepodarilo sa vytvoriť tím.');
         });
@@ -307,7 +368,7 @@ viewProfile.createNewTeam = function(coachId) {
     }
 };
 
-viewProfile.changePassword = function(userId) {
+viewProfile.changePassword = function (userId) {
     var selDialog = $('#changePasswordModal');
     var selOldPwd = $('#oldPwd');
     var selNewPwd = $('#newPwd');
@@ -328,7 +389,7 @@ viewProfile.changePassword = function(userId) {
     $.post(
         '/profile/' + userId,
         { cmd: 'changePassword', oldPwd: selOldPwd.val(), newPwd: selNewPwd.val() },
-        function(res) {
+        function (res) {
             console.log('changePassword: Server returned', res);
             if (res.result == 'ok') {
                 console.log('Password changed');
@@ -343,7 +404,7 @@ viewProfile.changePassword = function(userId) {
                 selStatus.css('display', 'inline').fadeOut(10000);
             }
         }
-    ).fail(function() {
+    ).fail(function () {
         selStatus.text('Nepodarilo sa zmeniť heslo.');
         selStatus.css('display', 'inline').fadeOut(10000);
         console.log('Password change failed');

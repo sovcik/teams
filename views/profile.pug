@@ -114,11 +114,16 @@ block content
             div(class='panel-body container-fluid')
                 ul(id="myPrograms" class="list-group")
 
-    if profile.isEventOrganizer && (user && (user.id == profile.id) || user.isAdmin)
+    if (user && (user.id == profile.id) || user.isAdmin)
         div(class="panel panel-primary")
-            div(class='panel-heading') Stretnutia/Turnaje, ktoré organizujem
+            div(class='panel-heading') Moje stretnutia/turnaje
             div(class='panel-body container-fluid')
-                ul(id="myEvents" class="list-group")
+                <p>Ktoré organizujem</p>
+                ul(id="eventsManager" class="list-group")
+                <p>Kde som porotca</p>
+                ul(id="eventsJudge" class="list-group")
+                <p>Kde som rozhodca</p>
+                ul(id="eventsReferee" class="list-group")
 
     if (user && (user.id == profile.id) || user.isAdmin)
         div(id="myOrgs" class="panel panel-primary collapse")
