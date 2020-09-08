@@ -191,6 +191,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next)
                     fullName: 1,
                     email: 1,
                     phone: 1,
+                    dpaAccepted: 1,
                 });
                 r.result = 'ok';
                 r.fields = u;
