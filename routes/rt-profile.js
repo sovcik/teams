@@ -28,7 +28,7 @@ const libUser = require('../lib/user');
 
 module.exports = router;
 
-router.param('id', async function(req, res, next) {
+router.param('id', async function (req, res, next) {
     const debug = debugLib.extend('param');
     const id = req.params.id;
     let u;
@@ -47,7 +47,7 @@ router.param('id', async function(req, res, next) {
     }
 });
 
-router.get('/', async function(req, res, next) {
+router.get('/', async function (req, res, next) {
     const cmd = req.query.cmd;
 
     const debug = debugLib.extend('public get/');
@@ -65,7 +65,7 @@ router.get('/', async function(req, res, next) {
     next();
 });
 
-router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const cmd = req.query.cmd;
 
     const debug = debugLib.extend('get/');
@@ -78,16 +78,23 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
             debug('Going to get list of users');
             try {
                 let opts = {
-                    username: true,
-                    fullName: true,
-                    email: true,
-                    isAdmin: true,
-                    isSuperAdmin: true
+                    username: 1,
+                    fullName: 1,
+                    email: 1,
+                    isAdmin: 1,
+                    isSuperAdmin: 1,
                 };
-                const u = await User.findActive({ username: { $exists: true } });
+                const u = await User.find(
+                    { username: { $exists: true }, recordStatus: 'active' },
+                    opts,
+                    {
+                        lean: true,
+                    }
+                );
                 if (u) {
                     r.result = 'ok';
                     r.list = u;
+                    debug('Returning list of users %O', r);
                 } else {
                     logWARN('Failed to fetch list of users.');
                 }
@@ -103,7 +110,7 @@ router.get('/', cel.ensureLoggedIn('/login'), async function(req, res, next) {
     res.end();
 });
 
-router.get('/:id', async function(req, res, next) {
+router.get('/:id', async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
 
@@ -133,7 +140,7 @@ router.get('/:id', async function(req, res, next) {
     if (nextRouter) next();
 });
 
-router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const siteUrl = req.protocol + '://' + req.get('host');
     const cmd = req.query.cmd;
 
@@ -167,7 +174,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
     }
 });
 
-router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.get('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const userId = req.params.id;
     const cmd = req.query.cmd;
 
@@ -183,7 +190,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
                     username: 1,
                     fullName: 1,
                     email: 1,
-                    phone: 1
+                    phone: 1,
                 });
                 r.result = 'ok';
                 r.fields = u;
@@ -211,7 +218,7 @@ router.get('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) 
     res.end();
 });
 
-router.post('/', async function(req, res, next) {
+router.post('/', async function (req, res, next) {
     var cmd = req.body.cmd;
     const siteUrl = req.protocol + '://' + req.get('host');
     var nextRouter = true;
@@ -234,8 +241,8 @@ router.post('/', async function(req, res, next) {
                         type: 'rstpwd',
                         user: {
                             username: u.username,
-                            email: u.email
-                        }
+                            email: u.email,
+                        },
                     });
 
                     email.sendPwdResetCode(u, ot, siteUrl);
@@ -248,8 +255,8 @@ router.post('/', async function(req, res, next) {
                     link: {
                         description: 'Pre pokračovanie kliknite na',
                         url: '/login',
-                        text: 'tento link'
-                    }
+                        text: 'tento link',
+                    },
                 });
             } catch (err) {
                 logWARN('Failed to request password reset err=%s', err.message);
@@ -259,7 +266,7 @@ router.post('/', async function(req, res, next) {
     if (nextRouter) next();
 });
 
-router.post('/:id', async function(req, res, next) {
+router.post('/:id', async function (req, res, next) {
     const debug = debugLib.extend('public post/id');
     debug('/profile/:id - PUBLIC post body=%O', req.body);
 
@@ -292,8 +299,8 @@ router.post('/:id', async function(req, res, next) {
                     link: {
                         description: 'Pre pokračovanie kliknite na',
                         url: '/login',
-                        text: 'tento link'
-                    }
+                        text: 'tento link',
+                    },
                 });
                 nextRouter = false;
             } catch (err) {
@@ -305,7 +312,7 @@ router.post('/:id', async function(req, res, next) {
     if (nextRouter) next();
 });
 
-router.post('/:id', cel.ensureLoggedIn('/login'), async function(req, res, next) {
+router.post('/:id', cel.ensureLoggedIn('/login'), async function (req, res, next) {
     const debug = debugLib.extend('post/id');
     debug('/profile/:id - post body=%O', req.body);
 

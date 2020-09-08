@@ -26,13 +26,15 @@ const dbSeed = require('./lib/db/seed.js');
 const auth = require('./lib/auth.js');
 const dbUpgrade = require('./lib/db/upgrade');
 const app = express();
+const cors = require('cors');
+
 module.exports = app;
 
 db.init()
     .then(dbUpgrade.upgrade)
     .then(dbSeed.testSeed)
     .then(startAll)
-    .catch(function(err) {
+    .catch(function (err) {
         logERR('Application failed to start: %s', err.message);
     });
 
@@ -41,6 +43,7 @@ function startAll(res) {
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'pug');
 
+    app.use(cors({ origin: true, credentials: true })); // handling CORS for API requests
     app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
     app.use(logger('tiny'));
     app.use(bodyParser.json());
@@ -49,7 +52,7 @@ function startAll(res) {
     app.use(express.static(path.join(__dirname, 'public')));
 
     // connect authentication to database
-    auth.connect2DB(db.conn.model('User'), auth.passport);
+    auth.connect2DB();
 
     // configure nodejs session management
     app.use(
