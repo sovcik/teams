@@ -1,6 +1,6 @@
 {
     "name": "teams",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "private": true,
     "scripts": {
         "start": "npm run build:fe && node ./bin/www",
