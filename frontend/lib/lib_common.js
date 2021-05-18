@@ -81,6 +81,18 @@ libCommon.Prog2CSV = function (data, sep, locales, incEml) {
         sep +
         'coach.email' +
         sep +
+        'coach2.name' +
+        sep +
+        'coach2.email' +
+        sep +
+        'coach3.name' +
+        sep +
+        'coach3.email' +
+        sep +
+        'coach4.name' +
+        sep +
+        'coach4.email' +
+        sep +
         'team.org.name' +
         sep +
         'team.org.address' +
@@ -165,8 +177,14 @@ libCommon.Prog2CSV = function (data, sep, locales, incEml) {
         line += sep + t.name;
         line += sep + new Date(t.event.registeredOn).toLocaleDateString(locales);
 
-        line += sep + t.coaches[0].fullName;
-        line += sep + t.coaches[0].email;
+        for (var j = 0; j < 4; j++) {
+            if (j < t.coaches.length) {
+                line += sep + t.coaches[j].fullName;
+                line += sep + t.coaches[j].email;
+            } else {
+                line += sep + sep;
+            }
+        }
 
         if (t.foundingOrg) line += sep + t.foundingOrg.name;
         else line += sep + '';
