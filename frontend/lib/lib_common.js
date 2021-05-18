@@ -189,7 +189,7 @@ libCommon.Prog2CSV = function (data, sep, locales, incEml) {
             if (j < t.coaches.length) {
                 line += sep + t.coaches[j].fullName;
                 line += sep + t.coaches[j].email;
-                line += sep + t.coaches[j].phone;
+                line += sep + (t.coaches[j].phone ? t.coaches[j].phone : '');
             } else {
                 line += sep + sep + sep;
             }
