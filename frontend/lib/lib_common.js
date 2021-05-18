@@ -81,17 +81,25 @@ libCommon.Prog2CSV = function (data, sep, locales, incEml) {
         sep +
         'coach.email' +
         sep +
+        'coach.phone' +
+        sep +
         'coach2.name' +
         sep +
         'coach2.email' +
+        sep +
+        'coach2.phone' +
         sep +
         'coach3.name' +
         sep +
         'coach3.email' +
         sep +
+        'coach3.phone' +
+        sep +
         'coach4.name' +
         sep +
         'coach4.email' +
+        sep +
+        'coach4.phone' +
         sep +
         'team.org.name' +
         sep +
@@ -181,8 +189,9 @@ libCommon.Prog2CSV = function (data, sep, locales, incEml) {
             if (j < t.coaches.length) {
                 line += sep + t.coaches[j].fullName;
                 line += sep + t.coaches[j].email;
+                line += sep + t.coaches[j].phone;
             } else {
-                line += sep + sep;
+                line += sep + sep + sep;
             }
         }
 
